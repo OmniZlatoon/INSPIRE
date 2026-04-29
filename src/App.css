@@ -1,0 +1,167 @@
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Inter:wght@300;400;500;600&family=Roboto:wght@300;400;500;700;900&display=swap');
+
+/* =============================================
+   DESIGN TOKENS
+   ============================================= */
+:root {
+  --white: #ffffff;
+  --text-primary: #161718;
+  /* Google deep dark */
+  --text-secondary: #5f6368;
+  /* Google medium grey */
+  --text-muted: #9aa0a6;
+  /* Google light grey */
+  --border-subtle: #e8eaed;
+  /* Google hairline border */
+  --accent-blue: #00e5ff;
+  --accent-green: #34c759;
+  --blob-blue: rgba(0, 229, 255, 0.55);
+  --blob-green: rgba(52, 199, 89, 0.45);
+}
+
+/* =============================================
+   GLOBAL BASE
+   ============================================= */
+html,
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background-color: var(--white);
+  color: var(--text-primary);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* =============================================
+   LOGO FONT
+   ============================================= */
+.logo-font {
+  font-family: 'Dancing Script', cursive;
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: var(--text-primary);
+  letter-spacing: -0.5px;
+  line-height: 1;
+  cursor: default;
+  user-select: none;
+}
+
+/* =============================================
+   BLOB ANIMATION
+   ============================================= */
+@keyframes blob-morph {
+
+  0%,
+  100% {
+    border-radius: 55% 45% 35% 65% / 65% 35% 65% 35%;
+  }
+
+  25% {
+    border-radius: 35% 65% 55% 45% / 45% 55% 45% 55%;
+  }
+
+  50% {
+    border-radius: 45% 55% 65% 35% / 35% 65% 35% 65%;
+  }
+
+  75% {
+    border-radius: 65% 35% 45% 55% / 55% 45% 55% 45%;
+  }
+}
+
+.liquid-blob {
+  background: radial-gradient(ellipse at 40% 40%, var(--blob-blue), var(--blob-green));
+  animation: blob-morph 10s ease-in-out infinite;
+  filter: blur(1px);
+}
+
+/* =============================================
+   CAROUSEL CONTROLS
+   ============================================= */
+.carousel-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  background: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  color: #161718;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.carousel-arrow:hover {
+  background: rgba(255, 255, 255, 0.8);
+  transform: translateY(-50%) scale(1.05);
+}
+
+.carousel-arrow:active {
+  transform: translateY(-50%) scale(0.95);
+}
+
+/* =============================================
+   BUTTONS
+   ============================================= */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 100;
+  color: #ffffff;
+  background-color: var(--text-primary);
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  letter-spacing: 0.01em;
+  transition: background-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+  white-space: nowrap;
+}
+
+.btn-primary:hover {
+  background-color: #3c4043;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+/* =============================================
+   ARROW ICON NUDGE ON HOVER
+   ============================================= */
+.btn-primary .arrow-icon {
+  transition: transform 0.2s ease;
+}
+
+.btn-primary:hover .arrow-icon {
+  transform: translateX(4px);
+}
+
+/* =============================================
+   RESPONSIVE BREAKPOINTS
+   ============================================= */
+@media (max-width: 768px) {
+  .logo-font {
+    font-size: 1.6rem;
+  }
+
+  .btn-primary {
+    padding: 10px 18px;
+    font-size: 0.875rem;
+    border-radius: 30px;
+  }
+}
