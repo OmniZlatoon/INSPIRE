@@ -1,0 +1,41 @@
+@import url('https://fonts.googleapis.com/css2?family=Pacifico&family=Roboto:wght@300;400;500;700&display=swap');
+@import "tailwindcss";
+
+@theme inline {
+  --color-primary: #4285F4;
+  --color-danger: #EA4335;
+  --color-warning: #FBBC05;
+  --color-success: #34A853;
+  --color-bg-light: #f8f9fa;
+  
+  --font-roboto: "Roboto", sans-serif;
+  --font-pacifico: "Pacifico", cursive;
+}
+
+:root {
+  --background: #f8f9fa;
+  --foreground: #202124;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: "Roboto", sans-serif;
+}
+
+.material-card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);
+  padding: 1.5rem;
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+.material-card:hover {
+  box-shadow: 0 1px 3px 0 rgba(60,64,67,0.3), 0 4px 8px 3px rgba(60,64,67,0.15);
+}
+
+.logo-text {
+  font-family: "Pacifico", cursive;
+  color: #4285F4;
+}
