@@ -15,7 +15,7 @@ COMMAND=$1
 case $COMMAND in
     "dev")
         echo "Starting all services in development mode..."
-        npx concurrently "npm run dev -w apps/frontend" "npm run dev -w services/*"
+        npx concurrently "npm run dev -w apps/frontend" "npm run dev -w apps/admin" "npm run dev -w backend/*"
         ;;
     "build")
         echo "Building all modules..."
