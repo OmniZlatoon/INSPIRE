@@ -1,12 +1,5 @@
 const admin = require("firebase-admin");
-
-// Initialize with environment variables for better security
-const serviceAccount = {
-    projectId: process.env.FIREBASE_PROJECT_ID,
-    clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-    // Replace the escaped \n with actual newlines
-    privateKey: process.env.FIREBASE_PRIVATE_KEY ? process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n') : undefined,
-};
+const serviceAccount = require("./firebaseConfig.json");
 
 let auth;
 try {
