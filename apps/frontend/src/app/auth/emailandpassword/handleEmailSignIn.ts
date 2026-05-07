@@ -1,20 +1,30 @@
-import { Auth, signInWithEmailAndPassword, UserCredential } from 'firebase/auth';
-
 /**
- * Handles email and password sign-in using Firebase Authentication.
+ * Handles email and password authentication by calling the backend API.
  * 
- * @param auth - The Firebase Auth instance.
  * @param email - The user's email address.
  * @param password - The user's password.
- * @returns A promise that resolves to the UserCredential on success.
+ * @param action - 'signin' or 'signup'.
+ * @returns A promise that resolves to the backend response.
  */
-export const handleEmailSignIn = async (auth: Auth, email: string, password: string): Promise<UserCredential> => {
+export const handleEmailAuth = async (email: string, password: string, action: 'signin' | 'signup'): Promise<any> => {
     try {
-        const result = await signInWithEmailAndPassword(auth, email, password);
-        console.log('Email sign-in successful:', result.user);
-        return result;
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+        const response = await fetch(`${apiUrl}/api/inspire/${action}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || `${action} failed`);
+        }
+
+        console.log(`${action} request successful:`, data);
+        return data;
     } catch (error: any) {
-        console.error('Email Sign-in Error:', error);
+        console.error(`${action} Error:`, error);
         throw error;
     }
 };

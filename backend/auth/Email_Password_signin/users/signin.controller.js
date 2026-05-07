@@ -1,38 +1,38 @@
-const { generateAndSendOTP } = require('../OTP/generateOTP');
+const { generateandSendOTP } = require('../OTP/generateOTP');
 const admin = require("firebase-admin");
 
-// login endpoint to handle user login
+// login endpoint to handle user login (Email-only + OTP)
 exports.signin = async (req, res) => {
     try {
-        const { email, password } = req.body;
+        const { email } = req.body;
 
-        if (!email || !password) {
-            return res.status(400).json({ message: 'Email and password are required' });
+        if (!email) {
+            return res.status(400).json({ message: 'Email is required' });
         }
 
         // 1. Verify user exists in Firebase
-        const userRecord = await admin.auth().getUserByEmail(email).catch(error => {
-            if (error.code === 'auth/user-not-found') return null;
+        let userRecord;
+        try {
+            userRecord = await admin.auth().getUserByEmail(email);
+        } catch (error) {
+            if (error.code === 'auth/user-not-found') {
+                return res.status(404).json({ message: 'User not found. Please create an account.' });
+            }
             throw error;
-        });
-
-        if (!userRecord) {
-            return res.status(404).json({ message: 'User not found' });
         }
 
-        // Note: Password verification normally happens via Firebase Client SDK or REST API.
-        // For now, we proceed to OTP generation as requested.
+        console.log(`✅ User verified: ${email}. Sending OTP.`);
 
         // 2. Generate and Send OTP
-        await generateAndSendOTP(email, res);
+        await generateandSendOTP(email, res);
 
-        // Ensure only one response is sent. 
-        // If generateAndSendOTP handles its own success response, this might need adjustment.
-        // My current version of generateAndSendOTP doesn't send a response, so we do it here.
-        res.status(200).json({ message: "OTP sent to your email for verification.", uid: userRecord.uid });
+        res.status(200).json({
+            message: "OTP sent to your email for verification.",
+            uid: userRecord.uid
+        });
 
     } catch (error) {
-        console.error('Error logging in:', error);
+        console.error('Error in signin:', error);
         if (!res.headersSent) {
             res.status(500).json({ message: 'Internal server error' });
         }

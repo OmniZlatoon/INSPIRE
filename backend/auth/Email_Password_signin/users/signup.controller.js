@@ -5,7 +5,7 @@ const { generateAndSendOTP } = require('../OTP/generateOTP');
 exports.signup = async (req, res) => {
     try {
         const { email, password } = req.body;
-        
+
         if (!email || !password) {
             return res.status(400).json({ message: 'Email and password are required' });
         }
@@ -28,12 +28,18 @@ exports.signup = async (req, res) => {
 
         console.log('User created successfully:', newUser.uid);
 
-        // 3. Optional: Send OTP for email verification immediately
-        await generateAndSendOTP(email, res);
+        // 3. Create user profile in Firestore
+        const userRef = admin.firestore().collection('users').doc(newUser.uid);
+        await userRef.set({
+            uid: newUser.uid,
+            email: email,
+            provider: 'email',
+            createdAt: admin.firestore.FieldValue.serverTimestamp()
+        });
 
-        res.status(201).json({ 
-            message: "User created successfully. OTP sent for verification.", 
-            uid: newUser.uid 
+        res.status(201).json({
+            message: "User created successfully. OTP sent for verification.",
+            uid: newUser.uid
         });
 
     } catch (error) {

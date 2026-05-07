@@ -1,6 +1,6 @@
 const transporter = require('./Transporter');
 
-const sendOTPEmail = async (email, otp) => {
+const SendOTPEmail = async (email, otp) => {
     const mailOptions = {
         from: `"Inspire App" <${process.env.EMAIL_USER}>`,
         to: email,
@@ -13,7 +13,7 @@ const sendOTPEmail = async (email, otp) => {
                 <div style="font-size: 24px; font-weight: bold; color: #34A853; padding: 10px; background: #f8f9fa; text-align: center; border-radius: 5px;">
                     ${otp}
                 </div>
-                <p>This code will expire in 5 minutes.</p>
+                <p>This code will expire in 1 minute.</p>
                 <p>If you didn't request this, please ignore this email.</p>
                 <hr style="border: none; border-top: 1px solid #eee;" />
                 <p style="font-size: 12px; color: #888;">&copy; 2026 Inspire Platform</p>
@@ -30,4 +30,4 @@ const sendOTPEmail = async (email, otp) => {
     }
 };
 
-module.exports = sendOTPEmail;
+module.exports = { SendOTPEmail };

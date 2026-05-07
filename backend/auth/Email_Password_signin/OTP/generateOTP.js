@@ -1,28 +1,38 @@
 const { generateOTP } = require("./OTP.script");
 const { hashOTP } = require("../HashOTP/hashing_otp");
-const sendOTPEmail = require('../NodeMailer/SendOTPEmail');
+const { SendOTPEmail } = require('../NodeMailer/SendOTPEmail');
 const redisClient = require('../RedisConfig/redis.setup');
 
-/**
- * Generates an OTP, hashes it, stores it in Redis, and sends it via email.
- */
-async function generateAndSendOTP(email, res) {
+
+
+// create a function to generate OTP and send to the user's Email
+async function generateandSendOTP(email, res) {
     try {
+
+        // Create the 6-character OTP
         const otp = generateOTP();
+
+        // hash OTP before sending to Redis
         const hashedOTP = await hashOTP(otp);
 
-        // Store in Redis with 60s expiration
-        await redisClient.set(email, hashedOTP, 'EX', 60);
+        // Store the hash OTP in Redis
+        await redisClient.set(email, hashedOTP, 'EX', 60); // Store OTP with a 60-second expiration
 
-        // Send Email
-        await sendOTPEmail(email, otp);
+        //delete the OTP after expiration ( to not use of space in the Redis DB)
+        setTimeout(async () => {
+            await redisClient.del(email);
+        }, 60000); // Delete OTP after 60 seconds (1 minute)
 
-        console.log(`✅ OTP generated and sent to ${email}`);
-        return true;
+
+        // Send the  original OTP to the user's email
+        await SendOTPEmail(email, otp);
+        console.log(`OTP generated for ${email}: ${otp}`);
+
     } catch (error) {
-        console.error('❌ Error in generateAndSendOTP:', error);
-        throw error;
+        console.error('Error logging in:', error);
+        res.status(500).json({ message: 'Internal server error' });
     }
-}
 
-module.exports = { generateAndSendOTP };
+};
+
+module.exports = { generateandSendOTP };

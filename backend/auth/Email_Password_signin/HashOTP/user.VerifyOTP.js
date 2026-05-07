@@ -1,5 +1,6 @@
 const redisClient = require('../RedisConfig/redis.setup');
 const {OTPverify} = require('./verifyHashedOTP');
+const { admin } = require('../../firebase/initialize_firebase');
 
 exports.verifyOTP = async (req, res) => {
     try {
@@ -26,9 +27,21 @@ exports.verifyOTP = async (req, res) => {
             return res.status(400).json({ message: ' [ERROR] - Invalid OTP' });
         }
        
+        // 3. Generate Firebase Custom Token
+        const userRecord = await admin.auth().getUserByEmail(email);
+        const customToken = await admin.auth().createCustomToken(userRecord.uid);
+
         // Delete the OTP from Redis after Verification
         await redisClient.del(email);
-        res.status(200).json({ message: '[INFO] - OTP verified successfully ✅  ' });
+
+        res.status(200).json({ 
+            message: '[INFO] - OTP verified successfully ✅',
+            customToken: customToken,
+            user: {
+                uid: userRecord.uid,
+                email: userRecord.email
+            }
+        });
         console.log(" Otp verified  ✅")
     } catch (error) {
         console.error('Error verifying OTP:', error);
