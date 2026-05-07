@@ -28,6 +28,8 @@ const validateGoogleToken = async (req, res, next) => {
 
         console.log("🔍 Attempting to verify token...");
         const decodedToken = await auth.verifyIdToken(idToken);
+        // logging the idToken 
+        console.log(`idToken: ${idToken}`);
         console.log("✅ Token verified successfully for UID:", decodedToken.uid);
 
         req.user = decodedToken;
@@ -43,6 +45,8 @@ const validateGoogleToken = async (req, res, next) => {
                 email: decodedToken.email,
                 displayName: decodedToken.name,
                 photoURL: decodedToken.picture,
+                provider: 'google',
+                createdAt: admin.firestore.FieldValue.serverTimestamp()
             });
         } else {
             console.log("👤 User already exists:", decodedToken.uid);
@@ -59,22 +63,40 @@ const validateGoogleToken = async (req, res, next) => {
         });
     } catch (error) {
         console.error("❌ Token verification failed");
-        console.error("Error code:", error.code);
-        console.error("Error message:", error.message);
-        console.error("Full error:", error);
+        console.log("🕒 Server Current Time:", new Date().toISOString());
 
-        // Check if this is a Google API auth error
-        if (error.message && error.message.includes("UNAUTHENTICATED")) {
-            console.error("⚠️  CRITICAL: Firebase Admin SDK credentials are invalid or revoked!");
-            console.error("⚠️  Check your firebaseConfig.json service account key");
+        // Attempt to manually decode the token for diagnostic purposes
+        try {
+            const parts = idToken.split('.');
+            if (parts.length === 3) {
+                const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString());
+                console.log("📝 Token Payload (Decoded):", {
+                    uid: payload.user_id || payload.sub,
+                    email: payload.email,
+                    iat: new Date(payload.iat * 1000).toISOString(),
+                    exp: new Date(payload.exp * 1000).toISOString(),
+                    aud: payload.aud,
+                    iss: payload.iss
+                });
+            }
+        } catch (decodeError) {
+            console.error("Failed to decode token for diagnostic:", decodeError.message);
+        }
+
+        console.error("Error Code:", error.code);
+
+        if (error.code === 16 || (error.message && error.message.includes("UNAUTHENTICATED"))) {
+            console.error("⚠️  CRITICAL: Firestore request was UNAUTHENTICATED.");
+            console.error("👉 Please ensure the Firestore API is enabled and your service account has 'Cloud Datastore User' permissions.");
             return res.status(500).json({
-                error: 'Server error: Firebase Admin credentials invalid',
-                detail: 'Service account authentication failed'
+                error: 'Server error: Firestore authentication failed',
+                detail: 'Service account has invalid credentials or missing IAM permissions.'
             });
         }
 
         return res.status(401).json({
             error: 'Unauthorized: Invalid or expired token',
+            code: error.code,
             detail: error.message
         });
     }

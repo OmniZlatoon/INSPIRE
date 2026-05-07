@@ -3,13 +3,13 @@ import { getAuth, GoogleAuthProvider, GithubAuthProvider } from "firebase/auth";
 import { getAnalytics } from "firebase/analytics";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAaLwaddvI9v93k4Bu9sH-hZiSAj2i-adY",
-  authDomain: "inspire-421a6.firebaseapp.com",
-  projectId: "inspire-421a6",
-  storageBucket: "inspire-421a6.firebasestorage.app",
-  messagingSenderId: "187931400350",
-  appId: "1:187931400350:web:b428fc49793abd7041838f",
-  measurementId: "G-YQKFF3TM2D"
+  apiKey: "AIzaSyAIvzANAgG8ptiUzDmDciibFCV9wPxxQv8",
+  authDomain: "inspire-978b2.firebaseapp.com",
+  projectId: "inspire-978b2",
+  storageBucket: "inspire-978b2.firebasestorage.app",
+  messagingSenderId: "153222818138",
+  appId: "1:153222818138:web:c1a4b871e07da97054eb63",
+  measurementId: "G-1H59BHRD70"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -17,12 +17,14 @@ const app = initializeApp(firebaseConfig);
 // Initialize Services
 export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
-export const githubProvider = new GithubAuthProvider();
+googleProvider.addScope('email');
+googleProvider.addScope('profile');
+
 
 // Analytics is only available in browser
 let analytics;
 if (typeof window !== "undefined") {
-    analytics = getAnalytics(app);
+  analytics = getAnalytics(app);
 }
 
 export { analytics };

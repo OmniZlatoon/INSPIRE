@@ -9,11 +9,20 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Connect to MongoDB
-connectDB();
+//connectDB();
 
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+
+// Allow CORS for all platforms 
+app.use(cors({
+    origin: ['https://subtarsal-kathyrn-untreated.ngrok-free.dev', 'http://localhost:3000', 'http://localhost:4000'], // Allow Next.js, Vite and CRA ports
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'ngrok-skip-browser-warning'],
+})
+);
 
 // Routes
 app.use('/api/inspire', authRoutes);
