@@ -114,6 +114,9 @@ const AuthenticationPage = () => {
         setView(view === 'signin' ? 'signup' : 'signin');
     };
 
+    const isGoogleUser = user?.providerData.some(p => p.providerId === 'google.com');
+    const isEmailUser = !!user && !isGoogleUser;
+
     return (
         <div className="min-h-screen flex items-center justify-center bg-bg-light p-4 overflow-hidden">
             <div className="material-card w-full max-w-md overflow-hidden bg-white p-8 md:p-10 flex flex-col justify-center relative transition-all duration-500">
@@ -124,7 +127,7 @@ const AuthenticationPage = () => {
                         Welcome to <span className="logo-text">Inspire</span>
                     </h1>
                     <p className="text-gray-500">
-                        {view === 'signup' ? 'Create your new account' : 'Please sign in to your account'}
+                        {isGoogleUser ? 'Connected via Google' : (isEmailUser ? 'Connected via Email' : (view === 'signup' ? 'Create your new account' : 'Please sign in to your account'))}
                     </p>
                 </div>
 
@@ -166,12 +169,12 @@ const AuthenticationPage = () => {
                                         className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition"
                                         placeholder="name@example.com"
                                         required
-                                        disabled={loading || isOtpVerified}
+                                        disabled={loading || isEmailUser || isGoogleUser}
                                     />
                                 </div>
 
                                 {/* Sliding Password Field for Signup */}
-                                <div className={`overflow-hidden transition-all duration-500 ease-in-out ${view === 'signup' || isOtpVerified ? 'max-h-24 opacity-100' : 'max-h-0 opacity-0'}`}>
+                                <div className={`overflow-hidden transition-all duration-500 ease-in-out ${view === 'signup' || isEmailUser ? 'max-h-24 opacity-100' : 'max-h-0 opacity-0'}`}>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
                                     <input
                                         type="password"
@@ -180,12 +183,12 @@ const AuthenticationPage = () => {
                                         className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition"
                                         placeholder="••••••••"
                                         required={view === 'signup'}
-                                        disabled={loading || isOtpVerified}
+                                        disabled={loading || isEmailUser || isGoogleUser}
                                     />
                                 </div>
                             </div>
 
-                            {view === 'signin' && !isOtpVerified && (
+                            {view === 'signin' && !isEmailUser && !isGoogleUser && (
                                 <div className="flex items-center justify-between py-2">
                                     <label className="flex items-center text-sm text-gray-600 cursor-pointer">
                                         <input type="checkbox" className="mr-2 rounded text-primary focus:ring-primary" />
@@ -196,14 +199,14 @@ const AuthenticationPage = () => {
                             )}
 
                             <button
-                                type={isOtpVerified ? "button" : "submit"}
-                                onClick={isOtpVerified ? onLogout : undefined}
-                                disabled={loading}
+                                type={isEmailUser ? "button" : "submit"}
+                                onClick={isEmailUser ? onLogout : undefined}
+                                disabled={loading || isGoogleUser}
                                 className={`w-full py-3 px-4 text-white font-bold rounded-lg transition duration-300 transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed
-                                    ${isOtpVerified ? 'bg-danger hover:bg-red-600' : 'bg-primary hover:bg-blue-600'}`}
+                                    ${isEmailUser ? 'bg-danger hover:bg-red-600' : 'bg-primary hover:bg-blue-600'}`}
                             >
                                 {loading ? 'Processing...' : (
-                                    isOtpVerified ? 'Log out' : (view === 'signup' ? 'Create account' : 'Sign In')
+                                    isEmailUser ? 'Log out' : (view === 'signup' ? 'Create account' : 'Sign In')
                                 )}
                             </button>
                         </form>
@@ -212,7 +215,7 @@ const AuthenticationPage = () => {
 
                 {/* Footer Section - Social Sign In */}
                 {view !== 'otp' && (
-                    <div className="mt-8 transition-all duration-500">
+                    <div className=" mt-[-20px] transition-all duration-500">
                         <div className="relative mb-8">
                             <div className="absolute inset-0 flex items-center">
                                 <div className="w-full border-t border-gray-200"></div>
@@ -222,29 +225,31 @@ const AuthenticationPage = () => {
                             </div>
                         </div>
 
-                        <div className={`flex justify-center transition-all duration-500 ${isOtpVerified ? 'blur-sm grayscale pointer-events-none' : ''}`}>
+                        <div className="flex justify-center transition-all duration-500">
                             <button
                                 onClick={user ? onLogout : onGoogleSignIn}
-                                disabled={loading || isOtpVerified}
+                                disabled={loading || isEmailUser}
                                 className="flex items-center justify-center w-full py-3 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-5 h-5 mr-3" />
                                 <span className="text-gray-700 font-medium text-sm">
-                                    {user ? 'Log out from Google' : 'Sign in with Google'}
+                                    {isGoogleUser ? 'Log out from Google' : 'Sign in with Google'}
                                 </span>
                             </button>
                         </div>
 
-                        <p className="mt-8 text-center text-sm text-gray-600">
-                            {view === 'signup' ? 'Already have an account?' : "Don't have an account?"} 
-                            <a 
-                                href="#" 
-                                onClick={toggleView}
-                                className="ml-1 text-primary hover:underline font-medium"
-                            >
-                                {view === 'signup' ? 'Sign In' : 'Create an account'}
-                            </a>
-                        </p>
+                        {!user && (
+                            <p className="mt-8 text-center text-sm text-gray-600">
+                                {view === 'signup' ? 'Already have an account?' : "Don't have an account?"}
+                                <a 
+                                    href="#" 
+                                    onClick={toggleView}
+                                    className="ml-1 text-primary hover:underline font-medium"
+                                >
+                                    {view === 'signup' ? 'Sign In' : 'Create an account'}
+                                </a>
+                            </p>
+                        )}
                     </div>
                 )}
             </div>
