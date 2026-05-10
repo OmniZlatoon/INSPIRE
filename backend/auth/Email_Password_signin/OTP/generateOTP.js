@@ -6,7 +6,7 @@ const redisClient = require('../RedisConfig/redis.setup');
 
 
 // create a function to generate OTP and send to the user's Email
-async function generateandSendOTP(email, res) {
+async function generateandSendOTP(email) {
     try {
 
         // Create the 6-character OTP
@@ -29,8 +29,8 @@ async function generateandSendOTP(email, res) {
         console.log(`OTP generated for ${email}: ${otp}`);
 
     } catch (error) {
-        console.error('Error logging in:', error);
-        res.status(500).json({ message: 'Internal server error' });
+        console.error('Error in generateandSendOTP:', error);
+        throw error;
     }
 
 };

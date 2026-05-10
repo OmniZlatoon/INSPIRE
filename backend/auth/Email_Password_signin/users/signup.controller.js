@@ -1,5 +1,5 @@
 const { admin } = require('../../firebase/initialize_firebase');
-const { generateAndSendOTP } = require('../OTP/generateOTP');
+
 
 // endpoint to handle user sign up
 exports.signup = async (req, res) => {

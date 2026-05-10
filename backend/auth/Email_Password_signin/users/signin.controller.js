@@ -1,5 +1,5 @@
 const { generateandSendOTP } = require('../OTP/generateOTP');
-const admin = require("firebase-admin");
+const { admin } = require('../../firebase/initialize_firebase');
 
 // login endpoint to handle user login (Email-only + OTP)
 exports.signin = async (req, res) => {
@@ -23,8 +23,8 @@ exports.signin = async (req, res) => {
 
         console.log(`✅ User verified: ${email}. Sending OTP.`);
 
-        // 2. Generate and Send OTP
-        await generateandSendOTP(email, res);
+        // 2. Generate and Send OTP (Utility should NOT send response)
+        await generateandSendOTP(email);
 
         res.status(200).json({
             message: "OTP sent to your email for verification.",
@@ -44,11 +44,13 @@ exports.resend = async (req, res) => {
         const { email } = req.body;
         if (!email) return res.status(400).json({ message: "Email is required" });
 
-        await generateAndSendOTP(email, res);
+        await generateandSendOTP(email);
         res.status(200).json({ message: "OTP resent successfully" });
     }
     catch (error) {
         console.error('Error resending OTP:', error);
-        res.status(500).json({ message: 'Internal server error' });
+        if (!res.headersSent) {
+            res.status(500).json({ message: 'Internal server error' });
+        }
     }
 };
