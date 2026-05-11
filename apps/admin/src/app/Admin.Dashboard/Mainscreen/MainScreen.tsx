@@ -132,7 +132,7 @@ export default function MainScreen() {
 
                         {/* Profile Section */}
                         <div className="relative">
-                            <div 
+                            <div
                                 className="flex items-center space-x-3 border-l border-gray-200 dark:border-gray-700 pl-6 cursor-pointer"
                                 onClick={toggleProfileMenu}
                             >

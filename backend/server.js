@@ -4,6 +4,8 @@ const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '../.env') });
 const connectDB = require('./database/MongoDB/config/db');
 const authRoutes = require('./auth/routes/auth.routes');
+const carrierRoutes = require('./auth/routes/carrier.routes');
+const statsRoutes = require('./auth/routes/stats.routes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -26,6 +28,8 @@ app.use(cors({
 
 // Routes
 app.use('/api/inspire', authRoutes);
+app.use('/api/inspire/carrier', carrierRoutes);
+app.use('/api/inspire/stats', statsRoutes);
 
 // Basic health check
 app.get('/health', (req, res) => {

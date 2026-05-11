@@ -53,8 +53,7 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased h-full bg-white dark:bg-[#121212] text-gray-900 dark:text-gray-100 transition-colors duration-300`}>
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
-          enableSystem
+          defaultTheme="dark"
           disableTransitionOnChange
         >
           {children}

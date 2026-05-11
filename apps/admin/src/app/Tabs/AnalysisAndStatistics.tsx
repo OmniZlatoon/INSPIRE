@@ -1,51 +1,230 @@
 'use client';
 
-import React from 'react';
-import { Users, Route, BookOpen, Book } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Users, Route, BookOpen, Book, MessageSquare, TrendingUp, RefreshCw, WifiOff } from 'lucide-react';
+import { OfflineMode } from '@/components/OfflineState';
+
+interface Stats {
+    totalUsers: number;
+    totalCarriers: number;
+    totalCourses: number;
+    totalBooks: number;
+    totalMessages: number;
+}
+
+interface MetricCard {
+    title: string;
+    key: keyof Stats;
+    icon: React.ReactNode;
+    accentColor: string;
+    bgColor: string;
+    darkBgColor: string;
+    description: string;
+}
+
+const metricCards: MetricCard[] = [
+    {
+        title: 'Total Users',
+        key: 'totalUsers',
+        icon: <Users size={18} />,
+        accentColor: 'text-blue-500',
+        bgColor: 'bg-blue-50',
+        darkBgColor: 'dark:bg-blue-900/15',
+        description: 'Registered accounts',
+    },
+    {
+        title: 'Carrier Paths',
+        key: 'totalCarriers',
+        icon: <Route size={18} />,
+        accentColor: 'text-emerald-500',
+        bgColor: 'bg-emerald-50',
+        darkBgColor: 'dark:bg-emerald-900/15',
+        description: 'Active routes',
+    },
+    {
+        title: 'Total Courses',
+        key: 'totalCourses',
+        icon: <BookOpen size={18} />,
+        accentColor: 'text-violet-500',
+        bgColor: 'bg-violet-50',
+        darkBgColor: 'dark:bg-violet-900/15',
+        description: 'Published courses',
+    },
+    {
+        title: 'Total Books',
+        key: 'totalBooks',
+        icon: <Book size={18} />,
+        accentColor: 'text-amber-500',
+        bgColor: 'bg-amber-50',
+        darkBgColor: 'dark:bg-amber-900/15',
+        description: 'Listed resources',
+    },
+    {
+        title: 'Total Messages',
+        key: 'totalMessages',
+        icon: <MessageSquare size={18} />,
+        accentColor: 'text-rose-500',
+        bgColor: 'bg-rose-50',
+        darkBgColor: 'dark:bg-rose-900/15',
+        description: 'User messages sent',
+    },
+];
+
+function formatNumber(n: number): string {
+    if (n >= 1_000_000) return (n / 1_000_000).toFixed(1) + 'M';
+    if (n >= 1_000) return (n / 1_000).toFixed(1) + 'K';
+    return n.toString();
+}
 
 export default function AnalysisAndStatistics() {
-    const metrics = [
-        { title: 'Total Users', value: '1,248', icon: <Users size={24} className="text-blue-500" /> },
-        { title: 'Total Carrier Path', value: '14', icon: <Route size={24} className="text-green-500" /> },
-        { title: 'Total Course', value: '56', icon: <BookOpen size={24} className="text-purple-500" /> },
-        { title: 'Total Books', value: '312', icon: <Book size={24} className="text-orange-500" /> },
-    ];
+    const [stats, setStats] = useState<Stats>({
+        totalUsers: 0,
+        totalCarriers: 0,
+        totalCourses: 0,
+        totalBooks: 0,
+        totalMessages: 0,
+    });
+    const [isLoading, setIsLoading] = useState(true);
+    const [isOffline, setIsOffline] = useState(false);
+    const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+
+    const BASE_URL = process.env.NEXT_PUBLIC_API_URL + '/api/inspire/stats' || 'http://localhost:5000/api/inspire/stats';
+
+    const fetchStats = async () => {
+        setIsLoading(true);
+        try {
+            const [usersRes, carriersRes] = await Promise.all([
+                fetch(`${BASE_URL}/users`),
+                fetch(`${BASE_URL}/carriers`),
+            ]);
+
+            const [usersData, carriersData] = await Promise.all([
+                usersRes.json(),
+                carriersRes.json(),
+            ]);
+
+            setStats(prev => ({
+                ...prev,
+                totalUsers: usersData.success ? usersData.data.totalUsers : prev.totalUsers,
+                totalCarriers: carriersData.success ? carriersData.data.totalCarriers : prev.totalCarriers,
+            }));
+            setLastUpdated(new Date());
+        } catch (error) {
+            console.error('Error fetching stats:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            setIsOffline(!navigator.onLine);
+        }
+
+        const handleOnline = () => { setIsOffline(false); fetchStats(); };
+        const handleOffline = () => setIsOffline(true);
+
+        window.addEventListener('online', handleOnline);
+        window.addEventListener('offline', handleOffline);
+
+        if (typeof navigator !== 'undefined' && navigator.onLine) {
+            fetchStats();
+        } else {
+            setIsLoading(false);
+        }
+
+        return () => {
+            window.removeEventListener('online', handleOnline);
+            window.removeEventListener('offline', handleOffline);
+        };
+    }, []);
 
     return (
         <div className="p-8 w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="mb-8">
-                <h2 className="text-2xl font-bold text-[#202124] dark:text-white">Analysis and Statistics</h2>
-                <p className="text-[#5f6368] dark:text-gray-400 mt-2">Overview of platform metrics and overall usage.</p>
-            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {metrics.map((metric, index) => (
-                    <div 
-                        key={index}
-                        className="bg-white dark:bg-[#1a1a1a] p-6 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-shadow duration-300 relative overflow-hidden group"
-                    >
-                        {/* Decorative Top Accent */}
-                        <div className="absolute top-0 left-0 w-full h-1 bg-gray-100 dark:bg-gray-800 group-hover:bg-primary transition-colors duration-300"></div>
-                        
-                        <div className="flex flex-col h-full">
-                            <div className="flex items-center justify-between mb-4">
-                                <div className="p-2 bg-gray-50 dark:bg-[#2d2d2d] rounded-lg">
-                                    {metric.icon}
-                                </div>
-                            </div>
-                            
-                            <div>
-                                <h3 className="text-[#5f6368] dark:text-gray-400 text-sm font-medium mb-1 uppercase tracking-wider">
-                                    {metric.title}
-                                </h3>
-                                <p className="text-3xl font-bold text-[#202124] dark:text-white">
-                                    {metric.value}
-                                </p>
-                            </div>
+
+            {/* Offline State */}
+            {isOffline ? (
+                OfflineMode()
+
+            ) : (
+                <>
+                    {/* Header */}
+                    <div className="flex items-start justify-between mb-8">
+                        <div>
+                            <h2 className="text-2xl font-bold text-[#202124] dark:text-white">Analysis & Statistics</h2>
+                            <p className="text-[#5f6368] dark:text-gray-400 mt-1 text-sm">
+                                Real-time overview of platform metrics and usage.
+                            </p>
+                        </div>
+                        <div className="flex items-center gap-3">
+                            {lastUpdated && !isLoading && (
+                                <span className="text-xs text-[#5f6368] dark:text-gray-500">
+                                    Updated {lastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                </span>
+                            )}
+                            <button
+                                onClick={fetchStats}
+                                disabled={isLoading || isOffline}
+                                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-200 dark:border-gray-700 text-[#5f6368] dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#2d2d2d] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                            >
+                                <RefreshCw size={13} className={isLoading ? 'animate-spin' : ''} />
+                                Refresh
+                            </button>
                         </div>
                     </div>
-                ))}
-            </div>
+                    {/* Metric Cards */}
+
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
+                        {metricCards.map((card) => (
+                            <div
+                                key={card.key}
+                                className="bg-white dark:bg-[#1a1a1a] rounded-xl border border-gray-100 dark:border-gray-800 p-4 hover:border-gray-200 dark:hover:border-gray-700 transition-all duration-200 group"
+                            >
+                                {/* Icon */}
+                                <div className={`inline-flex items-center justify-center w-8 h-8 rounded-lg ${card.bgColor} ${card.darkBgColor} ${card.accentColor} mb-3`}>
+                                    {card.icon}
+                                </div>
+
+                                {/* Value */}
+                                {isLoading ? (
+                                    <div className="h-7 w-16 bg-gray-100 dark:bg-gray-800 rounded animate-pulse mb-1" />
+                                ) : (
+                                    <p className="text-2xl font-bold text-[#202124] dark:text-white tracking-tight">
+                                        {formatNumber(stats[card.key])}
+                                    </p>
+                                )}
+
+                                {/* Title */}
+                                <p className="text-xs font-semibold text-[#202124] dark:text-gray-200 mt-0.5">
+                                    {card.title}
+                                </p>
+
+                                {/* Description */}
+                                <p className="text-[11px] text-[#5f6368] dark:text-gray-500 mt-0.5">
+                                    {card.description}
+                                </p>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Summary Bar */}
+                    <div className="bg-white dark:bg-[#1a1a1a] rounded-xl border border-gray-100 dark:border-gray-800 px-5 py-4 flex items-center gap-3">
+                        <div className="p-2 bg-blue-50 dark:bg-blue-900/15 rounded-lg">
+                            <TrendingUp size={16} className="text-blue-500" />
+                        </div>
+                        <div>
+                            <p className="text-sm font-semibold text-[#202124] dark:text-white">Platform at a glance</p>
+                            <p className="text-xs text-[#5f6368] dark:text-gray-400">
+                                {isLoading
+                                    ? 'Fetching latest data...'
+                                    : `${formatNumber(stats.totalUsers)} users · ${formatNumber(stats.totalCarriers)} carrier paths · ${formatNumber(stats.totalCourses)} courses · ${formatNumber(stats.totalBooks)} books · ${formatNumber(stats.totalMessages)} messages`
+                                }
+                            </p>
+                        </div>
+                    </div>
+                </>
+            )}
         </div>
     );
 }

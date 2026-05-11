@@ -11,98 +11,137 @@ import {
     Settings,
     Code,
     Menu,
-    ChevronLeft
+    X,
 } from 'lucide-react';
 
-export type TabKeys = 'analysis' | 'career' | 'course' | 'books' | 'leaderboard' | 'notifications' | 'settings' | 'developer';
+export type TabKeys =
+    | 'analysis'
+    | 'career'
+    | 'course'
+    | 'books'
+    | 'leaderboard'
+    | 'notifications'
+    | 'settings'
+    | 'developer';
 
 interface SideBarProps {
     isExpanded: boolean;
-    setIsExpanded: (expanded: boolean) => void;
+    setIsExpanded: (v: boolean) => void;
     activeTab: TabKeys;
     setActiveTab: (tab: TabKeys) => void;
 }
+
+interface NavItem {
+    id: TabKeys;
+    label: string;
+    Icon: React.ElementType;
+}
+
+const primaryNav: NavItem[] = [
+    { id: 'analysis',      label: 'Analysis',      Icon: FlaskConical },
+    { id: 'career',        label: 'Carrier Paths',  Icon: Route },
+    { id: 'course',        label: 'Courses',        Icon: BookOpen },
+    { id: 'books',         label: 'Books',          Icon: Book },
+    { id: 'leaderboard',   label: 'Leaderboard',    Icon: BarChart2 },
+    { id: 'notifications', label: 'Notifications',  Icon: Bell },
+];
+
+const systemNav: NavItem[] = [
+    { id: 'settings',  label: 'Settings',  Icon: Settings },
+    { id: 'developer', label: 'Developer', Icon: Code },
+];
 
 export const SideBar: React.FC<SideBarProps> = ({
     isExpanded,
     setIsExpanded,
     activeTab,
-    setActiveTab
+    setActiveTab,
 }) => {
-    const tabs = [
-        { id: 'analysis', label: 'Analysis and Statistics', icon: <FlaskConical size={20} /> },
-        { id: 'career', label: 'Career Path', icon: <Route size={20} /> },
-        { id: 'course', label: 'Course Overlook', icon: <BookOpen size={20} /> },
-        { id: 'books', label: 'Books', icon: <Book size={20} /> },
-        { id: 'leaderboard', label: 'Leaderboard', icon: <BarChart2 size={20} /> },
-        { id: 'notifications', label: 'Notifications', icon: <Bell size={20} /> },
-        { id: 'settings', label: 'Settings', icon: <Settings size={20} /> },
-        { id: 'developer', label: 'Developer Option', icon: <Code size={20} /> },
-    ];
+    const NavButton = ({ id, label, Icon }: NavItem) => {
+        const active = activeTab === id;
+        return (
+            <button
+                key={id}
+                onClick={() => setActiveTab(id)}
+                title={!isExpanded ? label : undefined}
+                className={`
+                    group w-full flex items-center rounded-lg transition-all duration-150
+                    ${isExpanded ? 'gap-3 px-3 py-2.5' : 'justify-center px-0 py-2.5'}
+                    ${active
+                        ? 'bg-[#e8f0fe] dark:bg-[#1a2744] text-[#1a73e8] dark:text-[#8ab4f8]'
+                        : 'text-[#5f6368] dark:text-[#9aa0a6] hover:bg-[#f1f3f4] dark:hover:bg-[#2a2a2a] hover:text-[#202124] dark:hover:text-white'
+                    }
+                `}
+            >
+                <Icon
+                    size={18}
+                    strokeWidth={active ? 2.2 : 1.8}
+                    className={`flex-shrink-0 ${active ? 'text-[#1a73e8] dark:text-[#8ab4f8]' : 'text-[#80868b] dark:text-[#9aa0a6]'}`}
+                />
+                {isExpanded && (
+                    <span className={`text-[15px] font-medium tracking-[-0.01em] truncate ${active ? 'text-[#1a73e8] dark:text-[#8ab4f8]' : 'text-[#3c4043] dark:text-[#e8eaed]'}`}>
+                        {label}
+                    </span>
+                )}
+            </button>
+        );
+    };
 
     return (
-        <aside
-            className={`
-        relative h-full bg-[#f1f3f4] dark:bg-[#1a1a1a] border-r border-gray-200 dark:border-gray-800
-        transition-all duration-300 ease-in-out flex flex-col overflow-hidden
-        ${isExpanded ? 'w-full' : 'w-full'} 
-      `}
-        >
-            {/* Header / Toggle */}
-            <div className={`flex items-center h-16 px-4 border-b border-gray-200 dark:border-gray-800 ${isExpanded ? 'justify-between' : 'justify-center'}`}>
-                <div className={`transition-opacity duration-300 ${isExpanded ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'}`}>
-                    <span className="font-bold text-[#202124] dark:text-white text-lg tracking-wide">Inspire</span>
-                </div>
+        <aside className="h-full w-full flex flex-col bg-white dark:bg-[#111111] border-r border-[#e8eaed] dark:border-[#2a2a2a] overflow-hidden transition-colors duration-300">
+
+            {/* ── Header: Hamburger ── */}
+            <div className={`flex items-center h-16 flex-shrink-0 border-b border-[#e8eaed] dark:border-[#2a2a2a] ${isExpanded ? 'px-3 gap-3' : 'justify-center px-0'}`}>
                 <button
                     onClick={() => setIsExpanded(!isExpanded)}
-                    className="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 text-[#5f6368] dark:text-gray-300 transition-colors"
-                    title={isExpanded ? 'Collapse Menu' : 'Expand Menu'}
+                    className="flex-shrink-0 p-2 rounded-full hover:bg-[#f1f3f4] dark:hover:bg-[#2a2a2a] text-[#5f6368] dark:text-[#9aa0a6] transition-colors"
+                    title={isExpanded ? 'Collapse' : 'Expand'}
                 >
-                    {isExpanded ? <ChevronLeft size={20} /> : <Menu size={20} />}
+                    {isExpanded ? <X size={17} /> : <Menu size={17} />}
                 </button>
+
+                {isExpanded && (
+                    <span className="text-[14px] font-semibold text-[#202124] dark:text-[#e8eaed] tracking-tight whitespace-nowrap select-none">
+                        Inspire Admin
+                    </span>
+                )}
             </div>
 
-            {/* Navigation Tabs */}
-            <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-2">
-                {tabs.map((tab) => {
-                    const isActive = activeTab === tab.id;
-                    return (
-                        <button
-                            key={tab.id}
-                            onClick={() => setActiveTab(tab.id as TabKeys)}
-                            className={`
-                w-full flex items-center p-3 rounded-xl transition-all duration-200 group
-                ${isActive
-                                    ? 'bg-[#202124] dark:bg-white text-white dark:text-[#202124] shadow-md'
-                                    : 'text-[#5f6368] dark:text-gray-400 hover:bg-white dark:hover:bg-[#2d2d2d] hover:text-[#202124] dark:hover:text-white'
-                                }
-                ${!isExpanded ? 'justify-center' : 'justify-start'}
-              `}
-                            title={tab.label}
-                        >
-                            <div className="flex-shrink-0">
-                                {tab.icon}
-                            </div>
-
-                            <span
-                                className={`
-                  font-medium whitespace-nowrap transition-all duration-300 ml-4
-                  ${isExpanded ? 'opacity-100 max-w-[200px]' : 'opacity-0 max-w-0 ml-0 overflow-hidden'}
-                `}
-                            >
-                                {tab.label}
-                            </span>
-                        </button>
-                    );
-                })}
+            {/* ── Primary Nav ── */}
+            <nav className="flex-1 overflow-y-auto overflow-x-hidden px-2 pt-4 pb-1 flex flex-col gap-1">
+                {isExpanded && (
+                    <p className="text-[11px] font-semibold uppercase tracking-widest text-[#80868b] dark:text-[#5f6368] px-3 mb-2 mt-1">
+                        Platform
+                    </p>
+                )}
+                {primaryNav.map((item) => (
+                    <NavButton key={item.id} {...item} />
+                ))}
             </nav>
 
-            {/* Footer Area of Sidebar (optional) */}
-            <div className="p-4 border-t border-gray-200 dark:border-gray-800">
-                <div className={`text-xs text-[#5f6368] text-center ${!isExpanded && 'hidden'}`}>
-                    Admin Portal v1.0
-                </div>
+            {/* ── Divider ── */}
+            <div className="mx-3 border-t border-[#e8eaed] dark:border-[#2a2a2a]" />
+
+            {/* ── System Nav ── */}
+            <div className="px-2 py-3 flex flex-col gap-1 flex-shrink-0">
+                {isExpanded && (
+                    <p className="text-[11px] font-semibold uppercase tracking-widest text-[#80868b] dark:text-[#5f6368] px-3 mb-2 mt-1">
+                        System
+                    </p>
+                )}
+                {systemNav.map((item) => (
+                    <NavButton key={item.id} {...item} />
+                ))}
             </div>
+
+            {/* ── Footer ── */}
+            {isExpanded && (
+                <div className="px-4 py-2.5 border-t border-[#e8eaed] dark:border-[#2a2a2a] flex-shrink-0">
+                    <p className="text-[10px] text-[#80868b] dark:text-[#5f6368]">
+                        Admin Portal · v1.0
+                    </p>
+                </div>
+            )}
         </aside>
     );
 };
