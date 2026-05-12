@@ -38,16 +38,16 @@ interface NavItem {
 }
 
 const primaryNav: NavItem[] = [
-    { id: 'analysis',      label: 'Analysis',      Icon: FlaskConical },
-    { id: 'career',        label: 'Carrier Paths',  Icon: Route },
-    { id: 'course',        label: 'Courses',        Icon: BookOpen },
-    { id: 'books',         label: 'Books',          Icon: Book },
-    { id: 'leaderboard',   label: 'Leaderboard',    Icon: BarChart2 },
-    { id: 'notifications', label: 'Notifications',  Icon: Bell },
+    { id: 'analysis', label: 'Analysis', Icon: FlaskConical },
+    { id: 'career', label: 'Carrier Paths', Icon: Route },
+    { id: 'course', label: 'Courses', Icon: BookOpen },
+    { id: 'books', label: 'Books', Icon: Book },
+    { id: 'leaderboard', label: 'Leaderboard', Icon: BarChart2 },
+    { id: 'notifications', label: 'Notifications', Icon: Bell },
 ];
 
 const systemNav: NavItem[] = [
-    { id: 'settings',  label: 'Settings',  Icon: Settings },
+    { id: 'settings', label: 'Settings', Icon: Settings },
     { id: 'developer', label: 'Developer', Icon: Code },
 ];
 
@@ -102,7 +102,7 @@ export const SideBar: React.FC<SideBarProps> = ({
 
                 {isExpanded && (
                     <span className="text-[14px] font-semibold text-[#202124] dark:text-[#e8eaed] tracking-tight whitespace-nowrap select-none">
-                        Inspire Admin
+                        Dashboard
                     </span>
                 )}
             </div>

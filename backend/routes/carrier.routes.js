@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const carrierController = require('../../curriculum/carrier/carrier.controller');
+const carrierController = require('../curriculum/carrier/carrier.controller');
 
 // Optional: Add authentication middleware here
 // const { verifyToken } = require('../../auth/firebase/middleware');

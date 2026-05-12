@@ -93,20 +93,29 @@ export default function AnalysisAndStatistics() {
     const fetchStats = async () => {
         setIsLoading(true);
         try {
-            const [usersRes, carriersRes] = await Promise.all([
+            const [usersRes, carriersRes, coursesRes, booksRes, messagesRes] = await Promise.all([
                 fetch(`${BASE_URL}/users`),
                 fetch(`${BASE_URL}/carriers`),
+                fetch(`${BASE_URL}/courses`),
+                fetch(`${BASE_URL}/books`),
+                fetch(`${BASE_URL}/messages`),
             ]);
 
-            const [usersData, carriersData] = await Promise.all([
+            const [usersData, carriersData, coursesData, booksData, messagesData] = await Promise.all([
                 usersRes.json(),
                 carriersRes.json(),
+                coursesRes.json(),
+                booksRes.json(),
+                messagesRes.json(),
             ]);
 
             setStats(prev => ({
                 ...prev,
                 totalUsers: usersData.success ? usersData.data.totalUsers : prev.totalUsers,
                 totalCarriers: carriersData.success ? carriersData.data.totalCarriers : prev.totalCarriers,
+                totalCourses: coursesData.success ? coursesData.data.totalCourses : prev.totalCourses,
+                totalBooks: booksData.success ? booksData.data.totalBooks : prev.totalBooks,
+                totalMessages: messagesData.success ? messagesData.data.totalMessages : prev.totalMessages,
             }));
             setLastUpdated(new Date());
         } catch (error) {

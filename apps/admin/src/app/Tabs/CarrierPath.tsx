@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Route, Plus, MoreVertical, Edit2, Trash2, X, PlusCircle, AlertTriangle, CheckCircle, WifiOff, RefreshCcw } from 'lucide-react';
+import { Route, Plus, MoreVertical, Edit2, Trash2, X, PlusCircle, AlertTriangle, CheckCircle, WifiOff, RefreshCcw, BookOpen } from 'lucide-react';
 import { OfflineMode } from '@/components/OfflineState';
 
 // Types
@@ -19,6 +19,7 @@ export default function CarrierPath() {
     // State
     const [carrierPaths, setCarrierPaths] = useState<Carrier[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [courseCounts, setCourseCounts] = useState<Record<string, number>>({});
 
     // Modal State
     const [modalMode, setModalMode] = useState<ModalMode>('closed');
@@ -49,12 +50,26 @@ export default function CarrierPath() {
     const fetchCarriers = async () => {
         setIsLoading(true);
         try {
-            const res = await fetch(`${API_URL}/view`);
-            const data = await res.json();
-            if (data.success) {
-                setCarrierPaths(data.data);
-            } else {
-                console.error(data.message);
+            const COURSE_API = process.env.NEXT_PUBLIC_API_URL + '/api/inspire/course' || 'http://localhost:5000/api/inspire/course';
+            const [carriersRes, coursesRes] = await Promise.all([
+                fetch(`${API_URL}/view`),
+                fetch(`${COURSE_API}/view`),
+            ]);
+            const carriersData = await carriersRes.json();
+            const coursesData = await coursesRes.json();
+
+            if (carriersData.success) {
+                setCarrierPaths(carriersData.data);
+            }
+            // Build a map: carrierId -> count of courses that include it
+            if (coursesData.success) {
+                const counts: Record<string, number> = {};
+                for (const course of coursesData.data) {
+                    for (const cid of (course.carrierIds || [])) {
+                        counts[cid] = (counts[cid] || 0) + 1;
+                    }
+                }
+                setCourseCounts(counts);
             }
         } catch (error) {
             console.error('Error fetching carriers:', error);
@@ -343,9 +358,15 @@ export default function CarrierPath() {
                             </p>
 
                             {/* Description */}
-                            <p className="text-[#5f6368] dark:text-gray-400 text-xs line-clamp-2" title={carrier.description}>
+                            <p className="text-[#5f6368] dark:text-gray-400 text-xs line-clamp-2 mb-3" title={carrier.description}>
                                 {carrier.description}
                             </p>
+
+                            {/* Footer: course count */}
+                            <div className="flex items-center justify-end gap-1.5 pt-2.5 border-t border-gray-50 dark:border-gray-800/50">
+                                <BookOpen size={12} className="text-[#80868b]" />
+                                <span className="text-[11px] font-medium text-[#80868b]">{courseCounts[carrier.id] || 0}</span>
+                            </div>
                         </div>
                     </div>
                 ))}
