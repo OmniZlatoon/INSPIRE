@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Users, Route, BookOpen, Book, MessageSquare, TrendingUp, RefreshCw, WifiOff } from 'lucide-react';
-import { OfflineMode } from '@/components/OfflineState';
+//import { OfflineMode } from '@/components/OfflineState';
 
 interface Stats {
     totalUsers: number;
@@ -126,114 +126,114 @@ export default function AnalysisAndStatistics() {
     };
 
     useEffect(() => {
-        if (typeof window !== 'undefined') {
-            setIsOffline(!navigator.onLine);
-        }
+        // if (typeof window !== 'undefined') {
+        //     setIsOffline(!navigator.onLine);
+        // }
 
-        const handleOnline = () => { setIsOffline(false); fetchStats(); };
-        const handleOffline = () => setIsOffline(true);
+        // const handleOnline = () => { setIsOffline(false); fetchStats(); };
+        // const handleOffline = () => setIsOffline(true);
 
-        window.addEventListener('online', handleOnline);
-        window.addEventListener('offline', handleOffline);
+        // window.addEventListener('online', handleOnline);
+        // window.addEventListener('offline', handleOffline);
 
-        if (typeof navigator !== 'undefined' && navigator.onLine) {
-            fetchStats();
-        } else {
-            setIsLoading(false);
-        }
+        // if (typeof navigator !== 'undefined' && navigator.onLine) {
+        //     fetchStats();
+        // } else {
+        //     setIsLoading(false);
+        // }
 
-        return () => {
-            window.removeEventListener('online', handleOnline);
-            window.removeEventListener('offline', handleOffline);
-        };
+        // return () => {
+        //     window.removeEventListener('online', handleOnline);
+        //     window.removeEventListener('offline', handleOffline);
+        // };
     }, []);
 
     return (
         <div className="p-8 w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
 
 
-            {/* Offline State */}
+            {/* Offline State
             {isOffline ? (
                 OfflineMode()
 
-            ) : (
-                <>
-                    {/* Header */}
-                    <div className="flex items-start justify-between mb-8">
-                        <div>
-                            <h2 className="text-2xl font-bold text-[#202124] dark:text-white">Analysis & Statistics</h2>
-                            <p className="text-[#5f6368] dark:text-gray-400 mt-1 text-sm">
-                                Real-time overview of platform metrics and usage.
-                            </p>
-                        </div>
-                        <div className="flex items-center gap-3">
-                            {lastUpdated && !isLoading && (
-                                <span className="text-xs text-[#5f6368] dark:text-gray-500">
-                                    Updated {lastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                </span>
-                            )}
-                            <button
-                                onClick={fetchStats}
-                                disabled={isLoading || isOffline}
-                                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-200 dark:border-gray-700 text-[#5f6368] dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#2d2d2d] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                            >
-                                <RefreshCw size={13} className={isLoading ? 'animate-spin' : ''} />
-                                Refresh
-                            </button>
-                        </div>
-                    </div>
-                    {/* Metric Cards */}
-
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
-                        {metricCards.map((card) => (
-                            <div
-                                key={card.key}
-                                className="bg-white dark:bg-[#1a1a1a] rounded-xl border border-gray-100 dark:border-gray-800 p-4 hover:border-gray-200 dark:hover:border-gray-700 transition-all duration-200 group"
-                            >
-                                {/* Icon */}
-                                <div className={`inline-flex items-center justify-center w-8 h-8 rounded-lg ${card.bgColor} ${card.darkBgColor} ${card.accentColor} mb-3`}>
-                                    {card.icon}
-                                </div>
-
-                                {/* Value */}
-                                {isLoading ? (
-                                    <div className="h-7 w-16 bg-gray-100 dark:bg-gray-800 rounded animate-pulse mb-1" />
-                                ) : (
-                                    <p className="text-2xl font-bold text-[#202124] dark:text-white tracking-tight">
-                                        {formatNumber(stats[card.key])}
-                                    </p>
-                                )}
-
-                                {/* Title */}
-                                <p className="text-xs font-semibold text-[#202124] dark:text-gray-200 mt-0.5">
-                                    {card.title}
-                                </p>
-
-                                {/* Description */}
-                                <p className="text-[11px] text-[#5f6368] dark:text-gray-500 mt-0.5">
-                                    {card.description}
+            ) : ( */(
+                    <>
+                        {/* Header */}
+                        <div className="flex items-start justify-between mb-8">
+                            <div>
+                                <h2 className="text-2xl font-bold text-[#202124] dark:text-white">Analysis & Statistics</h2>
+                                <p className="text-[#5f6368] dark:text-gray-400 mt-1 text-sm">
+                                    Real-time overview of platform metrics and usage.
                                 </p>
                             </div>
-                        ))}
-                    </div>
+                            <div className="flex items-center gap-3">
+                                {lastUpdated && !isLoading && (
+                                    <span className="text-xs text-[#5f6368] dark:text-gray-500">
+                                        Updated {lastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                    </span>
+                                )}
+                                <button
+                                    onClick={fetchStats}
+                                    disabled={isLoading || isOffline}
+                                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-200 dark:border-gray-700 text-[#5f6368] dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#2d2d2d] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                                >
+                                    <RefreshCw size={13} className={isLoading ? 'animate-spin' : ''} />
+                                    Refresh
+                                </button>
+                            </div>
+                        </div>
+                        {/* Metric Cards */}
 
-                    {/* Summary Bar */}
-                    <div className="bg-white dark:bg-[#1a1a1a] rounded-xl border border-gray-100 dark:border-gray-800 px-5 py-4 flex items-center gap-3">
-                        <div className="p-2 bg-blue-50 dark:bg-blue-900/15 rounded-lg">
-                            <TrendingUp size={16} className="text-blue-500" />
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
+                            {metricCards.map((card) => (
+                                <div
+                                    key={card.key}
+                                    className="bg-white dark:bg-[#1a1a1a] rounded-xl border border-gray-100 dark:border-gray-800 p-4 hover:border-gray-200 dark:hover:border-gray-700 transition-all duration-200 group"
+                                >
+                                    {/* Icon */}
+                                    <div className={`inline-flex items-center justify-center w-8 h-8 rounded-lg ${card.bgColor} ${card.darkBgColor} ${card.accentColor} mb-3`}>
+                                        {card.icon}
+                                    </div>
+
+                                    {/* Value */}
+                                    {isLoading ? (
+                                        <div className="h-7 w-16 bg-gray-100 dark:bg-gray-800 rounded animate-pulse mb-1" />
+                                    ) : (
+                                        <p className="text-2xl font-bold text-[#202124] dark:text-white tracking-tight">
+                                            {formatNumber(stats[card.key])}
+                                        </p>
+                                    )}
+
+                                    {/* Title */}
+                                    <p className="text-xs font-semibold text-[#202124] dark:text-gray-200 mt-0.5">
+                                        {card.title}
+                                    </p>
+
+                                    {/* Description */}
+                                    <p className="text-[11px] text-[#5f6368] dark:text-gray-500 mt-0.5">
+                                        {card.description}
+                                    </p>
+                                </div>
+                            ))}
                         </div>
-                        <div>
-                            <p className="text-sm font-semibold text-[#202124] dark:text-white">Platform at a glance</p>
-                            <p className="text-xs text-[#5f6368] dark:text-gray-400">
-                                {isLoading
-                                    ? 'Fetching latest data...'
-                                    : `${formatNumber(stats.totalUsers)} users · ${formatNumber(stats.totalCarriers)} carrier paths · ${formatNumber(stats.totalCourses)} courses · ${formatNumber(stats.totalBooks)} books · ${formatNumber(stats.totalMessages)} messages`
-                                }
-                            </p>
+
+                        {/* Summary Bar */}
+                        <div className="bg-white dark:bg-[#1a1a1a] rounded-xl border border-gray-100 dark:border-gray-800 px-5 py-4 flex items-center gap-3">
+                            <div className="p-2 bg-blue-50 dark:bg-blue-900/15 rounded-lg">
+                                <TrendingUp size={16} className="text-blue-500" />
+                            </div>
+                            <div>
+                                <p className="text-sm font-semibold text-[#202124] dark:text-white">Platform at a glance</p>
+                                <p className="text-xs text-[#5f6368] dark:text-gray-400">
+                                    {isLoading
+                                        ? 'Fetching latest data...'
+                                        : `${formatNumber(stats.totalUsers)} users · ${formatNumber(stats.totalCarriers)} carrier paths · ${formatNumber(stats.totalCourses)} courses · ${formatNumber(stats.totalBooks)} books · ${formatNumber(stats.totalMessages)} messages`
+                                    }
+                                </p>
+                            </div>
                         </div>
-                    </div>
-                </>
-            )}
+                    </>
+                )}
         </div>
     );
 }

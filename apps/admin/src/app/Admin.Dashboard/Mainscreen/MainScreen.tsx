@@ -15,6 +15,7 @@ import Leaderboard from '@/app/Tabs/Leaderboard';
 import SystemNotifications from '@/app/Tabs/SystemNotifications';
 import PlatformSettings from '@/app/Tabs/PlatformSettings';
 import DeveloperOptions from '@/app/Tabs/DeveloperOptions';
+import { OfflineMode } from '@/components/OfflineState';
 
 export default function MainScreen() {
     const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
@@ -22,6 +23,8 @@ export default function MainScreen() {
     const [mounted, setMounted] = useState(false);
     const { theme, setTheme } = useTheme();
     const [user, setUser] = useState<User | null>(null);
+    const [isOffline, setIsOffline] = useState(false);
+
 
     const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
 
@@ -31,7 +34,43 @@ export default function MainScreen() {
         const unsubscribe = auth.onAuthStateChanged((currentUser) => {
             setUser(currentUser);
         });
-        return () => unsubscribe();
+
+        // Professional robust offline detection
+        const checkInternet = async () => {
+            if (!navigator.onLine) {
+                setIsOffline(true);
+                return;
+            }
+            try {
+                // Ping a lightweight resource to verify actual internet access
+                const response = await fetch('/favicon.ico?_=' + new Date().getTime(), {
+                    method: 'HEAD',
+                    cache: 'no-store'
+                });
+                setIsOffline(!response.ok);
+            } catch (error) {
+                setIsOffline(true);
+            }
+        };
+
+        // Initial check
+        checkInternet();
+
+        const handleOnline = () => checkInternet();
+        const handleOffline = () => setIsOffline(true);
+
+        window.addEventListener('online', handleOnline);
+        window.addEventListener('offline', handleOffline);
+
+        // Heartbeat check every 5 seconds for lively detection
+        const intervalId = setInterval(checkInternet, 5000);
+
+        return () => {
+            unsubscribe();
+            window.removeEventListener('online', handleOnline);
+            window.removeEventListener('offline', handleOffline);
+            clearInterval(intervalId);
+        };
     }, []);
 
     const handleLogout = async () => {
@@ -165,7 +204,7 @@ export default function MainScreen() {
                 {/* Dynamic Main Screen Area */}
                 <main className="flex-1 overflow-y-auto bg-white dark:bg-[#121212] transition-colors duration-300">
                     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both">
-                        {renderTabContent()}
+                        {isOffline ? <OfflineMode /> : renderTabContent()}
                     </div>
                 </main>
             </div>

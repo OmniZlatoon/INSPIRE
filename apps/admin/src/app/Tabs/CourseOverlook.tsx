@@ -1,14 +1,24 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { BookOpen, Plus, MoreVertical, Edit2, Trash2, Eye, LayoutGrid, Table as TableIcon, Route, Book as BookIcon, CheckCircle } from 'lucide-react';
-import { OfflineMode } from '@/components/OfflineState';
+import { SearchBar } from '@/components/SearchBar';
+import { NoResultsFound } from '@/components/NoResultsFound';
 import { AddEditModal, DeleteModal, ViewModal } from '../../components/CourseModals';
 import type { Course, Carrier, ModalMode, AddTab, SingleForm, BulkEntry } from '../../components/CourseModals';
+import { CourseIcon } from '@/components/CourseIcon';
 
 const API = (process.env.NEXT_PUBLIC_API_URL + "/api/inspire" || 'http://localhost:5000/api/inspire');
 const COURSE = `${API}/course`;
 const CARRIER = `${API}/carrier`;
 const BOOKS = `${API}/books`;
+
+// Filtered data based on search
+const filterCourses = (courses: Course[], query: string) => {
+    return courses.filter(c =>
+        c.name.toLowerCase().includes(query.toLowerCase()) ||
+        c.courseId.toLowerCase().includes(query.toLowerCase())
+    );
+};
 
 const BLANK: SingleForm = { courseId: '', name: '', description: '', carrierIds: [] };
 
@@ -18,6 +28,7 @@ export default function CourseOverlook() {
     const [isLoading, setIsLoading] = useState(true);
     const [isActionLoading, setIsActionLoading] = useState(false);
     const [isOffline, setIsOffline] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
     const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
     const [modal, setModal] = useState<ModalMode>('closed');
     const [tab, setTab] = useState<AddTab>('single');
@@ -30,13 +41,7 @@ export default function CourseOverlook() {
     const [activeMenu, setActiveMenu] = useState<string | null>(null);
 
     useEffect(() => {
-        setIsOffline(!navigator.onLine);
-        const up = () => { setIsOffline(false); load(); };
-        const down = () => setIsOffline(true);
-        window.addEventListener('online', up);
-        window.addEventListener('offline', down);
         load();
-        return () => { window.removeEventListener('online', up); window.removeEventListener('offline', down); };
     }, []);
 
     useEffect(() => {
@@ -48,20 +53,20 @@ export default function CourseOverlook() {
     const load = async () => {
         setIsLoading(true);
         try {
-            const [cr, ca, br] = await Promise.all([
+            const [cr, ca] = await Promise.all([
                 fetch(`${COURSE}/view`),
-                fetch(`${CARRIER}/view`),
-                fetch(`${BOOKS}/view`)
+                fetch(`${CARRIER}/view`)
+                // fetch(`${BOOKS}/view`)
             ]);
-            const cd = await cr.json(); 
+            const cd = await cr.json();
             const cad = await ca.json();
-            const bd = await br.json();
+            // const bd = await br.json();
 
-            if (cd.success && bd.success) {
-                const books = bd.data || [];
+            if (cd.success) { // && bd.success) {
+                //  const books = []; // bd.data || [];
                 const coursesWithCount = cd.data.map((course: any) => ({
                     ...course,
-                    bookCount: books.filter((b: any) => b.courseId === course.id).length
+                    //  bookCount: books.filter((b: any) => b.courseId === course.id).length
                 }));
                 setCourses(coursesWithCount);
             }
@@ -131,7 +136,6 @@ export default function CourseOverlook() {
         </div>
     );
 
-    if (isOffline) return <OfflineMode />;
     if (isLoading) return <div className="flex items-center justify-center h-[60vh]"><div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary" /></div>;
 
     return (
@@ -172,7 +176,14 @@ export default function CourseOverlook() {
                                 <button onClick={() => setViewMode('table')} className={`p-1.5 rounded-md transition-all ${viewMode === 'table' ? 'bg-white dark:bg-[#2d2d2d] shadow-sm text-primary' : 'text-[#80868b]'}`}><TableIcon size={17} /></button>
                             </div>
                         </div>
-                        <div className="flex gap-3">
+                        <div className="flex items-center gap-3">
+                            <div className="flex justify-end flex-1">
+                                <SearchBar
+                                    placeholder="Search courses..."
+                                    value={searchQuery}
+                                    onSearch={setSearchQuery}
+                                />
+                            </div>
                             <button onClick={() => setModal('deleteAll')} className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#1a1a1a] text-[#5f6368] border border-gray-200 dark:border-gray-700 rounded-lg font-medium hover:bg-red-50 hover:text-red-600 hover:border-red-200 dark:hover:bg-red-900/20 dark:hover:text-red-400 transition-all">
                                 <Trash2 size={16} /> Clear All Courses
                             </button>
@@ -182,52 +193,58 @@ export default function CourseOverlook() {
                         </div>
                     </div>
 
-                    {viewMode === 'grid' ? (
-                        /* ── Grid View ── */
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                            {courses.map(course => (
-                                <div key={course.id} className="bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-gray-800 hover:border-gray-200 dark:hover:border-gray-700 rounded-xl p-4 group transition-all duration-200">
-                                    <div className="flex justify-between items-start mb-3">
-                                        <div className="p-2 bg-purple-50 dark:bg-purple-900/15 rounded-lg"><BookOpen size={16} className="text-purple-500" /></div>
-                                        <ContextMenu course={course} />
-                                    </div>
-                                    <h3 className="text-sm font-semibold text-[#202124] dark:text-white truncate mb-1" title={course.name}>{course.name}</h3>
-                                    <p className="text-[10px] font-mono text-purple-600 bg-purple-50 dark:bg-purple-900/15 px-1.5 py-0.5 rounded inline-block mb-2">{course.courseId}</p>
-                                    <p className="text-xs text-[#5f6368] dark:text-gray-400 line-clamp-2 min-h-[2rem] mb-3" title={course.description}>{course.description}</p>
-                                    <div className="flex justify-end gap-3 pt-3 border-t border-gray-50 dark:border-gray-800/50">
-                                        <span className="flex items-center gap-1 text-[11px] text-[#80868b] font-medium"><Route size={12} />{course.carrierIds?.length || 0}</span>
-                                        <span className="flex items-center gap-1 text-[11px] text-[#80868b] font-medium"><BookIcon size={12} />{course.bookCount || 0}</span>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
+                    {filterCourses(courses, searchQuery).length === 0 ? (
+                        <NoResultsFound
+                            searchTerm={searchQuery}
+                            onClear={() => setSearchQuery('')}
+                        />
                     ) : (
-                        /* ── Table View ── */
-                        <div className="bg-white dark:bg-[#1a1a1a] rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm">
-                            <table className="w-full text-left">
-                                <thead className="bg-gray-50 dark:bg-[#111] border-b border-gray-200 dark:border-gray-800">
-                                    <tr>{['Course ID', 'Course Name', 'Description', 'Carriers', 'Books', 'Created At', ''].map((h, i) => (
-                                        <th key={i} className={`px-5 py-4 text-[11px] font-bold text-[#202124] dark:text-white uppercase tracking-wider ${i >= 3 && i <= 4 ? 'text-center' : i === 6 ? 'text-right' : ''}`}>{h}</th>
-                                    ))}</tr>
-                                </thead>
-                                <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
-                                    {courses.map(course => (
-                                        <tr key={course.id} className="hover:bg-gray-50 dark:hover:bg-[#212121] transition-colors">
-                                            <td className="px-5 py-4 text-sm font-mono text-purple-600">{course.courseId}</td>
-                                            <td className="px-5 py-4 text-sm font-medium text-[#202124] dark:text-white">{course.name}</td>
-                                            <td className="px-5 py-4 text-sm text-[#5f6368] dark:text-gray-400 max-w-[220px] truncate">{course.description}</td>
-                                            <td className="px-5 py-4 text-sm text-center font-semibold text-[#5f6368]">{course.carrierIds?.length || 0}</td>
-                                            <td className="px-5 py-4 text-sm text-center font-semibold text-[#5f6368]">{course.bookCount || 0}</td>
-                                            <td className="px-5 py-4 text-sm text-[#80868b]">{course.createdAt?.seconds ? new Date(course.createdAt.seconds * 1000).toLocaleDateString() : 'Just now'}</td>
-                                            <td className="px-5 py-4 text-right">
-                                                <div className="group inline-block"><ContextMenu course={course} /></div>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    )}
+                        viewMode === 'grid' ? (
+                            /* ── Grid View ── */
+                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                                {filterCourses(courses, searchQuery).map(course => (
+                                    <div key={course.id} className="bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-gray-800 hover:border-gray-200 dark:hover:border-gray-700 rounded-xl p-4 group transition-all duration-200">
+                                        <div className="flex justify-between items-start mb-3">
+                                            <div className="p-2 bg-transparent dark:transparent-900/15 rounded-lg"><CourseIcon courseName={course.name} /></div>
+                                            <ContextMenu course={course} />
+                                        </div>
+                                        <h3 className="text-sm font-semibold text-[#202124] dark:text-white truncate mb-1" title={course.name}>{course.name}</h3>
+                                        <p className="text-[10px] font-mono text-purple-600 bg-purple-50 dark:bg-purple-900/15 px-1.5 py-0.5 rounded inline-block mb-2">{course.courseId}</p>
+                                        <p className="text-xs text-[#5f6368] dark:text-gray-400 line-clamp-2 min-h-[2rem] mb-3" title={course.description}>{course.description}</p>
+                                        <div className="flex justify-end gap-3 pt-3 border-t border-gray-50 dark:border-gray-800/50">
+                                            <span className="flex items-center gap-1 text-[11px] text-[#80868b] font-medium"><Route size={12} />{course.carrierIds?.length || 0}</span>
+                                            <span className="flex items-center gap-1 text-[11px] text-[#80868b] font-medium"><BookIcon size={12} />{course.bookCount || 0}</span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            /* ── Table View ── */
+                            <div className="bg-white dark:bg-[#1a1a1a] rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm">
+                                <table className="w-full text-left">
+                                    <thead className="bg-gray-50 dark:bg-[#111] border-b border-gray-200 dark:border-gray-800">
+                                        <tr>{['Course ID', 'Course Name', 'Description', 'Carriers', 'Books', 'Created At', ''].map((h, i) => (
+                                            <th key={i} className={`px-5 py-4 text-[11px] font-bold text-[#202124] dark:text-white uppercase tracking-wider ${i >= 3 && i <= 4 ? 'text-center' : i === 6 ? 'text-right' : ''}`}>{h}</th>
+                                        ))}</tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+                                        {filterCourses(courses, searchQuery).map(course => (
+                                            <tr key={course.id} className="hover:bg-gray-50 dark:hover:bg-[#212121] transition-colors">
+                                                <td className="px-5 py-4 text-sm font-mono text-purple-600">{course.courseId}</td>
+                                                <td className="px-5 py-4 text-sm font-medium text-[#202124] dark:text-white">{course.name}</td>
+                                                <td className="px-5 py-4 text-sm text-[#5f6368] dark:text-gray-400 max-w-[220px] truncate">{course.description}</td>
+                                                <td className="px-5 py-4 text-sm text-center font-semibold text-[#5f6368]">{course.carrierIds?.length || 0}</td>
+                                                <td className="px-5 py-4 text-sm text-center font-semibold text-[#5f6368]">{course.bookCount || 0}</td>
+                                                <td className="px-5 py-4 text-sm text-[#80868b]">{course.createdAt?.seconds ? new Date(course.createdAt.seconds * 1000).toLocaleDateString() : 'Just now'}</td>
+                                                <td className="px-5 py-4 text-right">
+                                                    <div className="group inline-block"><ContextMenu course={course} /></div>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        ))}
                 </>
             )}
 

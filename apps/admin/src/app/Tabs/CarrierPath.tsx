@@ -2,7 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { Route, Plus, MoreVertical, Edit2, Trash2, X, PlusCircle, AlertTriangle, CheckCircle, WifiOff, RefreshCcw, BookOpen } from 'lucide-react';
-import { OfflineMode } from '@/components/OfflineState';
+
+import { SearchBar } from '@/components/SearchBar';
+import { NoResultsFound } from '@/components/NoResultsFound';
 
 // Types
 interface Carrier {
@@ -20,6 +22,7 @@ export default function CarrierPath() {
     const [carrierPaths, setCarrierPaths] = useState<Carrier[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [courseCounts, setCourseCounts] = useState<Record<string, number>>({});
+    const [searchQuery, setSearchQuery] = useState('');
 
     // Modal State
     const [modalMode, setModalMode] = useState<ModalMode>('closed');
@@ -45,6 +48,12 @@ export default function CarrierPath() {
     };
 
     const API_URL = process.env.NEXT_PUBLIC_API_URL + "/api/inspire/carrier" || 'http://localhost:5000/api/inspire/carrier';
+
+    // Filtered data based on search
+    const filteredCarriers = carrierPaths.filter(c =>
+        c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        c.carrierId.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
     // Fetch initial data
     const fetchCarriers = async () => {
@@ -79,30 +88,7 @@ export default function CarrierPath() {
     };
 
     useEffect(() => {
-        if (typeof window !== 'undefined') {
-            setIsOffline(!navigator.onLine);
-        }
-
-        const handleOnline = () => {
-            setIsOffline(false);
-            fetchCarriers();
-        };
-
-        const handleOffline = () => {
-            setIsOffline(true);
-        };
-
-        window.addEventListener('online', handleOnline);
-        window.addEventListener('offline', handleOffline);
-
-        if (typeof navigator !== 'undefined' && navigator.onLine) {
-            fetchCarriers();
-        }
-
-        return () => {
-            window.removeEventListener('online', handleOnline);
-            window.removeEventListener('offline', handleOffline);
-        };
+        fetchCarriers();
     }, []);
 
     // Form State (Single & Edit)
@@ -289,7 +275,14 @@ export default function CarrierPath() {
                     <h2 className="text-2xl font-bold text-[#202124] dark:text-white">Carrier Paths</h2>
                     <p className="text-[#5f6368] dark:text-gray-400 mt-1">Manage and configure routing carrier paths.</p>
                 </div>
-                <div className="flex gap-3">
+                <div className="flex items-center gap-3">
+                    <div className="flex justify-end flex-1">
+                        <SearchBar
+                            placeholder="Search carriers..."
+                            value={searchQuery}
+                            onSearch={setSearchQuery}
+                        />
+                    </div>
                     <button
                         onClick={() => setModalMode('deleteAll')}
                         className="flex items-center px-4 py-2 bg-white dark:bg-[#1a1a1a] text-[#5f6368] dark:text-gray-300 font-medium rounded-lg transition-colors border border-gray-200 dark:border-gray-700 hover:bg-red-50 hover:text-red-600 hover:border-red-200 dark:hover:bg-red-900/20 dark:hover:text-red-400 dark:hover:border-red-800 active:bg-red-100"
@@ -307,70 +300,77 @@ export default function CarrierPath() {
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                {carrierPaths.map((carrier) => (
-                    <div key={carrier.id} className="bg-white dark:bg-[#1a1a1a] rounded-xl border border-gray-100 dark:border-gray-800 hover:border-gray-200 dark:hover:border-gray-700 transition-all duration-200 relative group">
+            {filteredCarriers.length === 0 ? (
+                <NoResultsFound
+                    searchTerm={searchQuery}
+                    onClear={() => setSearchQuery('')}
+                />
+            ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                    {filteredCarriers.map((carrier) => (
+                        <div key={carrier.id} className="bg-white dark:bg-[#1a1a1a] rounded-xl border border-gray-100 dark:border-gray-800 hover:border-gray-200 dark:hover:border-gray-700 transition-all duration-200 relative group">
 
-                        <div className="p-4">
-                            {/* Top row: icon + menu */}
-                            <div className="flex justify-between items-center mb-3">
-                                <div className="p-2 bg-blue-50 dark:bg-blue-900/15 rounded-lg text-primary">
-                                    <Route size={16} />
+                            <div className="p-4">
+                                {/* Top row: icon + menu */}
+                                <div className="flex justify-between items-center mb-3">
+                                    <div className="p-2 bg-blue-50 dark:bg-blue-900/15 rounded-lg text-primary">
+                                        <Route size={16} />
+                                    </div>
+                                    <div className="relative dropdown-container">
+                                        <button
+                                            onClick={() => {
+                                                setActiveDropdown(activeDropdown === carrier.id ? null : carrier.id);
+                                            }}
+                                            className="p-1 rounded-md text-[#5f6368] hover:bg-gray-100 dark:hover:bg-[#2d2d2d] transition-colors opacity-0 group-hover:opacity-100"
+                                        >
+                                            <MoreVertical size={16} />
+                                        </button>
+
+                                        {/* Dropdown Menu */}
+                                        {activeDropdown === carrier.id && (
+                                            <div className="absolute right-0 mt-1 w-44 bg-white dark:bg-[#2d2d2d] rounded-lg shadow-xl border border-gray-100 dark:border-gray-700 z-50 py-1">
+                                                <button
+                                                    onClick={() => handleOpenEditModal(carrier)}
+                                                    className="w-full text-left px-3 py-2 text-sm text-[#202124] dark:text-white hover:bg-gray-50 dark:hover:bg-gray-600 flex items-center"
+                                                >
+                                                    <Edit2 size={14} className="mr-2 text-[#5f6368]" /> Edit Carrier
+                                                </button>
+                                                <button
+                                                    onClick={() => handleOpenDeleteModal(carrier)}
+                                                    className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center"
+                                                >
+                                                    <Trash2 size={14} className="mr-2" /> Delete Carrier
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
-                                <div className="relative dropdown-container">
-                                    <button
-                                        onClick={() => {
-                                            setActiveDropdown(activeDropdown === carrier.id ? null : carrier.id);
-                                        }}
-                                        className="p-1 rounded-md text-[#5f6368] hover:bg-gray-100 dark:hover:bg-[#2d2d2d] transition-colors opacity-0 group-hover:opacity-100"
-                                    >
-                                        <MoreVertical size={16} />
-                                    </button>
 
-                                    {/* Dropdown Menu */}
-                                    {activeDropdown === carrier.id && (
-                                        <div className="absolute right-0 mt-1 w-44 bg-white dark:bg-[#2d2d2d] rounded-lg shadow-xl border border-gray-100 dark:border-gray-700 z-50 py-1">
-                                            <button
-                                                onClick={() => handleOpenEditModal(carrier)}
-                                                className="w-full text-left px-3 py-2 text-sm text-[#202124] dark:text-white hover:bg-gray-50 dark:hover:bg-gray-600 flex items-center"
-                                            >
-                                                <Edit2 size={14} className="mr-2 text-[#5f6368]" /> Edit Carrier
-                                            </button>
-                                            <button
-                                                onClick={() => handleOpenDeleteModal(carrier)}
-                                                className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center"
-                                            >
-                                                <Trash2 size={14} className="mr-2" /> Delete Carrier
-                                            </button>
-                                        </div>
-                                    )}
+                                {/* Name */}
+                                <h3 className="text-sm font-semibold text-[#202124] dark:text-white truncate mb-1" title={carrier.name}>
+                                    {carrier.name}
+                                </h3>
+
+                                {/* ID badge */}
+                                <p className="text-[10px] font-mono text-primary bg-blue-50 dark:bg-blue-900/15 inline-block px-1.5 py-0.5 rounded mb-2">
+                                    {carrier.carrierId}
+                                </p>
+
+                                {/* Description */}
+                                <p className="text-[#5f6368] dark:text-gray-400 text-xs line-clamp-2 mb-3" title={carrier.description}>
+                                    {carrier.description}
+                                </p>
+
+                                {/* Footer: course count */}
+                                <div className="flex items-center justify-end gap-1.5 pt-2.5 border-t border-gray-50 dark:border-gray-800/50">
+                                    <BookOpen size={12} className="text-[#80868b]" />
+                                    <span className="text-[11px] font-medium text-[#80868b]">{courseCounts[carrier.id] || 0}</span>
                                 </div>
-                            </div>
-
-                            {/* Name */}
-                            <h3 className="text-sm font-semibold text-[#202124] dark:text-white truncate mb-1" title={carrier.name}>
-                                {carrier.name}
-                            </h3>
-
-                            {/* ID badge */}
-                            <p className="text-[10px] font-mono text-primary bg-blue-50 dark:bg-blue-900/15 inline-block px-1.5 py-0.5 rounded mb-2">
-                                {carrier.carrierId}
-                            </p>
-
-                            {/* Description */}
-                            <p className="text-[#5f6368] dark:text-gray-400 text-xs line-clamp-2 mb-3" title={carrier.description}>
-                                {carrier.description}
-                            </p>
-
-                            {/* Footer: course count */}
-                            <div className="flex items-center justify-end gap-1.5 pt-2.5 border-t border-gray-50 dark:border-gray-800/50">
-                                <BookOpen size={12} className="text-[#80868b]" />
-                                <span className="text-[11px] font-medium text-[#80868b]">{courseCounts[carrier.id] || 0}</span>
                             </div>
                         </div>
-                    </div>
-                ))}
-            </div>
+                    ))}
+                </div>
+            )}
         </div>
     );
 
@@ -648,9 +648,7 @@ export default function CarrierPath() {
                 </div>
             )}
 
-            {isOffline ? (
-                <OfflineMode></OfflineMode>
-            ) : isLoading ? (
+            {isLoading ? (
                 <div className="flex justify-center items-center h-[60vh]">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
                 </div>

@@ -1,13 +1,24 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { BookOpen, Plus, MoreVertical, Edit2, Trash2, Eye, LayoutGrid, Table as TableIcon, CheckCircle, BookMarked } from 'lucide-react';
-import { OfflineMode } from '@/components/OfflineState';
+import { SearchBar } from '@/components/SearchBar';
+import { NoResultsFound } from '@/components/NoResultsFound';
 import { AddEditModal, DeleteModal, ViewModal } from '@/components/BooksModals';
 import type { Book, Course, ModalMode, AddTab, BookForm, BulkBookEntry } from '@/components/BooksModals';
+import { CourseIcon } from '@/components/CourseIcon';
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 const BOOKS_API = `${API}/api/inspire/books`;
 const COURSES_API = `${API}/api/inspire/course`;
+
+// Filtered data based on search
+const filterBooks = (books: Book[], query: string) => {
+    return books.filter(b =>
+        b.name.toLowerCase().includes(query.toLowerCase()) ||
+        b.bookId.toLowerCase().includes(query.toLowerCase()) ||
+        b.author.toLowerCase().includes(query.toLowerCase())
+    );
+};
 
 const BLANK_FORM: BookForm = { bookId: '', name: '', description: '', author: '', courseId: '', files: [] };
 
@@ -17,6 +28,7 @@ export default function BooksManagement() {
     const [isLoading, setIsLoading] = useState(true);
     const [isActionLoading, setIsActionLoading] = useState(false);
     const [isOffline, setIsOffline] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
     const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
     const [modal, setModal] = useState<ModalMode>('closed');
     const [tab, setTab] = useState<AddTab>('single');
@@ -29,13 +41,7 @@ export default function BooksManagement() {
     const [activeMenu, setActiveMenu] = useState<string | null>(null);
 
     useEffect(() => {
-        setIsOffline(!navigator.onLine);
-        const up = () => { setIsOffline(false); load(); };
-        const down = () => setIsOffline(true);
-        window.addEventListener('online', up);
-        window.addEventListener('offline', down);
         load();
-        return () => { window.removeEventListener('online', up); window.removeEventListener('offline', down); };
     }, []);
 
     useEffect(() => {
@@ -131,7 +137,6 @@ export default function BooksManagement() {
         </div>
     );
 
-    if (isOffline) return <OfflineMode />;
     if (isLoading) return <div className="flex items-center justify-center h-[60vh]"><div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary" /></div>;
 
     return (
@@ -169,7 +174,14 @@ export default function BooksManagement() {
                                 <button onClick={() => setViewMode('table')} className={`p-1.5 rounded-md transition-all ${viewMode === 'table' ? 'bg-white dark:bg-[#2d2d2d] shadow-sm text-primary' : 'text-[#80868b]'}`}><TableIcon size={17} /></button>
                             </div>
                         </div>
-                        <div className="flex gap-3">
+                        <div className="flex items-center gap-3">
+                            <div className="flex justify-end flex-1">
+                                <SearchBar
+                                    placeholder="Search books..."
+                                    value={searchQuery}
+                                    onSearch={setSearchQuery}
+                                />
+                            </div>
                             <button onClick={() => setModal('deleteAll')} className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#1a1a1a] text-[#5f6368] border border-gray-200 dark:border-gray-700 rounded-lg font-medium hover:bg-red-50 hover:text-red-600 hover:border-red-200 dark:hover:bg-red-900/20 dark:hover:text-red-400 transition-all">
                                 <Trash2 size={16} /> Clear All Books
                             </button>
@@ -179,56 +191,62 @@ export default function BooksManagement() {
                         </div>
                     </div>
 
-                    {viewMode === 'grid' ? (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                            {books.map(book => (
-                                <div key={book.id} className="bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-gray-800 hover:border-gray-200 dark:hover:border-gray-700 rounded-xl p-4 group transition-all duration-200">
-                                    <div className="flex justify-between items-start mb-3">
-                                        <div className="p-2 bg-orange-50 dark:bg-orange-900/15 rounded-lg"><BookOpen size={16} className="text-orange-500" /></div>
-                                        <ContextMenu book={book} />
-                                    </div>
-                                    <h3 className="text-sm font-semibold text-[#202124] dark:text-white truncate mb-1" title={book.name}>{book.name}</h3>
-                                    <p className="text-[10px] font-mono text-orange-600 bg-orange-50 dark:bg-orange-900/15 px-1.5 py-0.5 rounded inline-block mb-1">{book.bookId}</p>
-                                    <p className="text-[10px] text-[#80868b] italic mb-2 truncate">{book.author}</p>
-                                    <p className="text-xs text-[#5f6368] dark:text-gray-400 line-clamp-2 min-h-[2rem] mb-3" title={book.description}>{book.description}</p>
-                                    <div className="flex items-center justify-between pt-2.5 border-t border-gray-50 dark:border-gray-800/50">
-                                        <span className="text-[10px] text-[#80868b] font-medium truncate mr-2 flex-1">{courseName(book.courseId)}</span>
-                                        <span className="flex items-center gap-1 text-[11px] text-[#80868b] font-medium flex-shrink-0">
-                                            <BookMarked size={12} />{book.files?.length || 0}
-                                        </span>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
+                    {filterBooks(books, searchQuery).length === 0 ? (
+                        <NoResultsFound
+                            searchTerm={searchQuery}
+                            onClear={() => setSearchQuery('')}
+                        />
                     ) : (
-                        <div className="bg-white dark:bg-[#1a1a1a] rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm">
-                            <table className="w-full text-left">
-                                <thead className="bg-gray-50 dark:bg-[#111] border-b border-gray-200 dark:border-gray-800">
-                                    <tr>
-                                        {['Book ID', 'Name', 'Author', 'Description', 'Course', 'Files', 'Created At', ''].map((h, i) => (
-                                            <th key={i} className={`px-5 py-4 text-[11px] font-bold text-[#202124] dark:text-white uppercase tracking-wider ${i === 5 ? 'text-center' : i === 7 ? 'text-right' : ''}`}>{h}</th>
-                                        ))}
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
-                                    {books.map(book => (
-                                        <tr key={book.id} className="hover:bg-gray-50 dark:hover:bg-[#212121] transition-colors">
-                                            <td className="px-5 py-4 text-sm font-mono text-orange-600">{book.bookId}</td>
-                                            <td className="px-5 py-4 text-sm font-medium text-[#202124] dark:text-white">{book.name}</td>
-                                            <td className="px-5 py-4 text-sm text-[#5f6368] dark:text-gray-400">{book.author}</td>
-                                            <td className="px-5 py-4 text-sm text-[#5f6368] dark:text-gray-400 max-w-[180px] truncate">{book.description}</td>
-                                            <td className="px-5 py-4 text-sm text-[#5f6368] dark:text-gray-400 max-w-[120px] truncate">{courseName(book.courseId)}</td>
-                                            <td className="px-5 py-4 text-sm text-center font-semibold text-[#5f6368]">{book.files?.length || 0}</td>
-                                            <td className="px-5 py-4 text-sm text-[#80868b]">{book.createdAt?.seconds ? new Date(book.createdAt.seconds * 1000).toLocaleDateString() : 'Just now'}</td>
-                                            <td className="px-5 py-4 text-right">
-                                                <ContextMenu book={book} />
-                                            </td>
+                        viewMode === 'grid' ? (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                                {filterBooks(books, searchQuery).map(book => (
+                                    <div key={book.id} className="bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-gray-800 hover:border-gray-200 dark:hover:border-gray-700 rounded-xl p-4 group transition-all duration-200">
+                                        <div className="flex justify-between items-start mb-3">
+                                            <div className="p-2 bg-transparent rounded-lg"><CourseIcon courseName={courseName(book.courseId)} /></div>
+                                            <ContextMenu book={book} />
+                                        </div>
+                                        <h3 className="text-sm font-semibold text-[#202124] dark:text-white truncate mb-1" title={book.name}>{book.name}</h3>
+                                        <p className="text-[10px] font-mono text-orange-600 bg-orange-50 dark:bg-orange-900/15 px-1.5 py-0.5 rounded inline-block mb-1">{book.bookId}</p>
+                                        <p className="text-[10px] text-[#80868b] italic mb-2 truncate">{book.author}</p>
+                                        <p className="text-xs text-[#5f6368] dark:text-gray-400 line-clamp-2 min-h-[2rem] mb-3" title={book.description}>{book.description}</p>
+                                        <div className="flex items-center justify-between pt-2.5 border-t border-gray-50 dark:border-gray-800/50">
+                                            <span className="text-[10px] text-[#80868b] font-medium truncate mr-2 flex-1">{courseName(book.courseId)}</span>
+                                            <span className="flex items-center gap-1 text-[11px] text-[#80868b] font-medium flex-shrink-0">
+                                                <BookMarked size={12} />{book.files?.length || 0}
+                                            </span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="bg-white dark:bg-[#1a1a1a] rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm">
+                                <table className="w-full text-left">
+                                    <thead className="bg-gray-50 dark:bg-[#111] border-b border-gray-200 dark:border-gray-800">
+                                        <tr>
+                                            {['Book ID', 'Name', 'Author', 'Description', 'Course', 'Files', 'Created At', ''].map((h, i) => (
+                                                <th key={i} className={`px-5 py-4 text-[11px] font-bold text-[#202124] dark:text-white uppercase tracking-wider ${i === 5 ? 'text-center' : i === 7 ? 'text-right' : ''}`}>{h}</th>
+                                            ))}
                                         </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    )}
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+                                        {filterBooks(books, searchQuery).map(book => (
+                                            <tr key={book.id} className="hover:bg-gray-50 dark:hover:bg-[#212121] transition-colors">
+                                                <td className="px-5 py-4 text-sm font-mono text-orange-600">{book.bookId}</td>
+                                                <td className="px-5 py-4 text-sm font-medium text-[#202124] dark:text-white">{book.name}</td>
+                                                <td className="px-5 py-4 text-sm text-[#5f6368] dark:text-gray-400">{book.author}</td>
+                                                <td className="px-5 py-4 text-sm text-[#5f6368] dark:text-gray-400 max-w-[180px] truncate">{book.description}</td>
+                                                <td className="px-5 py-4 text-sm text-[#5f6368] dark:text-gray-400 max-w-[120px] truncate">{courseName(book.courseId)}</td>
+                                                <td className="px-5 py-4 text-sm text-center font-semibold text-[#5f6368]">{book.files?.length || 0}</td>
+                                                <td className="px-5 py-4 text-sm text-[#80868b]">{book.createdAt?.seconds ? new Date(book.createdAt.seconds * 1000).toLocaleDateString() : 'Just now'}</td>
+                                                <td className="px-5 py-4 text-right">
+                                                    <ContextMenu book={book} />
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        ))}
                 </>
             )}
 
