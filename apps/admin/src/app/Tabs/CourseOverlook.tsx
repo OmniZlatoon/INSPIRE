@@ -53,20 +53,20 @@ export default function CourseOverlook() {
     const load = async () => {
         setIsLoading(true);
         try {
-            const [cr, ca] = await Promise.all([
+            const [cr, ca, br] = await Promise.all([
                 fetch(`${COURSE}/view`),
-                fetch(`${CARRIER}/view`)
-                // fetch(`${BOOKS}/view`)
+                fetch(`${CARRIER}/view`),
+                fetch(`${BOOKS}/view`)
             ]);
             const cd = await cr.json();
             const cad = await ca.json();
-            // const bd = await br.json();
+            const bd = await br.json();
 
             if (cd.success) { // && bd.success) {
-                //  const books = []; // bd.data || [];
+                const books = bd.data || [];
                 const coursesWithCount = cd.data.map((course: any) => ({
                     ...course,
-                    //  bookCount: books.filter((b: any) => b.courseId === course.id).length
+                    bookCount: books.filter((b: any) => b.courseId === course.id).length
                 }));
                 setCourses(coursesWithCount);
             }

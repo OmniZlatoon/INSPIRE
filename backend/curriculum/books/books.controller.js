@@ -1,5 +1,7 @@
 const { admin } = require('../../auth/firebase/initialize_firebase');
 const multer = require('multer');
+const cloudinary = require('../../database/Cloudinary/Cloudinary_initialize');
+
 
 const db = admin.firestore();
 const booksCol = db.collection('books');
@@ -23,13 +25,23 @@ const upload = multer({
 
 exports.uploadMiddleware = upload.array('files', 500);
 
-// Helper: convert buffer to base64 data URI
-const toDataURI = (file) => ({
-    name: file.originalname,
-    type: file.mimetype,
-    size: file.size,
-    data: `data:${file.mimetype};base64,${file.buffer.toString('base64')}`,
-});
+// Helper: Upload buffer to Cloudinary using upload_stream
+const uploadToCloudinary = (fileBuffer, originalname, mimetype) => {
+    return new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+            {
+                folder: 'inspire/books',
+                resource_type: 'auto', // Automatically determine raw, image, or video
+                public_id: originalname.split('.')[0] + '_' + Date.now() // Unique ID
+            },
+            (error, result) => {
+                if (error) reject(error);
+                else resolve(result);
+            }
+        );
+        uploadStream.end(fileBuffer);
+    });
+};
 
 /**
  * Create a single book
@@ -44,7 +56,21 @@ exports.createBook = async (req, res) => {
         const existing = await booksCol.where('bookId', '==', bookId).get();
         if (!existing.empty) return res.status(400).json({ success: false, message: 'A book with this ID already exists.' });
 
-        const files = (req.files || []).map(toDataURI);
+        // Upload all files to Cloudinary in parallel
+        const uploadPromises = (req.files || []).map(async (file) => {
+            const result = await uploadToCloudinary(file.buffer, file.originalname, file.mimetype);
+            return {
+                name: file.originalname,
+                type: file.mimetype,
+                size: file.size,
+                secure_url: result.secure_url,
+                public_id: result.public_id,
+                resource_type: result.resource_type
+            };
+        });
+
+        const files = await Promise.all(uploadPromises);
+
         const newBook = {
             bookId, name, description, author, courseId, files,
             createdAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -68,8 +94,8 @@ exports.getAllBooks = async (req, res) => {
         const books = [];
         snap.forEach(doc => {
             const d = doc.data();
-            // Strip base64 data from list view for performance
-            books.push({ id: doc.id, ...d, files: (d.files || []).map(f => ({ name: f.name, type: f.type, size: f.size })) });
+            // Since we no longer use huge base64 strings, we can just return the files array
+            books.push({ id: doc.id, ...d });
         });
         res.status(200).json({ success: true, data: books });
     } catch (error) {
@@ -107,7 +133,32 @@ exports.updateBook = async (req, res) => {
             const snap = await booksCol.where('bookId', '==', bookId).get();
             if (!snap.empty) return res.status(400).json({ success: false, message: 'Another book with this ID already exists.' });
         }
-        const newFiles = (req.files || []).map(toDataURI);
+        // Upload new files to Cloudinary
+        const uploadPromises = (req.files || []).map(async (file) => {
+            const result = await uploadToCloudinary(file.buffer, file.originalname, file.mimetype);
+            return {
+                name: file.originalname,
+                type: file.mimetype,
+                size: file.size,
+                secure_url: result.secure_url,
+                public_id: result.public_id,
+                resource_type: result.resource_type
+            };
+        });
+
+        const newFiles = await Promise.all(uploadPromises);
+
+        // If replacing files, delete old files from Cloudinary to save space
+        if (newFiles.length > 0 && doc.data().files && doc.data().files.length > 0) {
+            const deletePromises = doc.data().files.map(f => {
+                if (f.public_id) {
+                    return cloudinary.uploader.destroy(f.public_id, { resource_type: f.resource_type || 'auto' });
+                }
+                return Promise.resolve();
+            });
+            await Promise.all(deletePromises).catch(err => console.error("Error deleting old files from Cloudinary:", err));
+        }
+
         const updated = {
             ...(bookId && { bookId }),
             ...(name && { name }),
@@ -133,8 +184,22 @@ exports.deleteBook = async (req, res) => {
         const docRef = booksCol.doc(req.params.id);
         const doc = await docRef.get();
         if (!doc.exists) return res.status(404).json({ success: false, message: 'Book not found' });
+
+        const bookData = doc.data();
+
+        // Delete associated files from Cloudinary
+        if (bookData.files && bookData.files.length > 0) {
+            const deletePromises = bookData.files.map(f => {
+                if (f.public_id) {
+                    return cloudinary.uploader.destroy(f.public_id, { resource_type: f.resource_type || 'auto' });
+                }
+                return Promise.resolve();
+            });
+            await Promise.all(deletePromises).catch(err => console.error("Error deleting files from Cloudinary:", err));
+        }
+
         await docRef.delete();
-        res.status(200).json({ success: true, message: 'Book deleted', data: { id: req.params.id } });
+        res.status(200).json({ success: true, message: 'Book and associated files deleted', data: { id: req.params.id } });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
@@ -148,9 +213,27 @@ exports.deleteAllBooks = async (req, res) => {
     try {
         const snap = await booksCol.get();
         const batch = db.batch();
-        snap.forEach(doc => batch.delete(doc.ref));
+
+        const allDeletePromises = [];
+
+        snap.forEach(doc => {
+            const bookData = doc.data();
+            // Collect Cloudinary deletion promises
+            if (bookData.files && bookData.files.length > 0) {
+                bookData.files.forEach(f => {
+                    if (f.public_id) {
+                        allDeletePromises.push(cloudinary.uploader.destroy(f.public_id, { resource_type: f.resource_type || 'auto' }));
+                    }
+                });
+            }
+            batch.delete(doc.ref);
+        });
+
+        // Delete all files from Cloudinary
+        await Promise.all(allDeletePromises).catch(err => console.error("Error deleting bulk files from Cloudinary:", err));
+
         await batch.commit();
-        res.status(200).json({ success: true, message: 'All books deleted', data: { count: snap.size } });
+        res.status(200).json({ success: true, message: 'All books and associated files deleted', data: { count: snap.size } });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }

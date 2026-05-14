@@ -126,37 +126,15 @@ export default function AnalysisAndStatistics() {
     };
 
     useEffect(() => {
-        // if (typeof window !== 'undefined') {
-        //     setIsOffline(!navigator.onLine);
-        // }
-
-        // const handleOnline = () => { setIsOffline(false); fetchStats(); };
-        // const handleOffline = () => setIsOffline(true);
-
-        // window.addEventListener('online', handleOnline);
-        // window.addEventListener('offline', handleOffline);
-
-        // if (typeof navigator !== 'undefined' && navigator.onLine) {
-        //     fetchStats();
-        // } else {
-        //     setIsLoading(false);
-        // }
-
-        // return () => {
-        //     window.removeEventListener('online', handleOnline);
-        //     window.removeEventListener('offline', handleOffline);
-        // };
+        fetchStats();
     }, []);
 
     return (
         <div className="p-8 w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
 
 
-            {/* Offline State
-            {isOffline ? (
-                OfflineMode()
-
-            ) : ( */(
+            {
+                (
                     <>
                         {/* Header */}
                         <div className="flex items-start justify-between mb-8">

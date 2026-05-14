@@ -9,7 +9,7 @@ interface CourseIconProps {
     className?: string;
 }
 
-export function CourseIcon({ courseName, size = 20, className = "" }: CourseIconProps) {
+export function CourseIcon({ courseName, size = 26, className = "" }: CourseIconProps) {
     const getIconPath = (name: string) => {
         // Clean name to match JSON keys (lowercase, remove spaces, underscores, hyphens)
         const key = name.toLowerCase().replace(/[\s\-_]/g, '');

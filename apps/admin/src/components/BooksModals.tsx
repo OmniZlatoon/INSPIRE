@@ -176,7 +176,12 @@ export function AddEditModal({ mode, tab, setTab, form, setForm, bulkForms, setB
                         : <BulkBookForm forms={bulkForms} setForms={setBulkForms} courses={courses} />
                     }
                 </div>
-                <div className="p-6 border-t border-gray-100 dark:border-gray-800">
+                <div className="p-6 border-t border-gray-100 dark:border-gray-800 relative overflow-hidden">
+                    {isLoading && (
+                        <div className="absolute top-0 left-0 w-full h-[2px] bg-transparent">
+                            <div className="h-full bg-green-500 w-1/2 animate-indeterminate" />
+                        </div>
+                    )}
                     {error && <div className="flex items-center gap-2 p-3 mb-3 bg-red-50 dark:bg-red-900/20 text-red-600 rounded-lg text-xs border border-red-100 dark:border-red-800"><AlertTriangle size={14} />{error}</div>}
                     <div className="flex justify-end gap-3">
                         <button onClick={onClose} className="px-5 py-2 rounded-lg text-[#5f6368] hover:bg-gray-100 dark:hover:bg-[#2d2d2d] font-medium">Cancel</button>

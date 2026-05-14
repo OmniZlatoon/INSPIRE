@@ -517,7 +517,12 @@ export default function CarrierPath() {
                 </div>
 
                 {/* Modal Footer */}
-                <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#121212] flex justify-end">
+                <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#121212] flex justify-end relative overflow-hidden">
+                    {isActionLoading && (
+                        <div className="absolute top-0 left-0 w-full h-[2px] bg-transparent">
+                            <div className="h-full bg-green-500 w-1/2 animate-indeterminate" />
+                        </div>
+                    )}
                     <button
                         onClick={() => setModalMode('closed')}
                         className="px-4 py-2 text-[#5f6368] dark:text-gray-400 hover:text-[#202124] dark:hover:text-white font-medium mr-3 transition-colors"
