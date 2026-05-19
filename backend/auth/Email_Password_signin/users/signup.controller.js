@@ -34,7 +34,9 @@ exports.signup = async (req, res) => {
             uid: newUser.uid,
             email: email,
             provider: 'email',
-            createdAt: admin.firestore.FieldValue.serverTimestamp()
+            createdAt: admin.firestore.FieldValue.serverTimestamp(),
+            inspirePoints: 0,
+            hasReceivedSignInBonus: false
         });
 
         res.status(201).json({

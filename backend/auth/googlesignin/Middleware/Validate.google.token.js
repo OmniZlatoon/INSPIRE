@@ -38,8 +38,24 @@ const validateGoogleToken = async (req, res) => {
                 displayName: decodedToken.name || null,
                 photoURL: decodedToken.picture || null,
                 provider: 'google',
-                createdAt: admin.firestore.FieldValue.serverTimestamp()
+                createdAt: admin.firestore.FieldValue.serverTimestamp(),
+                inspirePoints: 0,
+                hasReceivedSignInBonus: false
             });
+        }
+
+        // Gamification: Award 200 Inspire Points on first sign-in
+        const updatedDoc = await userRef.get();
+        if (updatedDoc.exists) {
+            const userData = updatedDoc.data();
+            if (userData.hasReceivedSignInBonus === false || userData.hasReceivedSignInBonus === undefined) {
+                const currentPoints = userData.inspirePoints || 0;
+                await userRef.update({
+                    inspirePoints: currentPoints + 200,
+                    hasReceivedSignInBonus: true
+                });
+                console.log(`[GAMIFICATION] Granted 200 Inspire Points to Google User: ${decodedToken.email}`);
+            }
         }
 
         return res.status(200).json({

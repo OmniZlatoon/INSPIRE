@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 import { X, Trash2, AlertTriangle, PlusCircle, ChevronDown, Check, Upload, FileText, FileType, Presentation, BookOpen } from 'lucide-react';
-
+import { CourseIcon } from './CourseIcon';
 export interface Course { id: string; courseId: string; name: string; }
 export interface BookFile { name: string; type: string; size: number; }
 export interface Book { id: string; bookId: string; name: string; description: string; author: string; courseId: string; files: BookFile[]; createdAt: any; }
@@ -11,14 +11,14 @@ export interface BookForm { bookId: string; name: string; description: string; a
 export interface BulkBookEntry { bookId: string; name: string; description: string; author: string; courseId: string; files: File[]; }
 
 const ACCEPTED = '.pdf,.doc,.docx,.ppt,.pptx';
-const ACCEPTED_TYPES = ['application/pdf','application/msword','application/vnd.openxmlformats-officedocument.wordprocessingml.document','application/vnd.ms-powerpoint','application/vnd.openxmlformats-officedocument.presentationml.presentation'];
+const ACCEPTED_TYPES = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.presentationml.presentation'];
 
 function fileIcon(type: string) {
     if (type.includes('pdf')) return <FileText size={14} className="text-red-500" />;
     if (type.includes('word') || type.includes('document')) return <FileType size={14} className="text-blue-500" />;
     return <Presentation size={14} className="text-orange-500" />;
 }
-function fmtSize(bytes: number) { return bytes < 1024 * 1024 ? `${(bytes/1024).toFixed(1)} KB` : `${(bytes/(1024*1024)).toFixed(1)} MB`; }
+function fmtSize(bytes: number) { return bytes < 1024 * 1024 ? `${(bytes / 1024).toFixed(1)} KB` : `${(bytes / (1024 * 1024)).toFixed(1)} MB`; }
 
 // ─── Course Dropdown ──────────────────────────────────────────────────────────
 export function CourseDropdown({ courses, selected, onSelect }: { courses: Course[]; selected: string; onSelect: (id: string) => void }) {
@@ -220,45 +220,90 @@ export function ViewModal({ book, courses, onClose }: { book: Book; courses: Cou
     const course = courses.find(c => c.id === book.courseId);
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md">
-            <div className="bg-white rounded-2xl w-full max-w-3xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden">
-                <div className="flex justify-end p-4 border-b border-gray-100">
-                    <button onClick={onClose} className="p-2 rounded-full hover:bg-gray-100 text-[#5f6368]"><X size={20} /></button>
+            <div className="bg-white dark:bg-[#111] rounded-2xl w-[80vw] max-h-[88vh] shadow-2xl flex flex-col overflow-hidden border border-gray-200 dark:border-gray-800">
+                {/* Header Bar */}
+                <div className="flex items-center justify-between px-8 py-5 border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-[#1a1a1a] flex-shrink-0">
+                    <div className="flex items-center gap-4">
+                        <div className="w-11 h-11 rounded-xl bg-transparent text-purple-600 dark:text-purple-400 flex items-center justify-center border-none flex-shrink-0">
+                            <CourseIcon courseName={course?.name || ''} size={35} />
+                        </div>
+                        <div>
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-primary mb-0.5">Book Specification</p>
+                            <h2 className="text-lg font-bold text-[#202124] dark:text-white leading-tight">{book.name}</h2>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                        <span className="text-xs px-3 py-1.5 bg-gray-100 dark:bg-[#2d2d2d] rounded-lg font-mono font-bold text-[#5f6368] dark:text-gray-300 flex items-center gap-1.5">
+                            <span className="w-1.5 h-1.5 rounded-full bg-primary inline-block"></span>
+                            {book.bookId}
+                        </span>
+                        <span className="text-xs px-3 py-1.5 bg-green-50 dark:bg-green-900/20 rounded-lg font-semibold text-green-600 dark:text-green-400 border border-green-200 dark:border-green-800/40">Active</span>
+                        <button onClick={onClose} className="ml-2 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-[#2d2d2d] text-[#5f6368] transition-colors"><X size={20} /></button>
+                    </div>
                 </div>
-                <div className="flex-1 overflow-y-auto p-12">
-                    <div className="max-w-xl mx-auto">
-                        <div className="text-center border-b border-gray-100 pb-8 mb-8">
-                            <p className="text-[10px] font-bold text-primary uppercase tracking-[0.3em] mb-3">Book Specification</p>
-                            <h1 className="text-4xl font-black text-[#202124] tracking-tight mb-2">{book.name}</h1>
-                            <p className="text-sm text-[#5f6368] italic mb-4">by {book.author}</p>
-                            <div className="flex items-center justify-center gap-3 flex-wrap">
-                                <span className="text-xs px-3 py-1 bg-gray-50 rounded-full border border-gray-100 font-mono font-bold text-primary">{book.bookId}</span>
-                                {course && <span className="text-xs px-3 py-1 bg-purple-50 rounded-full border border-purple-100 font-bold text-purple-600">{course.name}</span>}
-                                <span className="text-xs px-3 py-1 bg-green-50 rounded-full border border-green-100 font-bold text-green-600">Active</span>
-                            </div>
+
+                {/* Scrollable Body */}
+                <div className="flex-1 overflow-y-auto">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 divide-y lg:divide-y-0 lg:divide-x divide-gray-100 dark:divide-gray-800 min-h-full">
+                        {/* ── Left / Main Column ── */}
+                        <div className="lg:col-span-2 p-8 space-y-10">
+                            {/* Introduction */}
+                            <section>
+                                <h3 className="text-[11px] font-bold uppercase tracking-widest text-[#80868b] mb-3">Book Overview</h3>
+                                <p className="text-base text-[#3c4043] dark:text-gray-300 leading-7">{book.description}</p>
+                            </section>
+
+                            {/* Attached Files */}
+                            {book.files && book.files.length > 0 && (
+                                <section>
+                                    <h3 className="text-[11px] font-bold uppercase tracking-widest text-[#80868b] mb-4">Attached Files</h3>
+                                    <div className="space-y-2">
+                                        {book.files.map((f, i) => (
+                                            <div key={i} className="flex items-center gap-3 px-3 py-2 bg-gray-50 dark:bg-[#1a1a1a] border border-gray-100 dark:border-gray-800 rounded-lg">
+                                                {fileIcon(f.type)}
+                                                <span className="text-xs font-medium text-[#202124] dark:text-white flex-1 truncate">{f.name}</span>
+                                                <span className="text-[10px] text-[#80868b]">{fmtSize(f.size)}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </section>
+                            )}
                         </div>
-                        <div className="mb-8">
-                            <h4 className="text-[10px] font-black uppercase tracking-widest text-[#80868b] mb-4 flex items-center gap-3">
-                                <span className="flex-1 h-px bg-gray-100" /> Book Overview <span className="flex-1 h-px bg-gray-100" />
-                            </h4>
-                            <p className="text-lg text-[#3c4043] leading-relaxed font-serif italic text-center">"{book.description}"</p>
-                        </div>
-                        {book.files && book.files.length > 0 && (
-                            <div className="mb-8">
-                                <h4 className="text-[10px] font-black uppercase tracking-widest text-[#80868b] border-b pb-2 mb-3">Attached Files</h4>
-                                <div className="space-y-2">
-                                    {book.files.map((f, i) => (
-                                        <div key={i} className="flex items-center gap-3 px-3 py-2 bg-gray-50 rounded-lg border border-gray-100">
-                                            {fileIcon(f.type)}
-                                            <span className="text-xs font-medium text-[#202124] flex-1 truncate">{f.name}</span>
-                                            <span className="text-[10px] text-[#80868b]">{fmtSize(f.size)}</span>
-                                        </div>
-                                    ))}
+
+                        {/* ── Right / Sidebar Column ── */}
+                        <div className="p-8 space-y-10 bg-gray-50/40 dark:bg-[#0d0d0d]">
+                            {/* Stats */}
+                            <section>
+                                <h3 className="text-[11px] font-bold uppercase tracking-widest text-[#80868b] mb-4">Overview</h3>
+                                <div className="grid grid-cols-1 gap-3">
+                                    <div className="p-4 bg-white dark:bg-[#1a1a1a] rounded-xl border border-gray-100 dark:border-gray-800 text-center">
+                                        <p className="text-2xl font-black text-[#202124] dark:text-white">{book.files?.length || 0}</p>
+                                        <p className="text-[10px] uppercase tracking-wider text-[#80868b] mt-1 flex items-center justify-center gap-1"><BookOpen size={11} /> Attached Files</p>
+                                    </div>
                                 </div>
+                            </section>
+
+                            {/* Author */}
+                            <section>
+                                <h3 className="text-[11px] font-bold uppercase tracking-widest text-[#80868b] mb-2">Author</h3>
+                                <p className="text-sm font-semibold text-[#202124] dark:text-white">{book.author || 'Unknown Author'}</p>
+                            </section>
+
+                            {/* Associated Course */}
+                            <section>
+                                <h3 className="text-[11px] font-bold uppercase tracking-widest text-[#80868b] mb-2">Associated Course</h3>
+                                {course ? (
+                                    <span className="inline-block text-xs px-3 py-1.5 bg-[#e8f0fe] dark:bg-blue-900/20 text-[#1a73e8] dark:text-blue-400 rounded-lg border border-blue-100 dark:border-blue-800/30 font-semibold">{course.name}</span>
+                                ) : (
+                                    <p className="text-sm text-gray-400 italic">No course associated.</p>
+                                )}
+                            </section>
+
+                            {/* System Footer */}
+                            <div className="pt-6 border-t border-dashed border-gray-200 dark:border-gray-800">
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-[#80868b]">System Generated</p>
+                                <p className="text-[10px] font-mono mt-1 text-gray-400">{book.createdAt?.seconds ? new Date(book.createdAt.seconds * 1000).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'Just now'}</p>
                             </div>
-                        )}
-                        <div className="mt-12 pt-6 border-t border-dashed border-gray-100 flex justify-between items-end opacity-30">
-                            <div><p className="text-[9px] font-bold uppercase">System Generated</p><p className="text-[9px] font-mono">{new Date().toISOString()}</p></div>
-                            <div className="w-14 h-14 border-4 border-gray-200 rounded-full flex items-center justify-center"><span className="text-[7px] font-black uppercase text-center -rotate-12">Inspire<br/>Admin</span></div>
                         </div>
                     </div>
                 </div>

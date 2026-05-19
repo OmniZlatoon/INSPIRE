@@ -1,10 +1,11 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Route, Plus, MoreVertical, Edit2, Trash2, X, PlusCircle, AlertTriangle, CheckCircle, WifiOff, RefreshCcw, BookOpen } from 'lucide-react';
+import { Route, Plus, MoreVertical, Edit2, Trash2, X, PlusCircle, AlertTriangle, CheckCircle, WifiOff, RefreshCcw, BookOpen, Layers, Eye } from 'lucide-react';
 
 import { SearchBar } from '@/components/SearchBar';
 import { NoResultsFound } from '@/components/NoResultsFound';
+import { CourseIcon } from '@/components/CourseIcon';
 
 // Types
 interface Carrier {
@@ -12,9 +13,10 @@ interface Carrier {
     carrierId: string;
     name: string;
     description: string;
+    createdAt?: any;
 }
 
-type ModalMode = 'closed' | 'add' | 'edit' | 'delete' | 'deleteAll';
+type ModalMode = 'closed' | 'add' | 'edit' | 'delete' | 'deleteAll' | 'view';
 type AddMode = 'single' | 'bulk';
 
 export default function CarrierPath() {
@@ -22,7 +24,10 @@ export default function CarrierPath() {
     const [carrierPaths, setCarrierPaths] = useState<Carrier[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [courseCounts, setCourseCounts] = useState<Record<string, number>>({});
+    const [specCounts, setSpecCounts] = useState<Record<string, number>>({});
     const [searchQuery, setSearchQuery] = useState('');
+    const [allCourses, setAllCourses] = useState<any[]>([]);
+    const [allSpecs, setAllSpecs] = useState<any[]>([]);
 
     // Modal State
     const [modalMode, setModalMode] = useState<ModalMode>('closed');
@@ -60,18 +65,21 @@ export default function CarrierPath() {
         setIsLoading(true);
         try {
             const COURSE_API = process.env.NEXT_PUBLIC_API_URL + '/api/inspire/course' || 'http://localhost:5000/api/inspire/course';
-            const [carriersRes, coursesRes] = await Promise.all([
+            const SPEC_API = process.env.NEXT_PUBLIC_API_URL + '/api/inspire/specialization' || 'http://localhost:5000/api/inspire/specialization';
+            const [carriersRes, coursesRes, specsRes] = await Promise.all([
                 fetch(`${API_URL}/view`),
                 fetch(`${COURSE_API}/view`),
+                fetch(`${SPEC_API}/view`),
             ]);
             const carriersData = await carriersRes.json();
             const coursesData = await coursesRes.json();
+            const specsData = await specsRes.json();
 
-            if (carriersData.success) {
-                setCarrierPaths(carriersData.data);
-            }
+            if (carriersData.success) setCarrierPaths(carriersData.data);
+
             // Build a map: carrierId -> count of courses that include it
             if (coursesData.success) {
+                setAllCourses(coursesData.data);
                 const counts: Record<string, number> = {};
                 for (const course of coursesData.data) {
                     for (const cid of (course.carrierIds || [])) {
@@ -79,6 +87,17 @@ export default function CarrierPath() {
                     }
                 }
                 setCourseCounts(counts);
+            }
+            // Build a map: carrierId -> count of specializations linked to it
+            if (specsData.success) {
+                setAllSpecs(specsData.data);
+                const sCount: Record<string, number> = {};
+                for (const spec of specsData.data) {
+                    for (const cid of (spec.carrierIds || [])) {
+                        sCount[cid] = (sCount[cid] || 0) + 1;
+                    }
+                }
+                setSpecCounts(sCount);
             }
         } catch (error) {
             console.error('Error fetching carriers:', error);
@@ -330,6 +349,16 @@ export default function CarrierPath() {
                                         {activeDropdown === carrier.id && (
                                             <div className="absolute right-0 mt-1 w-44 bg-white dark:bg-[#2d2d2d] rounded-lg shadow-xl border border-gray-100 dark:border-gray-700 z-50 py-1">
                                                 <button
+                                                    onClick={() => {
+                                                        setSelectedCarrier(carrier);
+                                                        setModalMode('view');
+                                                        setActiveDropdown(null);
+                                                    }}
+                                                    className="w-full text-left px-3 py-2 text-sm text-[#202124] dark:text-white hover:bg-gray-50 dark:hover:bg-gray-600 flex items-center"
+                                                >
+                                                    <Eye size={14} className="mr-2 text-[#5f6368]" /> View Carrier
+                                                </button>
+                                                <button
                                                     onClick={() => handleOpenEditModal(carrier)}
                                                     className="w-full text-left px-3 py-2 text-sm text-[#202124] dark:text-white hover:bg-gray-50 dark:hover:bg-gray-600 flex items-center"
                                                 >
@@ -361,10 +390,11 @@ export default function CarrierPath() {
                                     {carrier.description}
                                 </p>
 
-                                {/* Footer: course count */}
-                                <div className="flex items-center justify-end gap-1.5 pt-2.5 border-t border-gray-50 dark:border-gray-800/50">
-                                    <BookOpen size={12} className="text-[#80868b]" />
-                                    <span className="text-[11px] font-medium text-[#80868b]">{courseCounts[carrier.id] || 0}</span>
+                                {/* Footer: course + spec counts */}
+                                <div className="flex items-center justify-end gap-3 pt-2.5 border-t border-gray-50 dark:border-gray-800/50">
+                                    <span className="flex items-center gap-1 text-[11px] font-semibold text-[#80868b]" title="Linked Courses"><BookOpen size={12} />{courseCounts[carrier.id] || 0}</span>
+                                    <div className="w-px h-3.5 bg-gray-200 dark:bg-gray-700"></div>
+                                    <span className="flex items-center gap-1 text-[11px] font-semibold text-[#80868b]" title="Linked Specializations"><Layers size={12} />{specCounts[carrier.id] || 0}</span>
                                 </div>
                             </div>
                         </div>
@@ -638,6 +668,113 @@ export default function CarrierPath() {
         </div>
     );
 
+    const renderViewModal = () => {
+        if (!selectedCarrier) return null;
+
+        // Find courses linked to this carrier
+        const linkedCourses = allCourses.filter(c => c.carrierIds?.includes(selectedCarrier.id));
+
+        // Find specializations linked to this carrier
+        const linkedSpecs = allSpecs.filter(s => s.carrierIds?.includes(selectedCarrier.id));
+
+        return (
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md">
+                <div className="bg-white dark:bg-[#111] rounded-2xl w-[80vw] max-h-[88vh] shadow-2xl flex flex-col overflow-hidden border border-gray-200 dark:border-gray-800">
+                    {/* Header Bar */}
+                    <div className="flex items-center justify-between px-8 py-5 border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-[#1a1a1a] flex-shrink-0">
+                        <div className="flex items-center gap-4">
+                            <div className="w-11 h-11 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-[#1a73e8] dark:text-blue-400 flex items-center justify-center border border-blue-100 dark:border-blue-800/50 flex-shrink-0">
+                                <Route size={22} />
+                            </div>
+                            <div>
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-primary mb-0.5">Carrier Path</p>
+                                <h2 className="text-lg font-bold text-[#202124] dark:text-white leading-tight">{selectedCarrier.name}</h2>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                            <span className="text-xs px-3 py-1.5 bg-gray-100 dark:bg-[#2d2d2d] rounded-lg font-mono font-bold text-[#5f6368] dark:text-gray-300 flex items-center gap-1.5">
+                                <span className="w-1.5 h-1.5 rounded-full bg-primary inline-block"></span>
+                                {selectedCarrier.carrierId}
+                            </span>
+                            <span className="text-xs px-3 py-1.5 bg-green-50 dark:bg-green-900/20 rounded-lg font-semibold text-green-600 dark:text-green-400 border border-green-200 dark:border-green-800/40">Active</span>
+                            <button onClick={() => setModalMode('closed')} className="ml-2 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-[#2d2d2d] text-[#5f6368] transition-colors"><X size={20} /></button>
+                        </div>
+                    </div>
+
+                    {/* Scrollable Body */}
+                    <div className="flex-1 overflow-y-auto">
+                        <div className="grid grid-cols-1 lg:grid-cols-3 divide-y lg:divide-y-0 lg:divide-x divide-gray-100 dark:divide-gray-800 min-h-full">
+                            {/* ── Left / Main Column ── */}
+                            <div className="lg:col-span-2 p-8 space-y-10">
+                                {/* Description */}
+                                <section>
+                                    <h3 className="text-[11px] font-bold uppercase tracking-widest text-[#80868b] mb-3">Carrier Overview</h3>
+                                    <p className="text-base text-[#3c4043] dark:text-gray-300 leading-7">{selectedCarrier.description}</p>
+                                </section>
+
+                                {/* Linked Courses */}
+                                <section>
+                                    <h3 className="text-[11px] font-bold uppercase tracking-widest text-[#80868b] mb-4 flex items-center gap-2">
+                                        <BookOpen size={14} /> Linked Courses ({linkedCourses.length})
+                                    </h3>
+                                    <div className="space-y-2">
+                                        {linkedCourses.length > 0 ? linkedCourses.map(c => (
+                                            <div key={c.id} className="flex items-center gap-3 p-3.5 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-[#1a1a1a] hover:border-primary/30 transition-colors">
+                                                <div className="w-8 h-8 bg-transparent dark:bg-transparent text-purple-600 dark:text-purple-400 rounded-lg flex items-center justify-center flex-shrink-0"><CourseIcon courseName={c.name} size={22} /></div>
+                                                <div>
+                                                    <p className="text-sm font-semibold text-[#202124] dark:text-white">{c.name}</p>
+                                                    <p className="text-[11px] text-[#80868b] font-mono">{c.courseId}</p>
+                                                </div>
+                                            </div>
+                                        )) : <p className="text-sm text-gray-400 italic">No courses linked yet.</p>}
+                                    </div>
+                                </section>
+                            </div>
+
+                            {/* ── Right / Sidebar Column ── */}
+                            <div className="p-8 space-y-10 bg-gray-50/40 dark:bg-[#0d0d0d]">
+                                {/* Stats */}
+                                <section>
+                                    <h3 className="text-[11px] font-bold uppercase tracking-widest text-[#80868b] mb-4">Overview</h3>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div className="p-4 bg-white dark:bg-[#1a1a1a] rounded-xl border border-gray-100 dark:border-gray-800 text-center">
+                                            <p className="text-2xl font-black text-[#202124] dark:text-white">{linkedCourses.length}</p>
+                                            <p className="text-[10px] uppercase tracking-wider text-[#80868b] mt-1 flex items-center justify-center gap-1"><BookOpen size={11} /> Courses</p>
+                                        </div>
+                                        <div className="p-4 bg-white dark:bg-[#1a1a1a] rounded-xl border border-gray-100 dark:border-gray-800 text-center">
+                                            <p className="text-2xl font-black text-[#202124] dark:text-white">{linkedSpecs.length}</p>
+                                            <p className="text-[10px] uppercase tracking-wider text-[#80868b] mt-1 flex items-center justify-center gap-1"><Layers size={11} /> Specialties</p>
+                                        </div>
+                                    </div>
+                                </section>
+
+                                {/* Linked Specialties */}
+                                <section>
+                                    <h3 className="text-[11px] font-bold uppercase tracking-widest text-[#80868b] mb-4 flex items-center gap-2">
+                                        <Layers size={14} /> Linked Specialties
+                                    </h3>
+                                    {linkedSpecs.length > 0 ? (
+                                        <div className="flex flex-wrap gap-2">
+                                            {linkedSpecs.map(s => (
+                                                <span key={s.id} className="text-xs px-3 py-1.5 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-700 rounded-lg text-[#3c4043] dark:text-gray-300 font-medium">{s.name}</span>
+                                            ))}
+                                        </div>
+                                    ) : <p className="text-sm text-gray-400 italic">No specialties connected.</p>}
+                                </section>
+
+                                {/* System Footer */}
+                                <div className="pt-6 border-t border-dashed border-gray-200 dark:border-gray-800">
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#80868b]">System Generated</p>
+                                    <p className="text-[10px] font-mono mt-1 text-gray-400">{selectedCarrier.createdAt?.seconds ? new Date(selectedCarrier.createdAt.seconds * 1000).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'Just now'}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    };
+
     return (
         <div className="p-8 w-full animate-in fade-in slide-in-from-bottom-4 duration-500 min-h-full relative">
             {/* Success Toast */}
@@ -663,6 +800,7 @@ export default function CarrierPath() {
             {(modalMode === 'add' || modalMode === 'edit') && renderAddEditModal()}
             {modalMode === 'delete' && renderDeleteModal()}
             {modalMode === 'deleteAll' && renderDeleteAllModal()}
+            {modalMode === 'view' && renderViewModal()}
         </div>
     );
 }

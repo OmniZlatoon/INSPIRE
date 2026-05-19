@@ -34,6 +34,23 @@ exports.verifyOTP = async (req, res) => {
         // Delete the OTP from Redis after Verification
         await redisClient.del(email);
 
+        // 4. Gamification: Award 200 Inspire Points on first sign-in
+        const userRef = admin.firestore().collection('users').doc(userRecord.uid);
+        const userDoc = await userRef.get();
+        
+        if (userDoc.exists) {
+            const userData = userDoc.data();
+            // Check if they haven't received the bonus (false) or if it's undefined (legacy user)
+            if (userData.hasReceivedSignInBonus === false || userData.hasReceivedSignInBonus === undefined) {
+                const currentPoints = userData.inspirePoints || 0;
+                await userRef.update({
+                    inspirePoints: currentPoints + 200,
+                    hasReceivedSignInBonus: true
+                });
+                console.log(`[GAMIFICATION] Granted 200 Inspire Points to ${email}`);
+            }
+        }
+
         res.status(200).json({ 
             message: '[INFO] - OTP verified successfully ✅',
             customToken: customToken,

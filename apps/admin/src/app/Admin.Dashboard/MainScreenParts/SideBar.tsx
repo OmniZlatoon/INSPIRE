@@ -12,11 +12,13 @@ import {
     Code,
     Menu,
     X,
+    Layers,
 } from 'lucide-react';
 
 export type TabKeys =
     | 'analysis'
     | 'career'
+    | 'specialization'
     | 'course'
     | 'books'
     | 'leaderboard'
@@ -40,6 +42,7 @@ interface NavItem {
 const primaryNav: NavItem[] = [
     { id: 'analysis', label: 'Analysis', Icon: FlaskConical },
     { id: 'career', label: 'Carrier Paths', Icon: Route },
+    { id: 'specialization', label: 'Specialization', Icon: Layers },
     { id: 'course', label: 'Courses', Icon: BookOpen },
     { id: 'books', label: 'Books', Icon: Book },
     { id: 'leaderboard', label: 'Leaderboard', Icon: BarChart2 },

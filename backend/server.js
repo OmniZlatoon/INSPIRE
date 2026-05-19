@@ -7,6 +7,8 @@ const carrierRoutes = require('./routes/carrier.routes');
 const statsRoutes = require('./routes/stats.routes');
 const courseRoutes = require('./routes/course.routes');
 const booksRoutes = require('./routes/books.routes');
+const leaderboardRoutes = require('./routes/leaderboard.routes');
+const specializationRoutes = require('./routes/specialization.routes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -33,6 +35,8 @@ app.use('/api/inspire/carrier', carrierRoutes);
 app.use('/api/inspire/stats', statsRoutes);
 app.use('/api/inspire/course', courseRoutes);
 app.use('/api/inspire/books', booksRoutes);
+app.use('/api/inspire/leaderboard', leaderboardRoutes);
+app.use('/api/inspire/specialization', specializationRoutes);
 
 // Basic health check
 app.get('/health', (req, res) => {

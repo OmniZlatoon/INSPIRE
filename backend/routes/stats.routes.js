@@ -17,6 +17,9 @@ router.get('/books', statsController.getTotalBooks);
 // GET /api/inspire/stats/messages  — total messages
 router.get('/messages', statsController.getTotalMessages);
 
+// GET /api/inspire/stats/specializations  — total specializations
+router.get('/specializations', statsController.getTotalSpecializations);
+
 module.exports = router;
 
 

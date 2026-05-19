@@ -1,10 +1,10 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { BookOpen, Plus, MoreVertical, Edit2, Trash2, Eye, LayoutGrid, Table as TableIcon, Route, Book as BookIcon, CheckCircle } from 'lucide-react';
+import { BookOpen, Plus, MoreVertical, Edit2, Trash2, Eye, LayoutGrid, Table as TableIcon, Route, Book as BookIcon, CheckCircle, Layers } from 'lucide-react';
 import { SearchBar } from '@/components/SearchBar';
 import { NoResultsFound } from '@/components/NoResultsFound';
 import { AddEditModal, DeleteModal, ViewModal } from '../../components/CourseModals';
-import type { Course, Carrier, ModalMode, AddTab, SingleForm, BulkEntry } from '../../components/CourseModals';
+import type { Course, Carrier, ModalMode, SingleForm, Skill } from '../../components/CourseModals';
 import { CourseIcon } from '@/components/CourseIcon';
 
 const API = (process.env.NEXT_PUBLIC_API_URL + "/api/inspire" || 'http://localhost:5000/api/inspire');
@@ -20,7 +20,7 @@ const filterCourses = (courses: Course[], query: string) => {
     );
 };
 
-const BLANK: SingleForm = { courseId: '', name: '', description: '', carrierIds: [] };
+const BLANK: SingleForm = { courseId: '', name: '', description: '', carrierIds: [], whatYouWillLearn: [], skills: [], instructors: [], faqs: [] };
 
 export default function CourseOverlook() {
     const [courses, setCourses] = useState<Course[]>([]);
@@ -31,14 +31,16 @@ export default function CourseOverlook() {
     const [searchQuery, setSearchQuery] = useState('');
     const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
     const [modal, setModal] = useState<ModalMode>('closed');
-    const [tab, setTab] = useState<AddTab>('single');
     const [selected, setSelected] = useState<Course | null>(null);
     const [form, setForm] = useState<SingleForm>(BLANK);
-    const [bulkForms, setBulkForms] = useState<BulkEntry[]>([{ ...BLANK }]);
     const [error, setError] = useState<string | null>(null);
     const [toast, setToast] = useState<string | null>(null);
     const [exiting, setExiting] = useState(false);
     const [activeMenu, setActiveMenu] = useState<string | null>(null);
+    const [specCounts, setSpecCounts] = useState<Record<string, number>>({});
+    const [dbSkills, setDbSkills] = useState<Skill[]>([]);
+    const [allBooks, setAllBooks] = useState<any[]>([]);
+    const [allSpecializations, setAllSpecializations] = useState<any[]>([]);
 
     useEffect(() => {
         load();
@@ -53,17 +55,23 @@ export default function CourseOverlook() {
     const load = async () => {
         setIsLoading(true);
         try {
-            const [cr, ca, br] = await Promise.all([
+            const SPEC = `${API}/specialization`;
+            const [cr, ca, br, sr, skRes] = await Promise.all([
                 fetch(`${COURSE}/view`),
                 fetch(`${CARRIER}/view`),
-                fetch(`${BOOKS}/view`)
+                fetch(`${BOOKS}/view`),
+                fetch(`${SPEC}/view`),
+                fetch(`${SPEC}/skill/view`),
             ]);
-            const cd = await cr.json();
-            const cad = await ca.json();
-            const bd = await br.json();
+            const cd = cr.ok ? await cr.json() : { success: false };
+            const cad = ca.ok ? await ca.json() : { success: false };
+            const bd = br.ok ? await br.json() : { success: false };
+            const sd = sr.ok ? await sr.json() : { success: false };
+            const skd = skRes.ok ? await skRes.json() : { success: false };
 
-            if (cd.success) { // && bd.success) {
-                const books = bd.data || [];
+            if (cd.success) {
+                const books = bd.success ? (bd.data || []) : [];
+                setAllBooks(books);
                 const coursesWithCount = cd.data.map((course: any) => ({
                     ...course,
                     bookCount: books.filter((b: any) => b.courseId === course.id).length
@@ -71,6 +79,17 @@ export default function CourseOverlook() {
                 setCourses(coursesWithCount);
             }
             if (cad.success) setCarriers(cad.data);
+            if (sd.success) {
+                setAllSpecializations(sd.data || []);
+                const sCount: Record<string, number> = {};
+                for (const spec of sd.data) {
+                    for (const cid of (spec.courseIds || [])) {
+                        sCount[cid] = (sCount[cid] || 0) + 1;
+                    }
+                }
+                setSpecCounts(sCount);
+            }
+            if (skd.success) setDbSkills(skd.data);
         } catch { /* offline */ } finally { setIsLoading(false); }
     };
 
@@ -79,10 +98,28 @@ export default function CourseOverlook() {
         setTimeout(() => { setExiting(true); setTimeout(() => setToast(null), 500); }, 3000);
     };
 
-    const openAdd = () => { setModal('add'); setTab('single'); setForm(BLANK); setBulkForms([{ ...BLANK }]); setError(null); };
-    const openEdit = (c: Course) => { setSelected(c); setForm({ courseId: c.courseId, name: c.name, description: c.description, carrierIds: c.carrierIds }); setError(null); setModal('edit'); setActiveMenu(null); };
+    const openAdd = () => { setModal('add'); setForm(BLANK); setError(null); };
+    const openEdit = (c: Course) => { setSelected(c); setForm({ courseId: c.courseId, name: c.name, description: c.description, carrierIds: c.carrierIds || [], whatYouWillLearn: c.whatYouWillLearn || [], skills: c.skills || [], instructors: c.instructors || [], faqs: c.faqs || [] }); setError(null); setModal('edit'); setActiveMenu(null); };
     const openDelete = (c: Course) => { setSelected(c); setModal('delete'); setActiveMenu(null); };
     const openView = (c: Course) => { setSelected(c); setModal('view'); setActiveMenu(null); };
+
+    const handleAddSkillToDb = async (skillName: string) => {
+        try {
+            const res = await fetch(`${API}/specialization/skill/create`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: skillName })
+            });
+            if (res.ok) {
+                const data = await res.json();
+                if (data.success) {
+                    setDbSkills([...dbSkills, data.data]);
+                    return data.data;
+                }
+            }
+        } catch { /* ignore */ }
+        return null;
+    };
 
     const handleSubmit = async () => {
         setIsActionLoading(true); setError(null);
@@ -90,17 +127,12 @@ export default function CourseOverlook() {
             if (modal === 'edit' && selected) {
                 const r = await fetch(`${COURSE}/${selected.id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) });
                 const d = await r.json();
-                if (d.success) { setCourses(courses.map(c => c.id === selected.id ? d.data : c)); setModal('closed'); showToast('Course updated!'); }
-                else setError(d.message);
-            } else if (tab === 'single') {
-                const r = await fetch(`${COURSE}/create`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) });
-                const d = await r.json();
-                if (d.success) { setCourses([d.data, ...courses]); setModal('closed'); showToast('Course created!'); }
+                if (d.success) { setCourses(courses.map(c => c.id === selected.id ? { ...d.data, bookCount: c.bookCount } : c)); setModal('closed'); showToast('Course updated!'); }
                 else setError(d.message);
             } else {
-                const r = await fetch(`${COURSE}/bulk`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ courses: bulkForms }) });
+                const r = await fetch(`${COURSE}/create`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) });
                 const d = await r.json();
-                if (d.success) { setCourses([...d.data, ...courses]); setModal('closed'); showToast(`${d.data.length} courses added!`); }
+                if (d.success) { setCourses([{ ...d.data, bookCount: 0 }, ...courses]); setModal('closed'); showToast('Course created!'); }
                 else setError(d.message);
             }
         } catch (e: any) { setError(e.message); } finally { setIsActionLoading(false); }
@@ -212,8 +244,10 @@ export default function CourseOverlook() {
                                         <p className="text-[10px] font-mono text-purple-600 bg-purple-50 dark:bg-purple-900/15 px-1.5 py-0.5 rounded inline-block mb-2">{course.courseId}</p>
                                         <p className="text-xs text-[#5f6368] dark:text-gray-400 line-clamp-2 min-h-[2rem] mb-3" title={course.description}>{course.description}</p>
                                         <div className="flex justify-end gap-3 pt-3 border-t border-gray-50 dark:border-gray-800/50">
-                                            <span className="flex items-center gap-1 text-[11px] text-[#80868b] font-medium"><Route size={12} />{course.carrierIds?.length || 0}</span>
-                                            <span className="flex items-center gap-1 text-[11px] text-[#80868b] font-medium"><BookIcon size={12} />{course.bookCount || 0}</span>
+                                            <span className="flex items-center gap-1 text-[11px] text-[#80868b] font-medium" title="Carriers"><Route size={12} />{course.carrierIds?.length || 0}</span>
+                                            <span className="flex items-center gap-1 text-[11px] text-[#80868b] font-medium" title="Books"><BookIcon size={12} />{course.bookCount || 0}</span>
+                                            <div className="w-px h-3.5 bg-gray-200 dark:bg-gray-700 self-center"></div>
+                                            <span className="flex items-center gap-1 text-[11px] text-[#80868b] font-medium" title="Specializations"><Layers size={12} />{specCounts[course.id] || 0}</span>
                                         </div>
                                     </div>
                                 ))}
@@ -250,13 +284,13 @@ export default function CourseOverlook() {
 
             {/* Modals */}
             {(modal === 'add' || modal === 'edit') && (
-                <AddEditModal mode={modal} tab={tab} setTab={setTab} form={form} setForm={setForm} bulkForms={bulkForms} setBulkForms={setBulkForms} carriers={carriers} onClose={() => setModal('closed')} onSubmit={handleSubmit} isLoading={isActionLoading} error={error} />
+                <AddEditModal mode={modal} form={form} setForm={setForm} carriers={carriers} dbSkills={dbSkills} onAddSkillToDb={handleAddSkillToDb} onClose={() => setModal('closed')} onSubmit={handleSubmit} isLoading={isActionLoading} error={error} />
             )}
             {(modal === 'delete' || modal === 'deleteAll') && (
                 <DeleteModal mode={modal} course={selected} onClose={() => setModal('closed')} onConfirm={handleDelete} isLoading={isActionLoading} />
             )}
             {modal === 'view' && selected && (
-                <ViewModal course={selected} carriers={carriers} onClose={() => setModal('closed')} />
+                <ViewModal course={selected} carriers={carriers} books={allBooks.filter(b => b.courseId === selected.id)} specializations={allSpecializations.filter(s => s.courseIds?.includes(selected.id))} onClose={() => setModal('closed')} />
             )}
         </div>
     );

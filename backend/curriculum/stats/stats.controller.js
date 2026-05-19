@@ -102,3 +102,22 @@ exports.getTotalMessages = async (req, res) => {
         res.status(500).json({ success: false, message: 'Server error while fetching total messages', error: error.message });
     }
 };
+
+/**
+ * Get total number of specializations from Firestore
+ * @route GET /api/inspire/stats/specializations
+ */
+exports.getTotalSpecializations = async (req, res) => {
+    try {
+        const snapshot = await db.collection('specializations').get();
+        const totalSpecializations = snapshot.size;
+
+        res.status(200).json({
+            success: true,
+            data: { totalSpecializations }
+        });
+    } catch (error) {
+        console.error('Error fetching total specializations:', error);
+        res.status(500).json({ success: false, message: 'Server error while fetching total specializations', error: error.message });
+    }
+};

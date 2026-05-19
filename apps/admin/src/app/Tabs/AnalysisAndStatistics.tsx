@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Users, Route, BookOpen, Book, MessageSquare, TrendingUp, RefreshCw, WifiOff } from 'lucide-react';
+import { Users, Route, BookOpen, Book, MessageSquare, TrendingUp, RefreshCw, WifiOff, Layers } from 'lucide-react';
 //import { OfflineMode } from '@/components/OfflineState';
 
 interface Stats {
@@ -10,6 +10,7 @@ interface Stats {
     totalCourses: number;
     totalBooks: number;
     totalMessages: number;
+    totalSpecializations: number;
 }
 
 interface MetricCard {
@@ -41,6 +42,16 @@ const metricCards: MetricCard[] = [
         darkBgColor: 'dark:bg-emerald-900/15',
         description: 'Active routes',
     },
+
+    {
+        title: 'Total Specialties',
+        key: 'totalSpecializations',
+        icon: <Layers size={18} />,
+        accentColor: 'text-indigo-500',
+        bgColor: 'bg-indigo-50',
+        darkBgColor: 'dark:bg-indigo-900/15',
+        description: 'Curated specialties',
+    },
     {
         title: 'Total Courses',
         key: 'totalCourses',
@@ -68,6 +79,7 @@ const metricCards: MetricCard[] = [
         darkBgColor: 'dark:bg-rose-900/15',
         description: 'User messages sent',
     },
+
 ];
 
 function formatNumber(n: number): string {
@@ -83,6 +95,7 @@ export default function AnalysisAndStatistics() {
         totalCourses: 0,
         totalBooks: 0,
         totalMessages: 0,
+        totalSpecializations: 0,
     });
     const [isLoading, setIsLoading] = useState(true);
     const [isOffline, setIsOffline] = useState(false);
@@ -93,20 +106,22 @@ export default function AnalysisAndStatistics() {
     const fetchStats = async () => {
         setIsLoading(true);
         try {
-            const [usersRes, carriersRes, coursesRes, booksRes, messagesRes] = await Promise.all([
+            const [usersRes, carriersRes, coursesRes, booksRes, messagesRes, specsRes] = await Promise.all([
                 fetch(`${BASE_URL}/users`),
                 fetch(`${BASE_URL}/carriers`),
                 fetch(`${BASE_URL}/courses`),
                 fetch(`${BASE_URL}/books`),
                 fetch(`${BASE_URL}/messages`),
+                fetch(`${BASE_URL}/specializations`),
             ]);
 
-            const [usersData, carriersData, coursesData, booksData, messagesData] = await Promise.all([
+            const [usersData, carriersData, coursesData, booksData, messagesData, specsData] = await Promise.all([
                 usersRes.json(),
                 carriersRes.json(),
                 coursesRes.json(),
                 booksRes.json(),
                 messagesRes.json(),
+                specsRes.json(),
             ]);
 
             setStats(prev => ({
@@ -116,6 +131,7 @@ export default function AnalysisAndStatistics() {
                 totalCourses: coursesData.success ? coursesData.data.totalCourses : prev.totalCourses,
                 totalBooks: booksData.success ? booksData.data.totalBooks : prev.totalBooks,
                 totalMessages: messagesData.success ? messagesData.data.totalMessages : prev.totalMessages,
+                totalSpecializations: specsData.success ? specsData.data.totalSpecializations : prev.totalSpecializations,
             }));
             setLastUpdated(new Date());
         } catch (error) {
@@ -162,7 +178,7 @@ export default function AnalysisAndStatistics() {
                         </div>
                         {/* Metric Cards */}
 
-                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
                             {metricCards.map((card) => (
                                 <div
                                     key={card.key}
@@ -205,7 +221,7 @@ export default function AnalysisAndStatistics() {
                                 <p className="text-xs text-[#5f6368] dark:text-gray-400">
                                     {isLoading
                                         ? 'Fetching latest data...'
-                                        : `${formatNumber(stats.totalUsers)} users · ${formatNumber(stats.totalCarriers)} carrier paths · ${formatNumber(stats.totalCourses)} courses · ${formatNumber(stats.totalBooks)} books · ${formatNumber(stats.totalMessages)} messages`
+                                        : `${formatNumber(stats.totalUsers)} users · ${formatNumber(stats.totalCarriers)} carrier paths · ${formatNumber(stats.totalCourses)} courses · ${formatNumber(stats.totalSpecializations)} Specializations · ${formatNumber(stats.totalBooks)} books · ${formatNumber(stats.totalMessages)} messages`
                                     }
                                 </p>
                             </div>

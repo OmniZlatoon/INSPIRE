@@ -1,35 +1,39 @@
 'use client';
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Trash2, AlertTriangle, PlusCircle, ChevronDown, Check, Layers, User, HelpCircle, BookOpen, Route, FileText, FileType, Presentation } from 'lucide-react';
+import { X, Trash2, AlertTriangle, PlusCircle, ChevronDown, Check, Layers, User, HelpCircle, BookOpen, GraduationCap, Route } from 'lucide-react';
 import { CourseIcon } from '@/components/CourseIcon';
 
-export interface Carrier { id: string; carrierId: string; name: string; description: string; }
+export interface Course { id: string; courseId: string; name: string; description: string; }
+export interface Carrier { id: string; carrierId: string; name: string; }
 export interface Skill { id: string; name: string; }
-export interface Course { 
-    id: string; 
-    courseId: string; 
-    name: string; 
-    description: string; 
-    carrierIds: string[]; 
+
+export interface Specialization {
+    id: string;
+    specializationId: string;
+    name: string;
+    description: string;
+    courseIds: string[];
+    courseDescription: string;
     whatYouWillLearn: string[];
     skills: string[];
     instructors: { name: string; education: string; courseCount: number }[];
     faqs: { question: string; answer: string }[];
-    bookCount: number; 
-    createdAt: any; 
+    carrierIds: string[];
+    createdAt: any;
 }
 
 export type ModalMode = 'closed' | 'add' | 'edit' | 'delete' | 'deleteAll' | 'view';
 
-export interface SingleForm { 
-    courseId: string; 
-    name: string; 
-    description: string; 
-    carrierIds: string[]; 
+export interface SpecializationForm {
+    name: string;
+    description: string;
+    courseIds: string[];
+    courseDescription: string;
     whatYouWillLearn: string[];
     skills: string[];
     instructors: { name: string; education: string; courseCount: number }[];
     faqs: { question: string; answer: string }[];
+    carrierIds: string[];
 }
 
 // ─── Shared Components ─────────────────────────────────────────────────────────
@@ -104,8 +108,9 @@ export function Chips({ ids, items, onRemove, fallbackItems }: { ids: string[]; 
 
 interface AddEditProps {
     mode: ModalMode;
-    form: SingleForm;
-    setForm: (f: SingleForm) => void;
+    form: SpecializationForm;
+    setForm: (f: SpecializationForm) => void;
+    courses: Course[];
     carriers: Carrier[];
     dbSkills: Skill[];
     onClose: () => void;
@@ -115,11 +120,12 @@ interface AddEditProps {
     onAddSkillToDb?: (skillName: string) => Promise<Skill | null>;
 }
 
-export function AddEditModal({ mode, form, setForm, carriers, dbSkills, onClose, onSubmit, isLoading, error, onAddSkillToDb }: AddEditProps) {
+export function AddEditSpecializationModal({ mode, form, setForm, courses, carriers, dbSkills, onClose, onSubmit, isLoading, error, onAddSkillToDb }: AddEditProps) {
     const isEdit = mode === 'edit';
     const [newSkillName, setNewSkillName] = useState('');
     const [isAddingSkill, setIsAddingSkill] = useState(false);
 
+    const toggleCourse = (id: string) => setForm({ ...form, courseIds: form.courseIds.includes(id) ? form.courseIds.filter(x => x !== id) : [...form.courseIds, id] });
     const toggleCarrier = (id: string) => setForm({ ...form, carrierIds: form.carrierIds.includes(id) ? form.carrierIds.filter(x => x !== id) : [...form.carrierIds, id] });
     const toggleSkill = (name: string) => setForm({ ...form, skills: form.skills.includes(name) ? form.skills.filter(x => x !== name) : [...form.skills, name] });
 
@@ -136,7 +142,7 @@ export function AddEditModal({ mode, form, setForm, carriers, dbSkills, onClose,
         }
     };
 
-    const valid = form.name.trim() !== '' && form.description.trim() !== '' && form.courseId.trim() !== '' && form.carrierIds.length > 0;
+    const valid = form.name.trim() !== '' && form.description.trim() !== '';
 
     const inp = "w-full px-4 py-3 bg-white dark:bg-[#121212] border border-gray-200 dark:border-gray-800 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-sm text-[#202124] dark:text-white transition-all placeholder:text-gray-400 dark:placeholder:text-gray-600";
     const label = "block text-xs font-bold uppercase tracking-wider text-[#80868b] mb-2";
@@ -146,12 +152,12 @@ export function AddEditModal({ mode, form, setForm, carriers, dbSkills, onClose,
             <div className="bg-[#f8f9fa] dark:bg-[#0a0a0a] rounded-xl w-full max-w-7xl shadow-2xl flex flex-col h-full max-h-[90vh] overflow-hidden">
                 <div className="flex justify-between items-center px-6 py-4 bg-white dark:bg-[#1a1a1a] border-b border-gray-200 dark:border-gray-800 flex-shrink-0 z-10">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-purple-50 dark:bg-purple-900/20 flex items-center justify-center text-purple-600 dark:text-purple-400">
-                            <BookOpen size={20} />
+                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                            <Layers size={20} />
                         </div>
                         <div>
-                            <h3 className="text-xl font-bold text-[#202124] dark:text-white leading-tight">{isEdit ? 'Edit Course' : 'Create Course'}</h3>
-                            <p className="text-xs text-[#5f6368] dark:text-gray-400">Configure course details and structure</p>
+                            <h3 className="text-xl font-bold text-[#202124] dark:text-white leading-tight">{isEdit ? 'Edit Specialization' : 'Create Specialization'}</h3>
+                            <p className="text-xs text-[#5f6368] dark:text-gray-400">ID is auto-generated by the system</p>
                         </div>
                     </div>
                     <button onClick={onClose} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-[#2d2d2d] text-[#5f6368] transition-colors"><X size={20} /></button>
@@ -162,20 +168,10 @@ export function AddEditModal({ mode, form, setForm, carriers, dbSkills, onClose,
                     <div className="flex-1 overflow-y-auto p-6 md:p-8 md:border-r border-gray-200 dark:border-gray-800">
                         <div className="space-y-6 max-w-xl mx-auto">
                             <div>
-                                <label className={label}>Course Details</label>
+                                <label className={label}>Specialization Details</label>
                                 <div className="space-y-4 p-5 bg-white dark:bg-[#1a1a1a] rounded-2xl border border-gray-200 dark:border-gray-800">
-                                    <div>
-                                        <label className="block text-xs text-[#80868b] mb-1">Course ID</label>
-                                        <input className={inp} placeholder="e.g. CS101" value={form.courseId} onChange={e => setForm({ ...form, courseId: e.target.value })} />
-                                    </div>
-                                    <div>
-                                        <label className="block text-xs text-[#80868b] mb-1">Course Name</label>
-                                        <input className={inp} placeholder="Introduction to Computer Science" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} />
-                                    </div>
-                                    <div>
-                                        <label className="block text-xs text-[#80868b] mb-1">Introduction / Description</label>
-                                        <textarea rows={5} className={`${inp} resize-y min-h-[120px]`} placeholder="Brief overview of the course..." value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} />
-                                    </div>
+                                    <input className={inp} placeholder="Specialization Name (e.g. Advanced Web Development)" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} />
+                                    <textarea rows={4} className={`${inp} resize-y min-h-[100px]`} placeholder="Specialization Introduction / Description" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} />
                                 </div>
                             </div>
 
@@ -186,12 +182,22 @@ export function AddEditModal({ mode, form, setForm, carriers, dbSkills, onClose,
                                     <Chips ids={form.carrierIds} items={carriers} onRemove={toggleCarrier} />
                                 </div>
                             </div>
+
+                            <div>
+                                <label className={label}>Course Linking</label>
+                                <div className="space-y-4 p-5 bg-white dark:bg-[#1a1a1a] rounded-2xl border border-gray-200 dark:border-gray-800">
+                                    <MultiSelectDropdown items={courses.map(c => ({ id: c.id, name: c.name, secondary: c.courseId }))} selectedIds={form.courseIds} onToggle={toggleCourse} placeholder="Search & Select Courses" />
+                                    <Chips ids={form.courseIds} items={courses} onRemove={toggleCourse} />
+                                    <textarea rows={3} className={`${inp} resize-y min-h-[80px]`} placeholder="Description of how these courses fit into the specialization..." value={form.courseDescription} onChange={e => setForm({ ...form, courseDescription: e.target.value })} />
+                                </div>
+                            </div>
                         </div>
                     </div>
 
                     {/* Right Panel */}
                     <div className="flex-1 overflow-y-auto p-6 md:p-8 bg-gray-50/50 dark:bg-[#121212]/50">
                         <div className="space-y-8 max-w-xl mx-auto">
+
                             {/* What You Will Learn */}
                             <div>
                                 <label className={label}>What You Will Learn</label>
@@ -301,7 +307,7 @@ export function AddEditModal({ mode, form, setForm, carriers, dbSkills, onClose,
                         <div className="flex gap-3">
                             <button onClick={onClose} className="px-6 py-2.5 rounded-xl text-[#5f6368] hover:bg-gray-100 dark:hover:bg-[#2d2d2d] font-medium transition-colors">Cancel</button>
                             <button onClick={onSubmit} disabled={isLoading || !valid} className={`px-8 py-2.5 rounded-xl font-bold min-w-[160px] flex items-center justify-center transition-all shadow-sm ${isLoading || !valid ? 'bg-gray-200 dark:bg-gray-800 text-gray-400 cursor-not-allowed' : 'bg-primary hover:bg-blue-600 text-white hover:shadow-md'}`}>
-                                {isLoading ? <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : isEdit ? 'Update Course' : 'Create Course'}
+                                {isLoading ? <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : isEdit ? 'Update Specialization' : 'Create Specialization'}
                             </button>
                         </div>
                     </div>
@@ -312,17 +318,20 @@ export function AddEditModal({ mode, form, setForm, carriers, dbSkills, onClose,
 }
 
 // ─── Delete Modal ─────────────────────────────────────────────────────────────
-export function DeleteModal({ mode, course, onClose, onConfirm, isLoading }: { mode: ModalMode; course: Course | null; onClose: () => void; onConfirm: () => void; isLoading: boolean }) {
+
+export function DeleteSpecializationModal({ mode, specialization, onClose, onConfirm, isLoading }: { mode: ModalMode; specialization: Specialization | null; onClose: () => void; onConfirm: () => void; isLoading: boolean }) {
     const isAll = mode === 'deleteAll';
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
             <div className="bg-white dark:bg-[#1a1a1a] rounded-2xl w-full max-w-md shadow-2xl p-8">
-                <div className="w-14 h-14 bg-red-50 dark:bg-red-900/20 rounded-full flex items-center justify-center mb-5 mx-auto"><Trash2 size={28} className="text-red-500" /></div>
-                <h3 className="text-xl font-bold text-[#202124] dark:text-white text-center mb-2">{isAll ? 'Clear All Courses?' : 'Delete Course?'}</h3>
-                <p className="text-[#5f6368] text-center text-sm mb-8">{isAll ? 'This permanently deletes all courses. Cannot be undone.' : `Delete "${course?.name}"? This action is permanent.`}</p>
+                <div className="w-16 h-16 bg-red-50 dark:bg-red-900/20 rounded-full flex items-center justify-center mb-5 mx-auto"><Trash2 size={32} className="text-red-500" /></div>
+                <h3 className="text-2xl font-bold text-[#202124] dark:text-white text-center mb-3">{isAll ? 'Clear All Specializations?' : 'Delete Specialization?'}</h3>
+                <p className="text-[#5f6368] dark:text-gray-400 text-center text-sm mb-8 leading-relaxed">
+                    {isAll ? 'This permanently deletes all specializations. Cannot be undone.' : <>Delete <strong>"{specialization?.name}"</strong>? This action is permanent and removes all associated linkages.</>}
+                </p>
                 <div className="grid grid-cols-2 gap-3">
-                    <button onClick={onClose} className="py-2.5 rounded-xl font-semibold text-[#5f6368] border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-[#2d2d2d]">Cancel</button>
-                    <button onClick={onConfirm} disabled={isLoading} className="py-2.5 rounded-xl font-bold text-white bg-red-600 hover:bg-red-700 flex items-center justify-center">
+                    <button onClick={onClose} className="py-3 rounded-xl font-semibold text-[#5f6368] border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-[#2d2d2d] transition-colors">Cancel</button>
+                    <button onClick={onConfirm} disabled={isLoading} className="py-3 rounded-xl font-bold text-white bg-red-600 hover:bg-red-700 transition-colors flex items-center justify-center">
                         {isLoading ? <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : 'Yes, Delete'}
                     </button>
                 </div>
@@ -332,31 +341,27 @@ export function DeleteModal({ mode, course, onClose, onConfirm, isLoading }: { m
 }
 
 // ─── View Modal ───────────────────────────────────────────────────────────────
-export function ViewModal({ course, carriers, books, specializations, onClose }: { course: Course; carriers: Carrier[]; books: any[]; specializations: any[]; onClose: () => void }) {
-    function fileIcon(type: string) {
-        if (type?.includes('pdf')) return <FileText size={14} className="text-red-500" />;
-        if (type?.includes('word') || type?.includes('document')) return <FileType size={14} className="text-blue-500" />;
-        return <Presentation size={14} className="text-orange-500" />;
-    }
 
+export function ViewSpecializationModal({ specialization, courses, carriers, onClose }: { specialization: Specialization; courses: Course[]; carriers: Carrier[]; onClose: () => void }) {
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md">
             <div className="bg-white dark:bg-[#111] rounded-2xl w-[80vw] max-h-[88vh] shadow-2xl flex flex-col overflow-hidden border border-gray-200 dark:border-gray-800">
+
                 {/* Header Bar */}
                 <div className="flex items-center justify-between px-8 py-5 border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-[#1a1a1a] flex-shrink-0">
                     <div className="flex items-center gap-4">
-                        <div className="w-11 h-11 rounded-xl bg-transparent dark:bg-transparent text-purple-600 dark:text-purple-400 flex items-center justify-center border-none flex-shrink-0">
-                            <CourseIcon courseName={course.name} size={35} />
+                        <div className="w-11 h-11 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 flex items-center justify-center border border-blue-100 dark:border-blue-800/50 flex-shrink-0">
+                            <Layers size={22} />
                         </div>
                         <div>
-                            <p className="text-[10px] font-bold uppercase tracking-widest text-primary mb-0.5">Course Specification</p>
-                            <h2 className="text-lg font-bold text-[#202124] dark:text-white leading-tight">{course.name}</h2>
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-primary mb-0.5">Specialization</p>
+                            <h2 className="text-lg font-bold text-[#202124] dark:text-white leading-tight">{specialization.name}</h2>
                         </div>
                     </div>
                     <div className="flex items-center gap-3">
                         <span className="text-xs px-3 py-1.5 bg-gray-100 dark:bg-[#2d2d2d] rounded-lg font-mono font-bold text-[#5f6368] dark:text-gray-300 flex items-center gap-1.5">
                             <span className="w-1.5 h-1.5 rounded-full bg-primary inline-block"></span>
-                            {course.courseId}
+                            {specialization.specializationId}
                         </span>
                         <span className="text-xs px-3 py-1.5 bg-green-50 dark:bg-green-900/20 rounded-lg font-semibold text-green-600 dark:text-green-400 border border-green-200 dark:border-green-800/40">Active</span>
                         <button onClick={onClose} className="ml-2 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-[#2d2d2d] text-[#5f6368] transition-colors"><X size={20} /></button>
@@ -366,80 +371,87 @@ export function ViewModal({ course, carriers, books, specializations, onClose }:
                 {/* Scrollable Body */}
                 <div className="flex-1 overflow-y-auto">
                     <div className="grid grid-cols-1 lg:grid-cols-3 divide-y lg:divide-y-0 lg:divide-x divide-gray-100 dark:divide-gray-800 min-h-full">
+
                         {/* ── Left / Main Column ── */}
                         <div className="lg:col-span-2 p-8 space-y-10">
+
                             {/* Introduction */}
                             <section>
-                                <h3 className="text-[11px] font-bold uppercase tracking-widest text-[#80868b] mb-3">Course Overview</h3>
-                                <p className="text-base text-[#3c4043] dark:text-gray-300 leading-7">{course.description}</p>
+                                <h3 className="text-[11px] font-bold uppercase tracking-widest text-[#80868b] mb-3">Introduction</h3>
+                                <p className="text-base text-[#3c4043] dark:text-gray-300 leading-7">{specialization.description}</p>
                             </section>
 
-                            {/* Linked Books */}
+                            {/* Linked Courses */}
                             <section>
                                 <h3 className="text-[11px] font-bold uppercase tracking-widest text-[#80868b] mb-4 flex items-center gap-2">
-                                    <BookOpen size={14} /> Linked Books ({books.length})
+                                    <BookOpen size={14} /> Linked Courses ({specialization.courseIds?.length || 0})
                                 </h3>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                    {books.length > 0 ? books.map(b => (
-                                        <div key={b.id} className="flex items-center gap-3 p-3.5 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-[#1a1a1a] hover:border-primary/30 transition-colors">
-                                            <div className="w-8 h-8 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-lg flex items-center justify-center flex-shrink-0">
-                                                {fileIcon(b.files?.[0]?.type || '')}
+                                {specialization.courseDescription && (
+                                    <p className="text-sm text-[#5f6368] dark:text-gray-400 mb-4 p-4 bg-gray-50 dark:bg-[#1a1a1a] rounded-xl border border-gray-100 dark:border-gray-800 leading-relaxed">{specialization.courseDescription}</p>
+                                )}
+                                <div className="space-y-2">
+                                    {specialization.courseIds?.length > 0 ? specialization.courseIds.map(id => {
+                                        const c = courses.find(x => x.id === id);
+                                        return (
+                                            <div key={id} className="flex items-center gap-3 p-3.5 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-[#1a1a1a] hover:border-primary/30 transition-colors">
+                                                <div className="w-8 h-8 bg-transparent dark:bg-transparent text-purple-600 dark:text-purple-400 rounded-lg flex items-center justify-center flex-shrink-0"><CourseIcon courseName={c?.name || ''} size={20} /></div>
+                                                <div>
+                                                    <p className="text-sm font-semibold text-[#202124] dark:text-white">{c?.name || 'Unknown Course'}</p>
+                                                    <p className="text-[11px] text-[#80868b] font-mono">{c?.courseId || id}</p>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <p className="text-sm font-semibold text-[#202124] dark:text-white truncate max-w-[180px]" title={b.name}>{b.name}</p>
-                                                <p className="text-[11px] text-[#80868b] font-mono mt-0.5">{b.bookId}</p>
-                                            </div>
-                                        </div>
-                                    )) : <p className="text-sm text-gray-400 italic">No books linked yet.</p>}
+                                        );
+                                    }) : <p className="text-sm text-gray-400 italic">No courses linked yet.</p>}
                                 </div>
                             </section>
 
                             {/* What You Will Learn */}
-                            <section>
-                                <h3 className="text-[11px] font-bold uppercase tracking-widest text-[#80868b] mb-4">What You Will Learn</h3>
-                                {course.whatYouWillLearn?.filter(Boolean).length > 0 ? (
+                            {specialization.whatYouWillLearn?.filter(Boolean).length > 0 && (
+                                <section>
+                                    <h3 className="text-[11px] font-bold uppercase tracking-widest text-[#80868b] mb-4">What You Will Learn</h3>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                        {course.whatYouWillLearn.filter(Boolean).map((item, i) => (
+                                        {specialization.whatYouWillLearn.filter(Boolean).map((item, i) => (
                                             <div key={i} className="flex gap-3 items-start p-3.5 bg-gray-50 dark:bg-[#1a1a1a] rounded-xl border border-gray-100 dark:border-gray-800">
                                                 <Check size={16} className="text-green-500 flex-shrink-0 mt-0.5" />
                                                 <span className="text-sm text-[#3c4043] dark:text-gray-300 leading-relaxed">{item}</span>
                                             </div>
                                         ))}
                                     </div>
-                                ) : <p className="text-sm text-gray-400 italic">No content found.</p>}
-                            </section>
+                                </section>
+                            )}
 
                             {/* FAQs */}
-                            <section>
-                                <h3 className="text-[11px] font-bold uppercase tracking-widest text-[#80868b] mb-4 flex items-center gap-2">
-                                    <HelpCircle size={14} /> Frequently Asked Questions
-                                </h3>
-                                {course.faqs?.filter(f => f.question && f.answer).length > 0 ? (
+                            {specialization.faqs?.filter(f => f.question && f.answer).length > 0 && (
+                                <section>
+                                    <h3 className="text-[11px] font-bold uppercase tracking-widest text-[#80868b] mb-4 flex items-center gap-2">
+                                        <HelpCircle size={14} /> Frequently Asked Questions
+                                    </h3>
                                     <div className="space-y-3">
-                                        {course.faqs.filter(f => f.question && f.answer).map((faq, i) => (
+                                        {specialization.faqs.filter(f => f.question && f.answer).map((faq, i) => (
                                             <div key={i} className="p-5 border border-gray-100 dark:border-gray-800 rounded-xl bg-white dark:bg-[#1a1a1a]">
                                                 <p className="text-sm font-semibold text-[#202124] dark:text-white mb-2">{faq.question}</p>
                                                 <p className="text-sm text-[#5f6368] dark:text-gray-400 leading-relaxed">{faq.answer}</p>
                                             </div>
                                         ))}
                                     </div>
-                                ) : <p className="text-sm text-gray-400 italic">No content found.</p>}
-                            </section>
+                                </section>
+                            )}
                         </div>
 
                         {/* ── Right / Sidebar Column ── */}
                         <div className="p-8 space-y-10 bg-gray-50/40 dark:bg-[#0d0d0d]">
+
                             {/* Stats */}
                             <section>
                                 <h3 className="text-[11px] font-bold uppercase tracking-widest text-[#80868b] mb-4">Overview</h3>
                                 <div className="grid grid-cols-2 gap-3">
                                     <div className="p-4 bg-white dark:bg-[#1a1a1a] rounded-xl border border-gray-100 dark:border-gray-800 text-center">
-                                        <p className="text-2xl font-black text-[#202124] dark:text-white">{course.carrierIds?.length || 0}</p>
-                                        <p className="text-[10px] uppercase tracking-wider text-[#80868b] mt-1 flex items-center justify-center gap-1"><Route size={11} /> Carriers</p>
+                                        <p className="text-2xl font-black text-[#202124] dark:text-white">{specialization.courseIds?.length || 0}</p>
+                                        <p className="text-[10px] uppercase tracking-wider text-[#80868b] mt-1 flex items-center justify-center gap-1"><BookOpen size={11} /> Courses</p>
                                     </div>
                                     <div className="p-4 bg-white dark:bg-[#1a1a1a] rounded-xl border border-gray-100 dark:border-gray-800 text-center">
-                                        <p className="text-2xl font-black text-[#202124] dark:text-white">{course.bookCount || 0}</p>
-                                        <p className="text-[10px] uppercase tracking-wider text-[#80868b] mt-1 flex items-center justify-center gap-1"><BookOpen size={11} /> Books</p>
+                                        <p className="text-2xl font-black text-[#202124] dark:text-white">{specialization.carrierIds?.length || 0}</p>
+                                        <p className="text-[10px] uppercase tracking-wider text-[#80868b] mt-1 flex items-center justify-center gap-1"><Route size={11} /> Carriers</p>
                                     </div>
                                 </div>
                             </section>
@@ -447,52 +459,38 @@ export function ViewModal({ course, carriers, books, specializations, onClose }:
                             {/* Connected Carriers */}
                             <section>
                                 <h3 className="text-[11px] font-bold uppercase tracking-widest text-[#80868b] mb-4 flex items-center gap-2">
-                                    <Route size={14} /> Assigned Carriers
+                                    <Route size={14} /> Connected Carriers
                                 </h3>
-                                {course.carrierIds?.length > 0 ? (
+                                {specialization.carrierIds?.length > 0 ? (
                                     <div className="flex flex-wrap gap-2">
-                                        {course.carrierIds.map(id => {
+                                        {specialization.carrierIds.map(id => {
                                             const c = carriers.find(x => x.id === id);
                                             return <span key={id} className="text-xs px-3 py-1.5 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-700 rounded-lg text-[#3c4043] dark:text-gray-300 font-medium">{c?.name || id}</span>;
                                         })}
                                     </div>
-                                ) : <p className="text-sm text-gray-400 italic">No content found.</p>}
-                            </section>
-
-                            {/* Assigned Specializations */}
-                            <section>
-                                <h3 className="text-[11px] font-bold uppercase tracking-widest text-[#80868b] mb-4 flex items-center gap-2">
-                                    <Layers size={14} /> Assigned Specializations
-                                </h3>
-                                {specializations?.length > 0 ? (
-                                    <div className="flex flex-wrap gap-2">
-                                        {specializations.map(s => (
-                                            <span key={s.id} className="text-xs px-3 py-1.5 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-700 rounded-lg text-[#3c4043] dark:text-gray-300 font-medium">{s.name}</span>
-                                        ))}
-                                    </div>
-                                ) : <p className="text-sm text-gray-400 italic">No content found.</p>}
+                                ) : <p className="text-sm text-gray-400 italic">No carriers connected.</p>}
                             </section>
 
                             {/* Skills */}
-                            <section>
-                                <h3 className="text-[11px] font-bold uppercase tracking-widest text-[#80868b] mb-4">Skills You Will Gain</h3>
-                                {course.skills?.length > 0 ? (
+                            {specialization.skills?.length > 0 && (
+                                <section>
+                                    <h3 className="text-[11px] font-bold uppercase tracking-widest text-[#80868b] mb-4">Skills You Will Gain</h3>
                                     <div className="flex flex-wrap gap-2">
-                                        {course.skills.map((s, i) => (
+                                        {specialization.skills.map((s, i) => (
                                             <span key={i} className="text-xs font-semibold px-3 py-1.5 bg-[#e8f0fe] dark:bg-blue-900/20 text-[#1a73e8] dark:text-blue-400 rounded-lg border border-blue-100 dark:border-blue-800/30">{s}</span>
                                         ))}
                                     </div>
-                                ) : <p className="text-sm text-gray-400 italic">No content found.</p>}
-                            </section>
+                                </section>
+                            )}
 
                             {/* Instructors */}
-                            <section>
-                                <h3 className="text-[11px] font-bold uppercase tracking-widest text-[#80868b] mb-4 flex items-center gap-2">
-                                    <User size={14} /> Instructors
-                                </h3>
-                                {course.instructors?.filter(i => i.name).length > 0 ? (
+                            {specialization.instructors?.filter(i => i.name).length > 0 && (
+                                <section>
+                                    <h3 className="text-[11px] font-bold uppercase tracking-widest text-[#80868b] mb-4 flex items-center gap-2">
+                                        <User size={14} /> Instructors
+                                    </h3>
                                     <div className="space-y-3">
-                                        {course.instructors.filter(i => i.name).map((inst, i) => (
+                                        {specialization.instructors.filter(i => i.name).map((inst, i) => (
                                             <div key={i} className="flex gap-3 p-4 border border-gray-100 dark:border-gray-800 rounded-xl bg-white dark:bg-[#1a1a1a]">
                                                 <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-[#2d2d2d] flex items-center justify-center text-[#80868b] flex-shrink-0"><User size={20} /></div>
                                                 <div>
@@ -503,13 +501,13 @@ export function ViewModal({ course, carriers, books, specializations, onClose }:
                                             </div>
                                         ))}
                                     </div>
-                                ) : <p className="text-sm text-gray-400 italic">No content found.</p>}
-                            </section>
+                                </section>
+                            )}
 
                             {/* System Footer */}
                             <div className="pt-6 border-t border-dashed border-gray-200 dark:border-gray-800">
                                 <p className="text-[10px] font-bold uppercase tracking-widest text-[#80868b]">System Generated</p>
-                                <p className="text-[10px] font-mono mt-1 text-gray-400">{course.createdAt?.seconds ? new Date(course.createdAt.seconds * 1000).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'Just now'}</p>
+                                <p className="text-[10px] font-mono mt-1 text-gray-400">{specialization.createdAt?.seconds ? new Date(specialization.createdAt.seconds * 1000).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'Just now'}</p>
                             </div>
                         </div>
                     </div>
@@ -518,3 +516,4 @@ export function ViewModal({ course, carriers, books, specializations, onClose }:
         </div>
     );
 }
+

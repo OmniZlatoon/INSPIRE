@@ -9,7 +9,7 @@ const coursesCollection = db.collection('courses');
  */
 exports.createCourse = async (req, res) => {
     try {
-        const { courseId, name, description, carrierIds } = req.body;
+        const { courseId, name, description, carrierIds, whatYouWillLearn, skills, instructors, faqs } = req.body;
 
         if (!courseId || !name || !description || !Array.isArray(carrierIds) || carrierIds.length === 0) {
             return res.status(400).json({ success: false, message: 'Please provide courseId, name, description, and at least one carrierId.' });
@@ -26,6 +26,10 @@ exports.createCourse = async (req, res) => {
             name,
             description,
             carrierIds,
+            whatYouWillLearn: Array.isArray(whatYouWillLearn) ? whatYouWillLearn : [],
+            skills: Array.isArray(skills) ? skills : [],
+            instructors: Array.isArray(instructors) ? instructors : [],
+            faqs: Array.isArray(faqs) ? faqs : [],
             bookCount: 0,
             createdAt: admin.firestore.FieldValue.serverTimestamp(),
             updatedAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -120,7 +124,7 @@ exports.getAllCourses = async (req, res) => {
 exports.updateCourse = async (req, res) => {
     try {
         const { id } = req.params;
-        const { courseId, name, description, carrierIds } = req.body;
+        const { courseId, name, description, carrierIds, whatYouWillLearn, skills, instructors, faqs } = req.body;
 
         const docRef = coursesCollection.doc(id);
         const doc = await docRef.get();
@@ -136,6 +140,10 @@ exports.updateCourse = async (req, res) => {
             ...(name && { name }),
             ...(description && { description }),
             ...(Array.isArray(carrierIds) && { carrierIds }),
+            ...(Array.isArray(whatYouWillLearn) && { whatYouWillLearn }),
+            ...(Array.isArray(skills) && { skills }),
+            ...(Array.isArray(instructors) && { instructors }),
+            ...(Array.isArray(faqs) && { faqs }),
             updatedAt: admin.firestore.FieldValue.serverTimestamp(),
         };
 

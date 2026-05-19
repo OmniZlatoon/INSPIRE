@@ -9,6 +9,7 @@ import { User, signOut } from 'firebase/auth';
 
 import AnalysisAndStatistics from '@/app/Tabs/AnalysisAndStatistics';
 import CarrierPath from '@/app/Tabs/CarrierPath';
+import SpecializationTab from '@/app/Tabs/Specialization';
 import CourseOverlook from '@/app/Tabs/CourseOverlook';
 import BooksManagement from '@/app/Tabs/BooksManagement';
 import Leaderboard from '@/app/Tabs/Leaderboard';
@@ -108,6 +109,8 @@ export default function MainScreen() {
                 return <AnalysisAndStatistics />;
             case 'career':
                 return <CarrierPath />;
+            case 'specialization':
+                return <SpecializationTab />;
             case 'course':
                 return <CourseOverlook />;
             case 'books':
