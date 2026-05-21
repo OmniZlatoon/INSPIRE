@@ -152,8 +152,8 @@ export function AddEditSpecializationModal({ mode, form, setForm, courses, carri
             <div className="bg-[#f8f9fa] dark:bg-[#0a0a0a] rounded-xl w-full max-w-7xl shadow-2xl flex flex-col h-full max-h-[90vh] overflow-hidden">
                 <div className="flex justify-between items-center px-6 py-4 bg-white dark:bg-[#1a1a1a] border-b border-gray-200 dark:border-gray-800 flex-shrink-0 z-10">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                            <Layers size={20} />
+                        <div className="w-10 h-10 rounded-full bg-transparent dark:bg-transparent flex items-center justify-center">
+                            <CourseIcon courseName={form.name} fallback="specialization" size={32} />
                         </div>
                         <div>
                             <h3 className="text-xl font-bold text-[#202124] dark:text-white leading-tight">{isEdit ? 'Edit Specialization' : 'Create Specialization'}</h3>
@@ -350,8 +350,8 @@ export function ViewSpecializationModal({ specialization, courses, carriers, onC
                 {/* Header Bar */}
                 <div className="flex items-center justify-between px-8 py-5 border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-[#1a1a1a] flex-shrink-0">
                     <div className="flex items-center gap-4">
-                        <div className="w-11 h-11 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 flex items-center justify-center border border-blue-100 dark:border-blue-800/50 flex-shrink-0">
-                            <Layers size={22} />
+                        <div className="w-11 h-11 rounded-xl bg-transparent dark:bg-transparent flex items-center justify-center flex-shrink-0">
+                            <CourseIcon courseName={specialization.name} fallback="specialization" size={35} />
                         </div>
                         <div>
                             <p className="text-[10px] font-bold uppercase tracking-widest text-primary mb-0.5">Specialization</p>

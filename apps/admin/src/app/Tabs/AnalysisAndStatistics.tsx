@@ -101,7 +101,7 @@ export default function AnalysisAndStatistics() {
     const [isOffline, setIsOffline] = useState(false);
     const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
-    const BASE_URL = process.env.NEXT_PUBLIC_API_URL + '/api/inspire/stats' || 'http://localhost:5000/api/inspire/stats';
+    const BASE_URL = ((process.env.NEXT_PUBLIC_API_URL ?? '') + '/api/inspire/stats');
 
     const fetchStats = async () => {
         setIsLoading(true);

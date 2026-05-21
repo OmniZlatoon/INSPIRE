@@ -7,10 +7,12 @@ interface CourseIconProps {
     courseName: string;
     size?: number;
     className?: string;
+    fallback?: 'course' | 'category' | 'specialization' | 'carrier' | null;
 }
 
-export function CourseIcon({ courseName, size = 26, className = "" }: CourseIconProps) {
+export function CourseIcon({ courseName, size = 26, className = "", fallback = null }: CourseIconProps) {
     const getIconPath = (name: string) => {
+        if (!name) return null;
         // Clean name to match JSON keys (lowercase, remove spaces, underscores, hyphens)
         const key = name.toLowerCase().replace(/[\s\-_]/g, '');
 
@@ -18,7 +20,12 @@ export function CourseIcon({ courseName, size = 26, className = "" }: CourseIcon
         return (iconMapping as Record<string, string>)[key] || null;
     };
 
-    const iconPath = getIconPath(courseName);
+    let iconPath = getIconPath(courseName);
+    
+    // If no specific icon found and a fallback is provided, try the fallback
+    if (!iconPath && fallback) {
+        iconPath = getIconPath(fallback);
+    }
 
     if (iconPath) {
         return (
@@ -30,12 +37,14 @@ export function CourseIcon({ courseName, size = 26, className = "" }: CourseIcon
                 onError={(e) => {
                     // Fallback to lucide icon if image fails to load
                     (e.target as any).style.display = 'none';
-                    (e.target as any).nextSibling.style.display = 'block';
+                    if ((e.target as any).nextSibling) {
+                        (e.target as any).nextSibling.style.display = 'block';
+                    }
                 }}
             />
         );
     }
 
-    // Default Lucide Icon if no mapping found
+    // Default Lucide Icon if no mapping found and no working fallback
     return <BookOpen size={size} className={className} />;
 }

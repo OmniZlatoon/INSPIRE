@@ -8,7 +8,7 @@ import { Auth, signInWithCustomToken } from 'firebase/auth';
  */
 export const handleVerifyOTP = async (auth: Auth, email: string, otp: string): Promise<any> => {
     try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+        const apiUrl = (process.env.NEXT_PUBLIC_API_URL ?? '');
         const response = await fetch(`${apiUrl}/api/inspire/verify-otp`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },

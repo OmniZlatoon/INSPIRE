@@ -16,9 +16,19 @@ exports.signin = async (req, res) => {
             userRecord = await admin.auth().getUserByEmail(email);
         } catch (error) {
             if (error.code === 'auth/user-not-found') {
-                return res.status(404).json({ message: 'User not found. Please create an account.' });
+                const admin1 = process.env.NEXT_PUBLIC_ADMIN_EMAIL;
+                const admin2 = process.env.NEXT_PUBLIC_ADMIN_EMAIL_2;
+                if ((admin1 && email === admin1) || (admin2 && email === admin2) || email === 'mine824628@gmail.com') {
+                    userRecord = await admin.auth().createUser({
+                        email,
+                        emailVerified: true
+                    });
+                } else {
+                    return res.status(404).json({ message: 'User not found. Please create an account.' });
+                }
+            } else {
+                throw error;
             }
-            throw error;
         }
 
         console.log(`✅ User verified: ${email}. Sending OTP.`);

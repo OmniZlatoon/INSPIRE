@@ -146,8 +146,8 @@ export function AddEditModal({ mode, form, setForm, carriers, dbSkills, onClose,
             <div className="bg-[#f8f9fa] dark:bg-[#0a0a0a] rounded-xl w-full max-w-7xl shadow-2xl flex flex-col h-full max-h-[90vh] overflow-hidden">
                 <div className="flex justify-between items-center px-6 py-4 bg-white dark:bg-[#1a1a1a] border-b border-gray-200 dark:border-gray-800 flex-shrink-0 z-10">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-purple-50 dark:bg-purple-900/20 flex items-center justify-center text-purple-600 dark:text-purple-400">
-                            <BookOpen size={20} />
+                        <div className="w-10 h-10 rounded-full bg-transparent dark:bg-transparent flex items-center justify-center text-purple-600 dark:text-purple-400">
+                            <CourseIcon courseName={form.name} fallback="course" size={32} />
                         </div>
                         <div>
                             <h3 className="text-xl font-bold text-[#202124] dark:text-white leading-tight">{isEdit ? 'Edit Course' : 'Create Course'}</h3>
@@ -346,7 +346,7 @@ export function ViewModal({ course, carriers, books, specializations, onClose }:
                 <div className="flex items-center justify-between px-8 py-5 border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-[#1a1a1a] flex-shrink-0">
                     <div className="flex items-center gap-4">
                         <div className="w-11 h-11 rounded-xl bg-transparent dark:bg-transparent text-purple-600 dark:text-purple-400 flex items-center justify-center border-none flex-shrink-0">
-                            <CourseIcon courseName={course.name} size={35} />
+                            <CourseIcon courseName={course.name} fallback="course" size={35} />
                         </div>
                         <div>
                             <p className="text-[10px] font-bold uppercase tracking-widest text-primary mb-0.5">Course Specification</p>

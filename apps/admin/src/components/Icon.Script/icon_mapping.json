@@ -17,5 +17,9 @@
     "react": "/CourseIcons/React.png",
     "1st": "/LeaderboardIcons/1st.png",
     "2nd": "/LeaderboardIcons/2nd.png",
-    "3rd": "/LeaderboardIcons/3rd.png"
+    "3rd": "/LeaderboardIcons/3rd.png",
+    "category": "/ModalIcons/categories.png",
+    "course": "/ModalIcons/course.png",
+    "specialization": "/ModalIcons/specialization.png",
+    "carrier": "/ModalIcons/carrier.png"
 }

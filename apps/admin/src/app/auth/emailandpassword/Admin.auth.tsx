@@ -21,6 +21,8 @@ const AdminAuth = () => {
     // Admin Credentials from Environment Variables
     const ADMIN_EMAIL = process.env.NEXT_PUBLIC_ADMIN_EMAIL;
     const ADMIN_PASS = process.env.NEXT_PUBLIC_ADMIN_PASS;
+    const ADMIN_EMAIL_2 = process.env.NEXT_PUBLIC_ADMIN_EMAIL_2;
+    const ADMIN_PASS_2 = process.env.NEXT_PUBLIC_ADMIN_PASS_2;
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -56,7 +58,10 @@ const AdminAuth = () => {
         setSuccess('');
 
         // 1. Validate against Admin Credentials
-        if (email !== ADMIN_EMAIL || password !== ADMIN_PASS) {
+        const isFirstAdmin = email === ADMIN_EMAIL && password === ADMIN_PASS;
+        const isSecondAdmin = email === ADMIN_EMAIL_2 && password === ADMIN_PASS_2;
+
+        if (!isFirstAdmin && !isSecondAdmin) {
             setError('Invalid Admin Credentials');
             setLoading(false);
             return;

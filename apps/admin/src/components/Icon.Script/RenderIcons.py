@@ -6,6 +6,7 @@ import json
 
 ICONS_DIR = "../../../public/CourseIcons"
 LEADERBOARD_ICONS_DIR = "../../../public/LeaderboardIcons"
+MODAL_ICONS_DIR = "../../../public/ModalIcons"
 OUTPUT_FILE = "./icon_mapping.json"
 
 # Write the script that handles multiple icon directory and generates one Icon_mapping.json file to serve the icons
@@ -36,6 +37,16 @@ def main():
                 icon_mapping[key] = f"/LeaderboardIcons/{filename}"
     else:
         print(f"Warning: LeaderboardIcons directory not found: {LEADERBOARD_ICONS_DIR}")
+
+        # Process ModalIcons directory
+    if os.path.exists(MODAL_ICONS_DIR):
+        for filename in os.listdir(MODAL_ICONS_DIR):
+            if filename.endswith(('.png', '.jpg', '.jpeg', '.svg', '.gif')):
+                base_name = os.path.splitext(filename)[0].lower()
+                key = base_name.replace(' ', '-').replace('&', '').replace('+', '').replace('#', '').replace('*', '')
+                icon_mapping[key] = f"/ModalIcons/{filename}"
+    else:
+        print(f"Warning: ModalIcons directory not found: {MODAL_ICONS_DIR}")
 
     # Write to output file
     try:

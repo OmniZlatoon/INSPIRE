@@ -9,6 +9,7 @@ import { User, signOut } from 'firebase/auth';
 
 import AnalysisAndStatistics from '@/app/Tabs/AnalysisAndStatistics';
 import CarrierPath from '@/app/Tabs/CarrierPath';
+import CategoryTab from '@/app/Tabs/Category';
 import SpecializationTab from '@/app/Tabs/Specialization';
 import CourseOverlook from '@/app/Tabs/CourseOverlook';
 import BooksManagement from '@/app/Tabs/BooksManagement';
@@ -107,6 +108,8 @@ export default function MainScreen() {
         switch (activeTab) {
             case 'analysis':
                 return <AnalysisAndStatistics />;
+            case 'category':
+                return <CategoryTab />;
             case 'career':
                 return <CarrierPath />;
             case 'specialization':

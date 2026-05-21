@@ -7,7 +7,27 @@ import { AddEditModal, DeleteModal, ViewModal } from '../../components/CourseMod
 import type { Course, Carrier, ModalMode, SingleForm, Skill } from '../../components/CourseModals';
 import { CourseIcon } from '@/components/CourseIcon';
 
-const API = (process.env.NEXT_PUBLIC_API_URL + "/api/inspire" || 'http://localhost:5000/api/inspire');
+const SkeletonCard = () => (
+    <div className="bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-gray-800 rounded-xl p-4 animate-pulse">
+        <div className="flex justify-between items-start mb-4">
+            <div className="w-10 h-10 rounded-lg bg-gray-200 dark:bg-gray-800"></div>
+            <div className="w-6 h-6 rounded bg-gray-100 dark:bg-gray-800"></div>
+        </div>
+        <div className="h-4 w-3/4 bg-gray-200 dark:bg-gray-800 rounded mb-2"></div>
+        <div className="h-3 w-1/4 bg-gray-100 dark:bg-gray-800 rounded mb-4"></div>
+        <div className="space-y-2 mb-4">
+            <div className="h-2 w-full bg-gray-100 dark:bg-gray-800 rounded"></div>
+            <div className="h-2 w-5/6 bg-gray-100 dark:bg-gray-800 rounded"></div>
+        </div>
+        <div className="flex gap-3 pt-3 border-t border-gray-50 dark:border-gray-800/50 justify-end">
+            <div className="h-3 w-8 bg-gray-200 dark:bg-gray-800 rounded"></div>
+            <div className="h-3 w-8 bg-gray-200 dark:bg-gray-800 rounded"></div>
+            <div className="h-3 w-8 bg-gray-200 dark:bg-gray-800 rounded"></div>
+        </div>
+    </div>
+);
+
+const API = ((process.env.NEXT_PUBLIC_API_URL ?? '') + "/api/inspire");
 const COURSE = `${API}/course`;
 const CARRIER = `${API}/carrier`;
 const BOOKS = `${API}/books`;
@@ -27,7 +47,6 @@ export default function CourseOverlook() {
     const [carriers, setCarriers] = useState<Carrier[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isActionLoading, setIsActionLoading] = useState(false);
-    const [isOffline, setIsOffline] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
     const [modal, setModal] = useState<ModalMode>('closed');
@@ -168,10 +187,8 @@ export default function CourseOverlook() {
         </div>
     );
 
-    if (isLoading) return <div className="flex items-center justify-center h-[60vh]"><div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary" /></div>;
-
     return (
-        <div className="p-8 w-full min-h-full relative">
+        <div className="p-8 w-full min-h-full relative animate-in fade-in slide-in-from-bottom-4 duration-500">
             {/* Toast */}
             {toast && (
                 <div className={`fixed bottom-6 right-6 z-[200] flex items-center gap-2.5 px-4 py-2.5 bg-white dark:bg-[#1e1e1e] border border-green-200 dark:border-green-800 rounded-lg shadow-lg transition-all duration-500 ${exiting ? 'opacity-0 translate-x-4' : 'opacity-100 translate-x-0'}`}>
@@ -181,7 +198,7 @@ export default function CourseOverlook() {
                 </div>
             )}
 
-            {courses.length === 0 ? (
+            {courses.length === 0 && !isLoading ? (
                 /* ── Empty State ── */
                 <div className="flex flex-col items-center justify-center h-[60vh] text-center">
                     <div className="w-20 h-20 bg-purple-50 dark:bg-purple-900/10 rounded-full flex items-center justify-center mb-6">
@@ -225,7 +242,19 @@ export default function CourseOverlook() {
                         </div>
                     </div>
 
-                    {filterCourses(courses, searchQuery).length === 0 ? (
+                    {isLoading ? (
+                        viewMode === 'grid' ? (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                                {Array.from({ length: 10 }).map((_, i) => <SkeletonCard key={i} />)}
+                            </div>
+                        ) : (
+                            <div className="space-y-2">
+                                {Array.from({ length: 5 }).map((_, i) => (
+                                    <div key={i} className="h-16 bg-white dark:bg-[#1a1a1a] rounded-xl border border-gray-100 dark:border-gray-800 animate-pulse"></div>
+                                ))}
+                            </div>
+                        )
+                    ) : filterCourses(courses, searchQuery).length === 0 ? (
                         <NoResultsFound
                             searchTerm={searchQuery}
                             onClear={() => setSearchQuery('')}
@@ -237,7 +266,7 @@ export default function CourseOverlook() {
                                 {filterCourses(courses, searchQuery).map(course => (
                                     <div key={course.id} className="bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-gray-800 hover:border-gray-200 dark:hover:border-gray-700 rounded-xl p-4 group transition-all duration-200">
                                         <div className="flex justify-between items-start mb-3">
-                                            <div className="p-2 bg-transparent dark:transparent-900/15 rounded-lg"><CourseIcon courseName={course.name} /></div>
+                                            <div className="p-2 bg-transparent dark:transparent-900/15 rounded-lg"><CourseIcon courseName={course.name} fallback="course" size={32} /></div>
                                             <ContextMenu course={course} />
                                         </div>
                                         <h3 className="text-sm font-semibold text-[#202124] dark:text-white truncate mb-1" title={course.name}>{course.name}</h3>

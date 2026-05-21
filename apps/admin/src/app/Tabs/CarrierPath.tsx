@@ -7,16 +7,28 @@ import { SearchBar } from '@/components/SearchBar';
 import { NoResultsFound } from '@/components/NoResultsFound';
 import { CourseIcon } from '@/components/CourseIcon';
 
-// Types
-interface Carrier {
-    id: string;
-    carrierId: string;
-    name: string;
-    description: string;
-    createdAt?: any;
-}
+const SkeletonCard = () => (
+    <div className="bg-white dark:bg-[#1a1a1a] rounded-xl border border-gray-100 dark:border-gray-800 p-4 animate-pulse">
+        <div className="flex justify-between items-center mb-3">
+            <div className="w-8 h-8 rounded-lg bg-gray-200 dark:bg-gray-800"></div>
+            <div className="w-5 h-5 rounded bg-gray-100 dark:bg-gray-800"></div>
+        </div>
+        <div className="h-4 w-3/4 bg-gray-200 dark:bg-gray-800 rounded mb-2"></div>
+        <div className="h-3 w-1/4 bg-gray-100 dark:bg-gray-800 rounded mb-4"></div>
+        <div className="space-y-2 mb-4">
+            <div className="h-2 w-full bg-gray-100 dark:bg-gray-800 rounded"></div>
+            <div className="h-2 w-5/6 bg-gray-100 dark:bg-gray-800 rounded"></div>
+        </div>
+        <div className="flex items-center justify-end gap-3 pt-2.5 border-t border-gray-50 dark:border-gray-800/50">
+            <div className="h-3 w-8 bg-gray-200 dark:bg-gray-800 rounded"></div>
+            <div className="h-3 w-8 bg-gray-200 dark:bg-gray-800 rounded"></div>
+        </div>
+    </div>
+);
 
-type ModalMode = 'closed' | 'add' | 'edit' | 'delete' | 'deleteAll' | 'view';
+import { AddEditCarrierModal, DeleteCarrierModal, ViewCarrierModal } from '../../components/CarrierModals';
+import type { Carrier, ModalMode } from '../../components/CarrierModals';
+
 type AddMode = 'single' | 'bulk';
 
 export default function CarrierPath() {
@@ -52,7 +64,7 @@ export default function CarrierPath() {
         }, 3000);
     };
 
-    const API_URL = process.env.NEXT_PUBLIC_API_URL + "/api/inspire/carrier" || 'http://localhost:5000/api/inspire/carrier';
+    const API_URL = ((process.env.NEXT_PUBLIC_API_URL ?? '') + "/api/inspire/carrier");
 
     // Filtered data based on search
     const filteredCarriers = carrierPaths.filter(c =>
@@ -64,8 +76,8 @@ export default function CarrierPath() {
     const fetchCarriers = async () => {
         setIsLoading(true);
         try {
-            const COURSE_API = process.env.NEXT_PUBLIC_API_URL + '/api/inspire/course' || 'http://localhost:5000/api/inspire/course';
-            const SPEC_API = process.env.NEXT_PUBLIC_API_URL + '/api/inspire/specialization' || 'http://localhost:5000/api/inspire/specialization';
+            const COURSE_API = ((process.env.NEXT_PUBLIC_API_URL ?? '') + '/api/inspire/course');
+            const SPEC_API = ((process.env.NEXT_PUBLIC_API_URL ?? '') + '/api/inspire/specialization');
             const [carriersRes, coursesRes, specsRes] = await Promise.all([
                 fetch(`${API_URL}/view`),
                 fetch(`${COURSE_API}/view`),
@@ -319,7 +331,11 @@ export default function CarrierPath() {
                 </div>
             </div>
 
-            {filteredCarriers.length === 0 ? (
+            {isLoading ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                    {Array.from({ length: 10 }).map((_, i) => <SkeletonCard key={i} />)}
+                </div>
+            ) : filteredCarriers.length === 0 ? (
                 <NoResultsFound
                     searchTerm={searchQuery}
                     onClear={() => setSearchQuery('')}
@@ -332,8 +348,8 @@ export default function CarrierPath() {
                             <div className="p-4">
                                 {/* Top row: icon + menu */}
                                 <div className="flex justify-between items-center mb-3">
-                                    <div className="p-2 bg-blue-50 dark:bg-blue-900/15 rounded-lg text-primary">
-                                        <Route size={16} />
+                                    <div className="p-1 bg-transparent dark:bg-transparent rounded-lg">
+                                        <CourseIcon courseName={carrier.name} fallback="carrier" size={24} />
                                     </div>
                                     <div className="relative dropdown-container">
                                         <button
@@ -403,378 +419,6 @@ export default function CarrierPath() {
             )}
         </div>
     );
-
-    const renderAddEditModal = () => (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm bg-black/50 animate-in fade-in duration-200">
-            <div className="bg-white dark:bg-[#1a1a1a] rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-
-                {/* Modal Header */}
-                <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-800 flex justify-between items-center bg-gray-50 dark:bg-[#121212]">
-                    <h3 className="text-xl font-bold text-[#202124] dark:text-white">
-                        {modalMode === 'edit' ? 'Edit Carrier Path' : 'Add Carrier Path'}
-                    </h3>
-                    <button onClick={() => setModalMode('closed')} className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800 text-[#5f6368] transition-colors">
-                        <X size={20} />
-                    </button>
-                </div>
-
-                {/* Modal Tabs (Only in Add Mode) */}
-                {modalMode === 'add' && (
-                    <div className="flex border-b border-gray-200 dark:border-gray-800 px-6 pt-4 bg-gray-50 dark:bg-[#121212]">
-                        <button
-                            className={`px-4 py-2 font-medium text-sm border-b-2 transition-colors ${addTab === 'single' ? 'border-primary text-primary' : 'border-transparent text-[#5f6368] hover:text-[#202124] dark:hover:text-white'}`}
-                            onClick={() => setAddTab('single')}
-                        >
-                            Add a Carrier
-                        </button>
-                        <button
-                            className={`px-4 py-2 font-medium text-sm border-b-2 transition-colors ml-4 ${addTab === 'bulk' ? 'border-primary text-primary' : 'border-transparent text-[#5f6368] hover:text-[#202124] dark:hover:text-white'}`}
-                            onClick={() => setAddTab('bulk')}
-                        >
-                            Add bulk Carrier
-                        </button>
-                    </div>
-                )}
-
-                {/* Modal Body */}
-                {modalError && (
-                    <div className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-3 mx-6 mt-4 rounded-lg text-sm font-medium flex items-center">
-                        <AlertTriangle size={16} className="mr-2 flex-shrink-0" />
-                        {modalError}
-                    </div>
-                )}
-                <div className="p-6 overflow-y-auto flex-1">
-                    {(modalMode === 'edit' || (modalMode === 'add' && addTab === 'single')) && (
-                        <div className="space-y-4">
-                            <div>
-                                <label className="block text-sm font-medium text-[#202124] dark:text-gray-300 mb-1">Carrier ID</label>
-                                <input
-                                    type="text"
-                                    value={singleForm.carrierId}
-                                    onChange={(e) => setSingleForm({ ...singleForm, carrierId: e.target.value })}
-                                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#2d2d2d] text-[#202124] dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition"
-                                    placeholder="e.g. CARR-001"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-[#202124] dark:text-gray-300 mb-1">Carrier Name</label>
-                                <input
-                                    type="text"
-                                    value={singleForm.name}
-                                    onChange={(e) => setSingleForm({ ...singleForm, name: e.target.value })}
-                                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#2d2d2d] text-[#202124] dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition"
-                                    placeholder="e.g. Primary US Route"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-[#202124] dark:text-gray-300 mb-1">Description</label>
-                                <textarea
-                                    value={singleForm.description}
-                                    onChange={(e) => setSingleForm({ ...singleForm, description: e.target.value })}
-                                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#2d2d2d] text-[#202124] dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition min-h-[100px] resize-y"
-                                    placeholder="Brief description of the carrier path..."
-                                />
-                            </div>
-                        </div>
-                    )}
-
-                    {modalMode === 'add' && addTab === 'bulk' && (
-                        <div className="space-y-8">
-                            {bulkForms.map((form, index) => (
-                                <div key={index} className="relative p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#2d2d2d]/30">
-                                    <div className="absolute top-2 right-4 text-xs font-bold text-gray-400">#{index + 1}</div>
-                                    <div className="space-y-4">
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <div>
-                                                <label className="block text-xs font-medium text-[#202124] dark:text-gray-300 mb-1">Carrier ID</label>
-                                                <input
-                                                    type="text"
-                                                    value={form.carrierId}
-                                                    onChange={(e) => {
-                                                        const newForms = [...bulkForms];
-                                                        newForms[index].carrierId = e.target.value;
-                                                        setBulkForms(newForms);
-                                                    }}
-                                                    className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#2d2d2d] text-[#202124] dark:text-white focus:ring-2 focus:ring-primary outline-none"
-                                                />
-                                            </div>
-                                            <div>
-                                                <label className="block text-xs font-medium text-[#202124] dark:text-gray-300 mb-1">Carrier Name</label>
-                                                <input
-                                                    type="text"
-                                                    value={form.name}
-                                                    onChange={(e) => {
-                                                        const newForms = [...bulkForms];
-                                                        newForms[index].name = e.target.value;
-                                                        setBulkForms(newForms);
-                                                    }}
-                                                    className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#2d2d2d] text-[#202124] dark:text-white focus:ring-2 focus:ring-primary outline-none"
-                                                />
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <label className="block text-xs font-medium text-[#202124] dark:text-gray-300 mb-1">Description</label>
-                                            <textarea
-                                                value={form.description}
-                                                onChange={(e) => {
-                                                    const newForms = [...bulkForms];
-                                                    newForms[index].description = e.target.value;
-                                                    setBulkForms(newForms);
-                                                }}
-                                                className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#2d2d2d] text-[#202124] dark:text-white focus:ring-2 focus:ring-primary outline-none min-h-[60px] resize-y"
-                                            />
-                                        </div>
-                                    </div>
-                                    {bulkForms.length > 1 && (
-                                        <button
-                                            onClick={() => setBulkForms(bulkForms.filter((_, i) => i !== index))}
-                                            className="absolute -top-3 -right-3 bg-red-100 hover:bg-red-200 dark:bg-red-900/50 dark:hover:bg-red-800 text-red-600 rounded-full p-1 shadow-sm transition-colors"
-                                        >
-                                            <X size={14} />
-                                        </button>
-                                    )}
-                                </div>
-                            ))}
-
-                            <button
-                                onClick={() => setBulkForms([...bulkForms, { carrierId: '', name: '', description: '' }])}
-                                className="w-full py-3 border-2 border-dashed border-gray-300 dark:border-gray-700 hover:border-primary dark:hover:border-primary rounded-xl text-[#5f6368] hover:text-primary transition-colors flex items-center justify-center font-medium"
-                            >
-                                <PlusCircle size={18} className="mr-2" /> Add another carrier
-                            </button>
-                        </div>
-                    )}
-                </div>
-
-                {/* Modal Footer */}
-                <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#121212] flex justify-end relative overflow-hidden">
-                    {isActionLoading && (
-                        <div className="absolute top-0 left-0 w-full h-[2px] bg-transparent">
-                            <div className="h-full bg-green-500 w-1/2 animate-indeterminate" />
-                        </div>
-                    )}
-                    <button
-                        onClick={() => setModalMode('closed')}
-                        className="px-4 py-2 text-[#5f6368] dark:text-gray-400 hover:text-[#202124] dark:hover:text-white font-medium mr-3 transition-colors"
-                    >
-                        Cancel
-                    </button>
-                    <button
-                        onClick={modalMode === 'edit' ? handleEditCarrier : handleCreateCarrier}
-                        disabled={(modalMode === 'edit' ? !isSingleValid : (addTab === 'single' ? !isSingleValid : !isBulkValid)) || isActionLoading}
-                        className={`px-6 py-2 font-medium rounded-lg shadow-sm transition-all duration-200 flex items-center justify-center min-w-[140px]
-                            ${(modalMode === 'edit' ? isSingleValid : (addTab === 'single' ? isSingleValid : isBulkValid)) && !isActionLoading
-                                ? 'bg-primary hover:bg-blue-600 text-white transform active:scale-95'
-                                : 'bg-gray-300 dark:bg-gray-700 text-gray-500 cursor-not-allowed'
-                            }
-                        `}
-                    >
-                        {isActionLoading ? (
-                            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                        ) : (
-                            modalMode === 'edit' ? 'Save Changes' : 'Create Carrier'
-                        )}
-                    </button>
-                </div>
-            </div>
-        </div>
-    );
-
-    const renderDeleteAllModal = () => (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 backdrop-blur-sm bg-black/50 animate-in fade-in duration-200">
-            <div className="bg-white dark:bg-[#1a1a1a] rounded-2xl w-full max-w-md shadow-2xl p-6 text-center">
-                <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <AlertTriangle size={32} className="text-red-600 dark:text-red-400" />
-                </div>
-                <h3 className="text-xl font-bold text-[#202124] dark:text-white mb-2">Clear All Carrier Paths?</h3>
-                <p className="text-[#5f6368] dark:text-gray-400 mb-6">
-                    Are you sure you want to delete <span className="font-bold text-red-600 dark:text-red-400">ALL</span> carrier paths? This action is permanent and cannot be undone.
-                </p>
-                {modalError && (
-                    <div className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-3 mb-4 rounded-lg text-sm font-medium flex items-center text-left">
-                        <AlertTriangle size={16} className="mr-2 flex-shrink-0" />
-                        {modalError}
-                    </div>
-                )}
-                <div className="flex justify-center space-x-3">
-                    <button
-                        onClick={() => setModalMode('closed')}
-                        className="px-6 py-2 border border-gray-300 dark:border-gray-700 text-[#5f6368] dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#2d2d2d] rounded-lg font-medium transition-colors"
-                    >
-                        Cancel
-                    </button>
-                    <button
-                        onClick={handleDeleteAllCarriers}
-                        disabled={isActionLoading}
-                        className={`px-6 py-2 rounded-lg font-medium shadow-sm transition-colors flex items-center justify-center min-w-[140px]
-                            ${isActionLoading
-                                ? 'bg-red-400 cursor-not-allowed text-white'
-                                : 'bg-red-600 hover:bg-red-700 text-white'
-                            }
-                        `}
-                    >
-                        {isActionLoading ? (
-                            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                        ) : (
-                            'Clear All'
-                        )}
-                    </button>
-                </div>
-            </div>
-        </div>
-    );
-
-    const renderDeleteModal = () => (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 backdrop-blur-sm bg-black/50 animate-in fade-in duration-200">
-            <div className="bg-white dark:bg-[#1a1a1a] rounded-2xl w-full max-w-md shadow-2xl p-6 text-center">
-                <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <AlertTriangle size={32} className="text-red-600 dark:text-red-400" />
-                </div>
-                <h3 className="text-xl font-bold text-[#202124] dark:text-white mb-2">Delete Carrier Path?</h3>
-                <p className="text-[#5f6368] dark:text-gray-400 mb-6">
-                    Are you sure you want to delete <span className="font-bold text-[#202124] dark:text-white">"{selectedCarrier?.name}"</span>? This action cannot be undone.
-                </p>
-                {modalError && (
-                    <div className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-3 mb-4 rounded-lg text-sm font-medium flex items-center text-left">
-                        <AlertTriangle size={16} className="mr-2 flex-shrink-0" />
-                        {modalError}
-                    </div>
-                )}
-                <div className="flex justify-center space-x-3">
-                    <button
-                        onClick={() => setModalMode('closed')}
-                        className="px-6 py-2 border border-gray-300 dark:border-gray-700 text-[#5f6368] dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#2d2d2d] rounded-lg font-medium transition-colors"
-                    >
-                        Cancel
-                    </button>
-                    <button
-                        onClick={handleDeleteCarrier}
-                        disabled={isActionLoading}
-                        className={`px-6 py-2 rounded-lg font-medium shadow-sm transition-colors flex items-center justify-center min-w-[140px]
-                            ${isActionLoading
-                                ? 'bg-red-400 cursor-not-allowed text-white'
-                                : 'bg-red-600 hover:bg-red-700 text-white'
-                            }
-                        `}
-                    >
-                        {isActionLoading ? (
-                            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                        ) : (
-                            'Delete Carrier'
-                        )}
-                    </button>
-                </div>
-            </div>
-        </div>
-    );
-
-    const renderViewModal = () => {
-        if (!selectedCarrier) return null;
-
-        // Find courses linked to this carrier
-        const linkedCourses = allCourses.filter(c => c.carrierIds?.includes(selectedCarrier.id));
-
-        // Find specializations linked to this carrier
-        const linkedSpecs = allSpecs.filter(s => s.carrierIds?.includes(selectedCarrier.id));
-
-        return (
-            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md">
-                <div className="bg-white dark:bg-[#111] rounded-2xl w-[80vw] max-h-[88vh] shadow-2xl flex flex-col overflow-hidden border border-gray-200 dark:border-gray-800">
-                    {/* Header Bar */}
-                    <div className="flex items-center justify-between px-8 py-5 border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-[#1a1a1a] flex-shrink-0">
-                        <div className="flex items-center gap-4">
-                            <div className="w-11 h-11 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-[#1a73e8] dark:text-blue-400 flex items-center justify-center border border-blue-100 dark:border-blue-800/50 flex-shrink-0">
-                                <Route size={22} />
-                            </div>
-                            <div>
-                                <p className="text-[10px] font-bold uppercase tracking-widest text-primary mb-0.5">Carrier Path</p>
-                                <h2 className="text-lg font-bold text-[#202124] dark:text-white leading-tight">{selectedCarrier.name}</h2>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-3">
-                            <span className="text-xs px-3 py-1.5 bg-gray-100 dark:bg-[#2d2d2d] rounded-lg font-mono font-bold text-[#5f6368] dark:text-gray-300 flex items-center gap-1.5">
-                                <span className="w-1.5 h-1.5 rounded-full bg-primary inline-block"></span>
-                                {selectedCarrier.carrierId}
-                            </span>
-                            <span className="text-xs px-3 py-1.5 bg-green-50 dark:bg-green-900/20 rounded-lg font-semibold text-green-600 dark:text-green-400 border border-green-200 dark:border-green-800/40">Active</span>
-                            <button onClick={() => setModalMode('closed')} className="ml-2 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-[#2d2d2d] text-[#5f6368] transition-colors"><X size={20} /></button>
-                        </div>
-                    </div>
-
-                    {/* Scrollable Body */}
-                    <div className="flex-1 overflow-y-auto">
-                        <div className="grid grid-cols-1 lg:grid-cols-3 divide-y lg:divide-y-0 lg:divide-x divide-gray-100 dark:divide-gray-800 min-h-full">
-                            {/* ── Left / Main Column ── */}
-                            <div className="lg:col-span-2 p-8 space-y-10">
-                                {/* Description */}
-                                <section>
-                                    <h3 className="text-[11px] font-bold uppercase tracking-widest text-[#80868b] mb-3">Carrier Overview</h3>
-                                    <p className="text-base text-[#3c4043] dark:text-gray-300 leading-7">{selectedCarrier.description}</p>
-                                </section>
-
-                                {/* Linked Courses */}
-                                <section>
-                                    <h3 className="text-[11px] font-bold uppercase tracking-widest text-[#80868b] mb-4 flex items-center gap-2">
-                                        <BookOpen size={14} /> Linked Courses ({linkedCourses.length})
-                                    </h3>
-                                    <div className="space-y-2">
-                                        {linkedCourses.length > 0 ? linkedCourses.map(c => (
-                                            <div key={c.id} className="flex items-center gap-3 p-3.5 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-[#1a1a1a] hover:border-primary/30 transition-colors">
-                                                <div className="w-8 h-8 bg-transparent dark:bg-transparent text-purple-600 dark:text-purple-400 rounded-lg flex items-center justify-center flex-shrink-0"><CourseIcon courseName={c.name} size={22} /></div>
-                                                <div>
-                                                    <p className="text-sm font-semibold text-[#202124] dark:text-white">{c.name}</p>
-                                                    <p className="text-[11px] text-[#80868b] font-mono">{c.courseId}</p>
-                                                </div>
-                                            </div>
-                                        )) : <p className="text-sm text-gray-400 italic">No courses linked yet.</p>}
-                                    </div>
-                                </section>
-                            </div>
-
-                            {/* ── Right / Sidebar Column ── */}
-                            <div className="p-8 space-y-10 bg-gray-50/40 dark:bg-[#0d0d0d]">
-                                {/* Stats */}
-                                <section>
-                                    <h3 className="text-[11px] font-bold uppercase tracking-widest text-[#80868b] mb-4">Overview</h3>
-                                    <div className="grid grid-cols-2 gap-3">
-                                        <div className="p-4 bg-white dark:bg-[#1a1a1a] rounded-xl border border-gray-100 dark:border-gray-800 text-center">
-                                            <p className="text-2xl font-black text-[#202124] dark:text-white">{linkedCourses.length}</p>
-                                            <p className="text-[10px] uppercase tracking-wider text-[#80868b] mt-1 flex items-center justify-center gap-1"><BookOpen size={11} /> Courses</p>
-                                        </div>
-                                        <div className="p-4 bg-white dark:bg-[#1a1a1a] rounded-xl border border-gray-100 dark:border-gray-800 text-center">
-                                            <p className="text-2xl font-black text-[#202124] dark:text-white">{linkedSpecs.length}</p>
-                                            <p className="text-[10px] uppercase tracking-wider text-[#80868b] mt-1 flex items-center justify-center gap-1"><Layers size={11} /> Specialties</p>
-                                        </div>
-                                    </div>
-                                </section>
-
-                                {/* Linked Specialties */}
-                                <section>
-                                    <h3 className="text-[11px] font-bold uppercase tracking-widest text-[#80868b] mb-4 flex items-center gap-2">
-                                        <Layers size={14} /> Linked Specialties
-                                    </h3>
-                                    {linkedSpecs.length > 0 ? (
-                                        <div className="flex flex-wrap gap-2">
-                                            {linkedSpecs.map(s => (
-                                                <span key={s.id} className="text-xs px-3 py-1.5 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-700 rounded-lg text-[#3c4043] dark:text-gray-300 font-medium">{s.name}</span>
-                                            ))}
-                                        </div>
-                                    ) : <p className="text-sm text-gray-400 italic">No specialties connected.</p>}
-                                </section>
-
-                                {/* System Footer */}
-                                <div className="pt-6 border-t border-dashed border-gray-200 dark:border-gray-800">
-                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#80868b]">System Generated</p>
-                                    <p className="text-[10px] font-mono mt-1 text-gray-400">{selectedCarrier.createdAt?.seconds ? new Date(selectedCarrier.createdAt.seconds * 1000).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'Just now'}</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        );
-    };
-
     return (
         <div className="p-8 w-full animate-in fade-in slide-in-from-bottom-4 duration-500 min-h-full relative">
             {/* Success Toast */}
@@ -790,17 +434,41 @@ export default function CarrierPath() {
                 </div>
             )}
 
-            {isLoading ? (
-                <div className="flex justify-center items-center h-[60vh]">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-                </div>
-            ) : carrierPaths.length === 0 ? renderEmptyState() : renderPopulatedState()}
+            {carrierPaths.length === 0 && !isLoading ? renderEmptyState() : renderPopulatedState()}
 
             {/* Modals */}
-            {(modalMode === 'add' || modalMode === 'edit') && renderAddEditModal()}
-            {modalMode === 'delete' && renderDeleteModal()}
-            {modalMode === 'deleteAll' && renderDeleteAllModal()}
-            {modalMode === 'view' && renderViewModal()}
+            {(modalMode === 'add' || modalMode === 'edit') && (
+                <AddEditCarrierModal
+                    mode={modalMode}
+                    form={singleForm}
+                    setForm={setSingleForm}
+                    addTab={addTab}
+                    setAddTab={setAddTab}
+                    bulkForms={bulkForms}
+                    setBulkForms={setBulkForms}
+                    onClose={() => setModalMode('closed')}
+                    onSubmit={modalMode === 'edit' ? handleEditCarrier : handleCreateCarrier}
+                    isLoading={isActionLoading}
+                    error={modalError}
+                />
+            )}
+            {(modalMode === 'delete' || modalMode === 'deleteAll') && (
+                <DeleteCarrierModal
+                    mode={modalMode}
+                    carrier={selectedCarrier}
+                    onClose={() => setModalMode('closed')}
+                    onConfirm={modalMode === 'deleteAll' ? handleDeleteAllCarriers : handleDeleteCarrier}
+                    isLoading={isActionLoading}
+                />
+            )}
+            {modalMode === 'view' && selectedCarrier && (
+                <ViewCarrierModal
+                    carrier={selectedCarrier}
+                    courses={allCourses}
+                    specializations={allSpecs}
+                    onClose={() => setModalMode('closed')}
+                />
+            )}
         </div>
     );
 }

@@ -5,7 +5,7 @@ import { Search, Trophy, Medal, Award, ChevronDown, ChevronUp, Users, TrendingUp
 import { SearchBar } from '@/components/SearchBar';
 import { NoResultsFound } from '@/components/NoResultsFound';
 
-const API_URL = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/inspire/leaderboard/totalRankings`;
+const API_URL = `${(process.env.NEXT_PUBLIC_API_URL ?? '')}/api/inspire/leaderboard/totalRankings`;
 
 interface UserData {
     uid: string;

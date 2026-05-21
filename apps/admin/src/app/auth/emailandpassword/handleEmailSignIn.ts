@@ -8,7 +8,7 @@
  */
 export const handleEmailAuth = async (email: string, password: string, action: 'signin' | 'signup'): Promise<any> => {
     try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL;
         const response = await fetch(`${apiUrl}/api/inspire/${action}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
