@@ -6,6 +6,7 @@ import { NoResultsFound } from '@/components/NoResultsFound';
 import { AddEditModal, DeleteModal, ViewModal } from '../../components/CourseModals';
 import type { Course, Carrier, ModalMode, SingleForm, Skill } from '../../components/CourseModals';
 import { CourseIcon } from '@/components/CourseIcon';
+import { SuccessMessage } from '@/components/SuccessMessage';
 
 const SkeletonCard = () => (
     <div className="bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-gray-800 rounded-xl p-4 animate-pulse">
@@ -190,13 +191,7 @@ export default function CourseOverlook() {
     return (
         <div className="p-8 w-full min-h-full relative animate-in fade-in slide-in-from-bottom-4 duration-500">
             {/* Toast */}
-            {toast && (
-                <div className={`fixed bottom-6 right-6 z-[200] flex items-center gap-2.5 px-4 py-2.5 bg-white dark:bg-[#1e1e1e] border border-green-200 dark:border-green-800 rounded-lg shadow-lg transition-all duration-500 ${exiting ? 'opacity-0 translate-x-4' : 'opacity-100 translate-x-0'}`}>
-                    <span className="w-1 h-6 rounded-full bg-green-500 flex-shrink-0" />
-                    <CheckCircle size={14} className="text-green-500" />
-                    <span className="text-xs font-medium text-[#202124] dark:text-white">{toast}</span>
-                </div>
-            )}
+            <SuccessMessage message={toast} isExiting={exiting} />
 
             {courses.length === 0 && !isLoading ? (
                 /* ── Empty State ── */

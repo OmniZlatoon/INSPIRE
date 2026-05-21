@@ -4,6 +4,7 @@ import { LayoutGrid, Plus, MoreVertical, Edit2, Trash2, Eye, Route, BookOpen, La
 import { SearchBar } from '@/components/SearchBar';
 import { NoResultsFound } from '@/components/NoResultsFound';
 import { CourseIcon } from '@/components/CourseIcon';
+import { SuccessMessage } from '@/components/SuccessMessage';
 
 import { AddEditCategoryModal, DeleteCategoryModal, ViewCategoryModal, BLANK_CATEGORY } from '@/components/CategoryModals';
 import type { Category, CategoryModalMode, SingleCategoryForm } from '@/components/CategoryModals';
@@ -330,12 +331,7 @@ export default function CategoryTab() {
 
     return (
         <div className="p-8 w-full min-h-full animate-in fade-in slide-in-from-bottom-4 duration-500">
-            {toast && (
-                <div className={`fixed bottom-6 right-6 z-[200] flex items-center gap-3 px-5 py-3.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-2xl shadow-2xl transition-all duration-300 transform ${exiting ? 'opacity-0 translate-y-4' : 'opacity-100 translate-y-0'}`}>
-                    <CheckCircle size={18} className="text-green-400 dark:text-green-600" />
-                    <span className="text-sm font-semibold">{toast}</span>
-                </div>
-            )}
+            <SuccessMessage message={toast} isExiting={exiting} />
 
             <div className="flex justify-between items-center mb-8">
                 <div>
@@ -488,7 +484,7 @@ export default function CategoryTab() {
 
             {/* Main Category Modals */}
             {categoryModal === 'add' || categoryModal === 'edit' ? (
-                <AddEditCategoryModal mode={categoryModal} form={categoryForm} setForm={setCategoryForm} carriers={carriers} specializations={specializations} courses={courses} onClose={() => setCategoryModal('closed')} onSubmit={handleCategorySubmit} isLoading={isActionLoading} error={error} />
+                <AddEditCategoryModal mode={categoryModal} form={categoryForm} setForm={setCategoryForm} carriers={carriers} specializations={specializations} courses={courses} dbSkills={dbSkills} onAddSkillToDb={handleAddSkillToDb} onClose={() => setCategoryModal('closed')} onSubmit={handleCategorySubmit} isLoading={isActionLoading} error={error} />
             ) : categoryModal === 'delete' && selectedCategory ? (
                 <DeleteCategoryModal category={selectedCategory} onClose={() => setCategoryModal('closed')} onConfirm={handleCategoryDelete} isLoading={isActionLoading} />
             ) : categoryModal === 'view' && selectedCategory ? (

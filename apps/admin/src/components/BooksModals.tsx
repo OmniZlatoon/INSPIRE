@@ -230,14 +230,10 @@ export function ViewModal({ book, courses, onClose }: { book: Book; courses: Cou
                         <div>
                             <p className="text-[10px] font-bold uppercase tracking-widest text-primary mb-0.5">Book Specification</p>
                             <h2 className="text-lg font-bold text-[#202124] dark:text-white leading-tight">{book.name}</h2>
+                            <p className="text-sm text-[#5f6368] font-sans mt-0.5">{book.bookId}</p>
                         </div>
                     </div>
                     <div className="flex items-center gap-3">
-                        <span className="text-xs px-3 py-1.5 bg-gray-100 dark:bg-[#2d2d2d] rounded-lg font-mono font-bold text-[#5f6368] dark:text-gray-300 flex items-center gap-1.5">
-                            <span className="w-1.5 h-1.5 rounded-full bg-primary inline-block"></span>
-                            {book.bookId}
-                        </span>
-                        <span className="text-xs px-3 py-1.5 bg-green-50 dark:bg-green-900/20 rounded-lg font-semibold text-green-600 dark:text-green-400 border border-green-200 dark:border-green-800/40">Active</span>
                         <button onClick={onClose} className="ml-2 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-[#2d2d2d] text-[#5f6368] transition-colors"><X size={20} /></button>
                     </div>
                 </div>

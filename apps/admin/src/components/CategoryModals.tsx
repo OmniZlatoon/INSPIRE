@@ -2,6 +2,7 @@
 import React, { useState, useRef } from 'react';
 import { X, Trash2, AlertTriangle, PlusCircle, Check, Layers, User, LayoutGrid, Route, BookOpen, Upload, Calendar } from 'lucide-react';
 import { MultiSelectDropdown, Chips } from './CourseModals';
+import type { Skill } from './CourseModals';
 import { CourseIcon } from '@/components/CourseIcon';
 
 export interface Partner { name: string; date: string; logoUrl: string; }
@@ -52,9 +53,11 @@ interface AddEditProps {
     onSubmit: () => void;
     isLoading: boolean;
     error: string | null;
+    dbSkills: Skill[];
+    onAddSkillToDb?: (skillName: string) => Promise<Skill | null>;
 }
 
-export function AddEditCategoryModal({ mode, form, setForm, carriers, specializations, courses, onClose, onSubmit, isLoading, error }: AddEditProps) {
+export function AddEditCategoryModal({ mode, form, setForm, carriers, specializations, courses, dbSkills, onAddSkillToDb, onClose, onSubmit, isLoading, error }: AddEditProps) {
     const isEdit = mode === 'edit';
 
     // Temporary state for the new partner form
@@ -69,6 +72,23 @@ export function AddEditCategoryModal({ mode, form, setForm, carriers, specializa
     const toggleCarrier = (id: string) => setForm({ ...form, carrierIds: form.carrierIds.includes(id) ? form.carrierIds.filter(x => x !== id) : [...form.carrierIds, id] });
     const toggleSpecialization = (id: string) => setForm({ ...form, specializationIds: form.specializationIds.includes(id) ? form.specializationIds.filter(x => x !== id) : [...form.specializationIds, id] });
     const toggleCourse = (id: string) => setForm({ ...form, courseIds: form.courseIds.includes(id) ? form.courseIds.filter(x => x !== id) : [...form.courseIds, id] });
+    const toggleSkill = (name: string) => setForm({ ...form, skills: form.skills.includes(name) ? form.skills.filter(x => x !== name) : [...form.skills, name] });
+
+    const [newSkillName, setNewSkillName] = useState('');
+    const [isAddingSkill, setIsAddingSkill] = useState(false);
+
+    const handleAddCustomSkill = async () => {
+        if (!newSkillName.trim() || !onAddSkillToDb) return;
+        setIsAddingSkill(true);
+        const newSkill = await onAddSkillToDb(newSkillName);
+        setIsAddingSkill(false);
+        if (newSkill) {
+            if (!form.skills.includes(newSkill.name)) {
+                setForm({ ...form, skills: [...form.skills, newSkill.name] });
+            }
+            setNewSkillName('');
+        }
+    };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
@@ -214,22 +234,42 @@ export function AddEditCategoryModal({ mode, form, setForm, carriers, specializa
                             {/* Skills */}
                             <div>
                                 <label className={label}>Skills You Will Gain</label>
-                                <div className="p-5 bg-white dark:bg-[#1a1a1a] rounded-2xl border border-gray-200 dark:border-gray-800 space-y-3">
-                                    <input className={inp} placeholder="Type a skill and press Enter..." onKeyDown={e => {
-                                        if (e.key === 'Enter') {
-                                            e.preventDefault();
-                                            const v = e.currentTarget.value.trim();
-                                            if (v && !form.skills.includes(v)) setForm({ ...form, skills: [...form.skills, v] });
-                                            e.currentTarget.value = '';
-                                        }
-                                    }} />
-                                    <div className="flex flex-wrap gap-2">
-                                        {form.skills.map((s, i) => (
-                                            <span key={i} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#e8f0fe] dark:bg-blue-900/20 text-[#1a73e8] dark:text-blue-400 rounded-lg text-xs font-medium border border-blue-100 dark:border-blue-800/30">
-                                                {s} <button type="button" onClick={() => setForm({ ...form, skills: form.skills.filter((_, idx) => idx !== i) })} className="hover:text-red-500"><X size={14} /></button>
-                                            </span>
-                                        ))}
+                                <div className="p-5 bg-white dark:bg-[#1a1a1a] rounded-2xl border border-gray-200 dark:border-gray-800">
+                                    <div className="flex gap-2 mb-4">
+                                        <div className="flex-1 relative">
+                                            {dbSkills.length > 0 ? (
+                                                <MultiSelectDropdown items={dbSkills} selectedIds={form.skills.map(s => { const match = dbSkills.find(db => db.name === s); return match ? match.id : s; })} onToggle={(id) => { const skill = dbSkills.find(s => s.id === id); if (skill) toggleSkill(skill.name); }} placeholder="Select from existing skills..." />
+                                            ) : (
+                                                <p className="text-sm text-gray-500 py-2">No skills in database yet. Add custom ones below.</p>
+                                            )}
+                                        </div>
                                     </div>
+
+                                    <div className="flex gap-2 items-center mb-2">
+                                        <div className="h-px bg-gray-200 dark:bg-gray-800 flex-1"></div>
+                                        <span className="text-xs text-gray-400 uppercase font-semibold">Or Add New</span>
+                                        <div className="h-px bg-gray-200 dark:bg-gray-800 flex-1"></div>
+                                    </div>
+
+                                    <div className="flex gap-2">
+                                        <input type="text" className={`${inp} py-2.5 flex-1`} placeholder="New skill name..." value={newSkillName} onChange={e => setNewSkillName(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddCustomSkill(); } }} />
+                                        <button onClick={handleAddCustomSkill} disabled={!newSkillName.trim() || isAddingSkill} className="px-4 bg-gray-100 dark:bg-[#2d2d2d] hover:bg-gray-200 dark:hover:bg-[#3a3a3a] text-[#202124] dark:text-white rounded-xl font-medium transition-colors disabled:opacity-50">
+                                            {isAddingSkill ? 'Adding...' : 'Add Skill'}
+                                        </button>
+                                    </div>
+
+                                    {form.skills.length > 0 && (
+                                        <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">
+                                            <p className="text-xs text-gray-500 mb-2">Selected Skills ({form.skills.length})</p>
+                                            <div className="flex flex-wrap gap-2">
+                                                {form.skills.map(skill => (
+                                                    <span key={skill} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#e8f0fe] dark:bg-blue-900/20 text-[#1a73e8] dark:text-blue-400 rounded-lg text-xs font-medium border border-blue-100 dark:border-blue-800/30">
+                                                        {skill} <button type="button" onClick={() => toggleSkill(skill)} className="hover:text-red-500 transition-colors ml-1"><X size={14} /></button>
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 
@@ -361,12 +401,10 @@ export function ViewCategoryModal({ category, carriers, specializations, courses
                         <div>
                             <p className="text-[10px] font-bold uppercase tracking-widest text-primary mb-0.5">Category Structure</p>
                             <h2 className="text-lg font-bold text-[#202124] dark:text-white leading-tight">{category.name}</h2>
+                            <p className="text-sm text-[#5f6368] font-sans mt-0.5">{category.categoryId}</p>
                         </div>
                     </div>
                     <div className="flex items-center gap-3">
-                        <span className="text-xs px-3 py-1.5 bg-gray-100 dark:bg-[#2d2d2d] rounded-lg font-mono font-bold text-[#5f6368] dark:text-gray-300">
-                            {category.categoryId}
-                        </span>
                         <button onClick={onClose} className="ml-2 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-[#2d2d2d] text-[#5f6368] transition-colors"><X size={20} /></button>
                     </div>
                 </div>

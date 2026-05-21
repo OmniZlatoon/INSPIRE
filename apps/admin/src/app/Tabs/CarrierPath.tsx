@@ -6,6 +6,7 @@ import { Route, Plus, MoreVertical, Edit2, Trash2, X, PlusCircle, AlertTriangle,
 import { SearchBar } from '@/components/SearchBar';
 import { NoResultsFound } from '@/components/NoResultsFound';
 import { CourseIcon } from '@/components/CourseIcon';
+import { SuccessMessage } from '@/components/SuccessMessage';
 
 const SkeletonCard = () => (
     <div className="bg-white dark:bg-[#1a1a1a] rounded-xl border border-gray-100 dark:border-gray-800 p-4 animate-pulse">
@@ -422,17 +423,7 @@ export default function CarrierPath() {
     return (
         <div className="p-8 w-full animate-in fade-in slide-in-from-bottom-4 duration-500 min-h-full relative">
             {/* Success Toast */}
-            {successMessage && (
-                <div
-                    className={`fixed bottom-6 right-6 z-[100] flex items-center gap-2.5 px-4 py-2.5 rounded-lg bg-white dark:bg-[#1e1e1e] border border-green-200 dark:border-green-800 shadow-lg transition-all duration-500
-                        ${isExiting ? 'opacity-0 translate-x-8' : 'opacity-100 translate-x-0'}`}
-                    style={{ transitionProperty: 'opacity, transform' }}
-                >
-                    <span className="w-1 h-8 rounded-full bg-green-500 flex-shrink-0" />
-                    <CheckCircle size={15} className="text-green-500 flex-shrink-0" />
-                    <span className="text-xs font-medium text-[#202124] dark:text-white pr-1">{successMessage}</span>
-                </div>
-            )}
+            <SuccessMessage message={successMessage} isExiting={isExiting} />
 
             {carrierPaths.length === 0 && !isLoading ? renderEmptyState() : renderPopulatedState()}
 
