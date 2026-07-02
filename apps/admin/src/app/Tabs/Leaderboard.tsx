@@ -49,7 +49,7 @@ const SkeletonRow = ({ index }: { index: number }) => (
 
 /* ── Skeleton Stats Card ── */
 const SkeletonStatCard = () => (
-    <div className="bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-gray-800 rounded-xl p-5 animate-pulse">
+    <div className="bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-[#2E2E2E] rounded-xl p-5 animate-pulse">
         <div className="flex items-center justify-between mb-3">
             <div className="h-3 w-20 rounded bg-gray-200 dark:bg-gray-700/60" />
             <div className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-gray-800/60" />
@@ -70,7 +70,7 @@ const StatCard = ({ icon: Icon, label, value, subtitle, color }: {
         purple: 'bg-purple-50 dark:bg-purple-900/15 text-purple-600 dark:text-purple-400',
     };
     return (
-        <div className="bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-gray-800 rounded-xl p-5 hover:border-gray-200 dark:hover:border-gray-700 transition-all duration-200">
+        <div className="bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-[#2E2E2E] rounded-xl p-5 hover:border-gray-200 dark:hover:border-gray-700 transition-all duration-200">
             <div className="flex items-center justify-between mb-3">
                 <span className="text-xs font-semibold text-[#5f6368] dark:text-gray-400 uppercase tracking-wider">{label}</span>
                 <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${colorMap[color]}`}>
@@ -202,7 +202,7 @@ export default function Leaderboard() {
             </div>
 
             {/* ── Controls Bar ── */}
-            <div className="flex flex-col lg:flex-row justify-between items-center bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-gray-800 p-1.5 rounded-xl mb-6 gap-3">
+            <div className="flex flex-col lg:flex-row justify-between items-center bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-[#2E2E2E] p-1.5 rounded-xl mb-6 gap-3">
                 {/* Segmented Tab Toggle */}
                 <div className="flex bg-gray-100 dark:bg-[#111] p-1 rounded-lg w-full lg:w-auto">
                     {tabs.map(t => (
@@ -227,7 +227,7 @@ export default function Leaderboard() {
                     <select
                         value={sortMode}
                         onChange={(e) => setSortMode(e.target.value as any)}
-                        className="px-3 py-2 rounded-lg bg-gray-50 dark:bg-[#111] border border-gray-200 dark:border-gray-700 text-sm font-medium text-[#5f6368] dark:text-gray-300 cursor-pointer outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all appearance-none pr-8"
+                        className="px-3 py-2 rounded-lg bg-gray-50 dark:bg-[#111] border border-gray-200 dark:border-[#2E2E2E] text-sm font-medium text-[#5f6368] dark:text-gray-300 cursor-pointer outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all appearance-none pr-8"
                         style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2380868b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 10px center' }}
                     >
                         <option value="highest">Highest Points</option>
@@ -239,7 +239,7 @@ export default function Leaderboard() {
 
             {/* ── Content ── */}
             {activeTab !== 'total' ? (
-                <div className="bg-white dark:bg-[#1a1a1a] rounded-xl border border-gray-100 dark:border-gray-800 p-12 text-center">
+                <div className="bg-white dark:bg-[#1a1a1a] rounded-xl border border-gray-100 dark:border-[#2E2E2E] p-12 text-center">
                     <div className="w-16 h-16 bg-blue-50 dark:bg-blue-900/15 text-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
                         <Trophy className="w-8 h-8" />
                     </div>
@@ -249,10 +249,10 @@ export default function Leaderboard() {
                     </p>
                 </div>
             ) : (
-                <div className="bg-white dark:bg-[#1a1a1a] rounded border border-gray-100 dark:border-gray-800 overflow-hidden" style={{ borderRadius: '4px' }}>
+                <div className="bg-white dark:bg-[#1a1a1a] rounded border border-gray-100 dark:border-[#2E2E2E] overflow-hidden" style={{ borderRadius: '4px' }}>
                     <table className="w-full text-left">
                         <thead>
-                            <tr className="bg-gray-50/80 dark:bg-[#111] border-b border-gray-100 dark:border-gray-800">
+                            <tr className="bg-gray-50/80 dark:bg-[#111] border-b border-gray-100 dark:border-[#2E2E2E]">
                                 <th className="px-5 py-3.5 text-[11px] font-bold text-[#5f6368] dark:text-gray-400 uppercase tracking-wider w-20 text-center">Rank</th>
                                 <th className="px-5 py-3.5 text-[11px] font-bold text-[#5f6368] dark:text-gray-400 uppercase tracking-wider">User</th>
                                 <th className="px-5 py-3.5 text-[11px] font-bold text-[#5f6368] dark:text-gray-400 uppercase tracking-wider text-center hidden md:table-cell">Level</th>
@@ -325,7 +325,7 @@ export default function Leaderboard() {
 
                     {/* ── Pagination ── */}
                     {!loading && totalPages > 1 && (
-                        <div className="flex items-center justify-between px-5 py-3.5 border-t border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-[#111]">
+                        <div className="flex items-center justify-between px-5 py-3.5 border-t border-gray-100 dark:border-[#2E2E2E] bg-gray-50/50 dark:bg-[#111]">
                             <span className="text-xs text-[#80868b] dark:text-gray-500">
                                 Showing {(currentPage - 1) * pageSize + 1}–{Math.min(currentPage * pageSize, filteredUsers.length)} of {filteredUsers.length}
                             </span>
@@ -333,7 +333,7 @@ export default function Leaderboard() {
                                 <button
                                     onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                                     disabled={currentPage === 1}
-                                    className="px-3 py-1.5 text-xs font-medium rounded-md border border-gray-200 dark:border-gray-700 text-[#5f6368] dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                                    className="px-3 py-1.5 text-xs font-medium rounded-md border border-gray-200 dark:border-[#2E2E2E] text-[#5f6368] dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                                 >
                                     Previous
                                 </button>
@@ -360,7 +360,7 @@ export default function Leaderboard() {
                                 <button
                                     onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                                     disabled={currentPage === totalPages}
-                                    className="px-3 py-1.5 text-xs font-medium rounded-md border border-gray-200 dark:border-gray-700 text-[#5f6368] dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                                    className="px-3 py-1.5 text-xs font-medium rounded-md border border-gray-200 dark:border-[#2E2E2E] text-[#5f6368] dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                                 >
                                     Next
                                 </button>

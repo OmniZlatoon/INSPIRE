@@ -28,7 +28,7 @@ export function SearchBar({ placeholder = "Search...", onSearch, value = "" }: S
                 className={`relative flex items-center h-10 transition-all duration-500 ease-in-out border rounded-full bg-white dark:bg-[#1a1a1a] shadow-sm hover:shadow-md cursor-text
                     ${isFocused
                         ? 'w-72 md:w-96 ring-2 ring-primary/20 border-primary dark:border-primary'
-                        : 'w-40 md:w-48 border-gray-200 dark:border-gray-700'
+                        : 'w-40 md:w-48 border-gray-200 dark:border-[#2E2E2E]'
                     }`}
                 onClick={() => inputRef.current?.focus()}
             >

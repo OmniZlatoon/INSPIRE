@@ -56,14 +56,14 @@ export function MultiSelectDropdown({
 
     return (
         <div className="relative" ref={ref}>
-            <button type="button" onClick={() => setOpen(!open)} className="w-full flex justify-between items-center px-4 py-3 bg-gray-50 dark:bg-[#121212] border border-gray-200 dark:border-gray-800 rounded-xl text-sm text-[#5f6368] hover:border-primary transition-colors">
+            <button type="button" onClick={() => setOpen(!open)} className="w-full flex justify-between items-center px-4 py-3 bg-gray-50 dark:bg-[#121212] border border-gray-200 dark:border-[#2E2E2E] rounded-xl text-sm text-[#5f6368] hover:border-primary transition-colors">
                 <span>{placeholder} ({selectedIds.length} selected)</span>
                 <ChevronDown size={16} className={`transition-transform ${open ? 'rotate-180' : ''}`} />
             </button>
             {open && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-[#1e1e1e] border border-gray-100 dark:border-gray-800 rounded-xl shadow-2xl z-50 max-h-60 flex flex-col py-2">
-                    <div className="px-3 pb-2 border-b border-gray-100 dark:border-gray-800">
-                        <input type="text" placeholder="Search..." value={search} onChange={e => setSearch(e.target.value)} className="w-full bg-gray-50 dark:bg-[#121212] border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-1.5 text-sm text-[#202124] dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 outline-none focus:ring-1 focus:ring-primary" />
+                <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-[#1e1e1e] border border-gray-100 dark:border-[#2E2E2E] rounded-xl shadow-2xl z-50 max-h-60 flex flex-col py-2">
+                    <div className="px-3 pb-2 border-b border-gray-100 dark:border-[#2E2E2E]">
+                        <input type="text" placeholder="Search..." value={search} onChange={e => setSearch(e.target.value)} className="w-full bg-gray-50 dark:bg-[#121212] border border-gray-200 dark:border-[#2E2E2E] rounded-lg px-3 py-1.5 text-sm text-[#202124] dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 outline-none focus:ring-1 focus:ring-primary" />
                     </div>
                     <div className="overflow-y-auto flex-1 py-1">
                         {filtered.length === 0 && <p className="text-center text-xs text-[#80868b] py-4">No results found</p>}
@@ -90,7 +90,7 @@ export function Chips({ ids, items, onRemove, fallbackItems }: { ids: string[]; 
             {ids.map((id, idx) => {
                 const name = items.find(x => x.id === id)?.name || (fallbackItems ? fallbackItems[idx] : id);
                 return (
-                    <span key={id} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 rounded-lg text-xs font-medium border border-blue-100 dark:border-blue-800/50">
+                    <span key={id} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 rounded-lg text-xs font-medium border border-gray-200 dark:border-[#2E2E2E]">
                         {name}
                         <button type="button" onClick={() => onRemove(id)} className="hover:text-red-500 transition-colors ml-1"><X size={14} /></button>
                     </span>
@@ -138,13 +138,13 @@ export function AddEditModal({ mode, form, setForm, carriers, dbSkills, onClose,
 
     const valid = form.name.trim() !== '' && form.description.trim() !== '' && form.courseId.trim() !== '' && form.carrierIds.length > 0;
 
-    const inp = "w-full px-4 py-3 bg-white dark:bg-[#121212] border border-gray-200 dark:border-gray-800 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-sm text-[#202124] dark:text-white transition-all placeholder:text-gray-400 dark:placeholder:text-gray-600";
+    const inp = "w-full px-4 py-3 bg-white dark:bg-[#121212] border border-gray-200 dark:border-[#2E2E2E] rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-sm text-[#202124] dark:text-white transition-all placeholder:text-gray-400 dark:placeholder:text-gray-600";
     const label = "block text-xs font-bold uppercase tracking-wider text-[#80868b] mb-2";
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-md">
             <div className="bg-[#f8f9fa] dark:bg-[#0a0a0a] rounded-xl w-full max-w-7xl shadow-2xl flex flex-col h-full max-h-[90vh] overflow-hidden">
-                <div className="flex justify-between items-center px-6 py-4 bg-white dark:bg-[#1a1a1a] border-b border-gray-200 dark:border-gray-800 flex-shrink-0 z-10">
+                <div className="flex justify-between items-center px-6 py-4 bg-white dark:bg-[#1a1a1a] border-b border-gray-200 dark:border-[#2E2E2E] flex-shrink-0 z-10">
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-transparent dark:bg-transparent flex items-center justify-center text-purple-600 dark:text-purple-400">
                             <CourseIcon courseName={form.name} fallback="course" size={32} />
@@ -159,11 +159,11 @@ export function AddEditModal({ mode, form, setForm, carriers, dbSkills, onClose,
 
                 <div className="flex-1 flex flex-col md:flex-row overflow-hidden relative">
                     {/* Left Panel */}
-                    <div className="flex-1 overflow-y-auto p-6 md:p-8 md:border-r border-gray-200 dark:border-gray-800">
+                    <div className="flex-1 overflow-y-auto p-6 md:p-8 md:border-r border-gray-200 dark:border-[#2E2E2E]">
                         <div className="space-y-6 max-w-xl mx-auto">
                             <div>
                                 <label className={label}>Course Details</label>
-                                <div className="space-y-4 p-5 bg-white dark:bg-[#1a1a1a] rounded-2xl border border-gray-200 dark:border-gray-800">
+                                <div className="space-y-4 p-5 bg-white dark:bg-[#1a1a1a] rounded-2xl border border-gray-200 dark:border-[#2E2E2E]">
                                     <div>
                                         <label className="block text-xs text-[#80868b] mb-1">Course ID</label>
                                         <input className={inp} placeholder="e.g. CS101" value={form.courseId} onChange={e => setForm({ ...form, courseId: e.target.value })} />
@@ -181,7 +181,7 @@ export function AddEditModal({ mode, form, setForm, carriers, dbSkills, onClose,
 
                             <div>
                                 <label className={label}>Carrier Path Linking</label>
-                                <div className="p-5 bg-white dark:bg-[#1a1a1a] rounded-2xl border border-gray-200 dark:border-gray-800">
+                                <div className="p-5 bg-white dark:bg-[#1a1a1a] rounded-2xl border border-gray-200 dark:border-[#2E2E2E]">
                                     <MultiSelectDropdown items={carriers.map(c => ({ id: c.id, name: c.name, secondary: c.carrierId }))} selectedIds={form.carrierIds} onToggle={toggleCarrier} placeholder="Search & Select Carriers" />
                                     <Chips ids={form.carrierIds} items={carriers} onRemove={toggleCarrier} />
                                 </div>
@@ -209,7 +209,7 @@ export function AddEditModal({ mode, form, setForm, carriers, dbSkills, onClose,
                             {/* Skills */}
                             <div>
                                 <label className={label}>Skills You Will Gain</label>
-                                <div className="p-5 bg-white dark:bg-[#1a1a1a] rounded-2xl border border-gray-200 dark:border-gray-800">
+                                <div className="p-5 bg-white dark:bg-[#1a1a1a] rounded-2xl border border-gray-200 dark:border-[#2E2E2E]">
                                     <div className="flex gap-2 mb-4">
                                         <div className="flex-1 relative">
                                             {dbSkills.length > 0 ? (
@@ -234,11 +234,11 @@ export function AddEditModal({ mode, form, setForm, carriers, dbSkills, onClose,
                                     </div>
 
                                     {form.skills.length > 0 && (
-                                        <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">
+                                        <div className="mt-4 pt-4 border-t border-gray-100 dark:border-[#2E2E2E]">
                                             <p className="text-xs text-gray-500 mb-2">Selected Skills ({form.skills.length})</p>
                                             <div className="flex flex-wrap gap-2">
                                                 {form.skills.map(skill => (
-                                                    <span key={skill} className="inline-flex items-center gap-1 px-3 py-1 bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400 rounded-lg text-xs font-medium border border-purple-100 dark:border-purple-800/50">
+                                                    <span key={skill} className="inline-flex items-center gap-1 px-3 py-1 bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400 rounded-lg text-xs font-medium border border-purple-100 dark:border-[#2E2E2E]">
                                                         {skill}
                                                         <button type="button" onClick={() => toggleSkill(skill)} className="hover:text-red-500 transition-colors ml-1"><X size={14} /></button>
                                                     </span>
@@ -254,7 +254,7 @@ export function AddEditModal({ mode, form, setForm, carriers, dbSkills, onClose,
                                 <label className={label}>Instructors</label>
                                 <div className="space-y-3">
                                     {form.instructors.map((inst, idx) => (
-                                        <div key={idx} className="p-4 bg-white dark:bg-[#1a1a1a] rounded-2xl border border-gray-200 dark:border-gray-800 relative group">
+                                        <div key={idx} className="p-4 bg-white dark:bg-[#1a1a1a] rounded-2xl border border-gray-200 dark:border-[#2E2E2E] relative group">
                                             <button onClick={() => setForm({ ...form, instructors: form.instructors.filter((_, i) => i !== idx) })} className="absolute top-3 right-3 text-gray-400 hover:text-red-500 transition-colors"><Trash2 size={16} /></button>
                                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-1">
                                                 <input className={`${inp} py-2.5`} placeholder="Instructor Name" value={inst.name} onChange={e => { const arr = [...form.instructors]; arr[idx].name = e.target.value; setForm({ ...form, instructors: arr }); }} />
@@ -272,7 +272,7 @@ export function AddEditModal({ mode, form, setForm, carriers, dbSkills, onClose,
                                 <label className={label}>Frequently Asked Questions</label>
                                 <div className="space-y-3">
                                     {form.faqs.map((faq, idx) => (
-                                        <div key={idx} className="p-4 bg-white dark:bg-[#1a1a1a] rounded-2xl border border-gray-200 dark:border-gray-800 relative group">
+                                        <div key={idx} className="p-4 bg-white dark:bg-[#1a1a1a] rounded-2xl border border-gray-200 dark:border-[#2E2E2E] relative group">
                                             <button onClick={() => setForm({ ...form, faqs: form.faqs.filter((_, i) => i !== idx) })} className="absolute top-3 right-3 text-gray-400 hover:text-red-500 transition-colors"><Trash2 size={16} /></button>
                                             <div className="space-y-3 mt-1">
                                                 <input className={`${inp} py-2.5 font-medium`} placeholder="Question?" value={faq.question} onChange={e => { const arr = [...form.faqs]; arr[idx].question = e.target.value; setForm({ ...form, faqs: arr }); }} />
@@ -288,7 +288,7 @@ export function AddEditModal({ mode, form, setForm, carriers, dbSkills, onClose,
                     </div>
                 </div>
 
-                <div className="p-6 bg-white dark:bg-[#1a1a1a] border-t border-gray-200 dark:border-gray-800 flex-shrink-0 z-10 relative">
+                <div className="p-6 bg-white dark:bg-[#1a1a1a] border-t border-gray-200 dark:border-[#2E2E2E] flex-shrink-0 z-10 relative">
                     {isLoading && (
                         <div className="absolute top-0 left-0 w-full h-[2px] bg-transparent">
                             <div className="h-full bg-primary w-1/2 animate-indeterminate" />
@@ -296,7 +296,7 @@ export function AddEditModal({ mode, form, setForm, carriers, dbSkills, onClose,
                     )}
                     <div className="flex items-center justify-between">
                         <div className="flex-1">
-                            {error && <div className="inline-flex items-center gap-2 p-2 px-4 bg-red-50 dark:bg-red-900/20 text-red-600 rounded-lg text-sm border border-red-100 dark:border-red-800"><AlertTriangle size={16} />{error}</div>}
+                            {error && <div className="inline-flex items-center gap-2 p-2 px-4 bg-red-50 dark:bg-red-900/20 text-red-600 rounded-lg text-sm border border-red-100 dark:border-[#2E2E2E]"><AlertTriangle size={16} />{error}</div>}
                         </div>
                         <div className="flex gap-3">
                             <button onClick={onClose} className="px-6 py-2.5 rounded-xl text-[#5f6368] hover:bg-gray-100 dark:hover:bg-[#2d2d2d] font-medium transition-colors">Cancel</button>
@@ -321,7 +321,7 @@ export function DeleteModal({ mode, course, onClose, onConfirm, isLoading }: { m
                 <h3 className="text-xl font-bold text-[#202124] dark:text-white text-center mb-2">{isAll ? 'Clear All Courses?' : 'Delete Course?'}</h3>
                 <p className="text-[#5f6368] text-center text-sm mb-8">{isAll ? 'This permanently deletes all courses. Cannot be undone.' : `Delete "${course?.name}"? This action is permanent.`}</p>
                 <div className="grid grid-cols-2 gap-3">
-                    <button onClick={onClose} className="py-2.5 rounded-xl font-semibold text-[#5f6368] border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-[#2d2d2d]">Cancel</button>
+                    <button onClick={onClose} className="py-2.5 rounded-xl font-semibold text-[#5f6368] border border-gray-200 dark:border-[#2E2E2E] hover:bg-gray-50 dark:hover:bg-[#2d2d2d]">Cancel</button>
                     <button onClick={onConfirm} disabled={isLoading} className="py-2.5 rounded-xl font-bold text-white bg-red-600 hover:bg-red-700 flex items-center justify-center">
                         {isLoading ? <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : 'Yes, Delete'}
                     </button>
@@ -341,9 +341,9 @@ export function ViewModal({ course, carriers, books, specializations, onClose }:
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md">
-            <div className="bg-white dark:bg-[#111] rounded-2xl w-[80vw] max-h-[88vh] shadow-2xl flex flex-col overflow-hidden border border-gray-200 dark:border-gray-800">
+            <div className="bg-white dark:bg-[#111] rounded-2xl w-[80vw] max-h-[88vh] shadow-2xl flex flex-col overflow-hidden border border-gray-200 dark:border-[#2E2E2E]">
                 {/* Header Bar */}
-                <div className="flex items-center justify-between px-8 py-5 border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-[#1a1a1a] flex-shrink-0">
+                <div className="flex items-center justify-between px-8 py-5 border-b border-gray-100 dark:border-[#2E2E2E] bg-white dark:bg-[#1a1a1a] flex-shrink-0">
                     <div className="flex items-center gap-4">
                         <div className="w-11 h-11 rounded-xl bg-transparent dark:bg-transparent text-purple-600 dark:text-purple-400 flex items-center justify-center border-none flex-shrink-0">
                             <CourseIcon courseName={course.name} fallback="course" size={35} />
@@ -377,7 +377,7 @@ export function ViewModal({ course, carriers, books, specializations, onClose }:
                                 </h3>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                     {books.length > 0 ? books.map(b => (
-                                        <div key={b.id} className="flex items-center gap-3 p-3.5 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-[#1a1a1a] hover:border-primary/30 transition-colors">
+                                        <div key={b.id} className="flex items-center gap-3 p-3.5 rounded-xl border border-gray-100 dark:border-[#2E2E2E] bg-gray-50/50 dark:bg-[#1a1a1a] hover:border-primary/30 transition-colors">
                                             <div className="w-8 h-8 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-lg flex items-center justify-center flex-shrink-0">
                                                 {fileIcon(b.files?.[0]?.type || '')}
                                             </div>
@@ -396,7 +396,7 @@ export function ViewModal({ course, carriers, books, specializations, onClose }:
                                 {course.whatYouWillLearn?.filter(Boolean).length > 0 ? (
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                         {course.whatYouWillLearn.filter(Boolean).map((item, i) => (
-                                            <div key={i} className="flex gap-3 items-start p-3.5 bg-gray-50 dark:bg-[#1a1a1a] rounded-xl border border-gray-100 dark:border-gray-800">
+                                            <div key={i} className="flex gap-3 items-start p-3.5 bg-gray-50 dark:bg-[#1a1a1a] rounded-xl border border-gray-100 dark:border-[#2E2E2E]">
                                                 <Check size={16} className="text-green-500 flex-shrink-0 mt-0.5" />
                                                 <span className="text-sm text-[#3c4043] dark:text-gray-300 leading-relaxed">{item}</span>
                                             </div>
@@ -413,7 +413,7 @@ export function ViewModal({ course, carriers, books, specializations, onClose }:
                                 {course.faqs?.filter(f => f.question && f.answer).length > 0 ? (
                                     <div className="space-y-3">
                                         {course.faqs.filter(f => f.question && f.answer).map((faq, i) => (
-                                            <div key={i} className="p-5 border border-gray-100 dark:border-gray-800 rounded-xl bg-white dark:bg-[#1a1a1a]">
+                                            <div key={i} className="p-5 border border-gray-100 dark:border-[#2E2E2E] rounded-xl bg-white dark:bg-[#1a1a1a]">
                                                 <p className="text-sm font-semibold text-[#202124] dark:text-white mb-2">{faq.question}</p>
                                                 <p className="text-sm text-[#5f6368] dark:text-gray-400 leading-relaxed">{faq.answer}</p>
                                             </div>
@@ -429,11 +429,11 @@ export function ViewModal({ course, carriers, books, specializations, onClose }:
                             <section>
                                 <h3 className="text-[11px] font-bold uppercase tracking-widest text-[#80868b] mb-4">Overview</h3>
                                 <div className="grid grid-cols-2 gap-3">
-                                    <div className="p-4 bg-white dark:bg-[#1a1a1a] rounded-xl border border-gray-100 dark:border-gray-800 text-center">
+                                    <div className="p-4 bg-white dark:bg-[#1a1a1a] rounded-xl border border-gray-100 dark:border-[#2E2E2E] text-center">
                                         <p className="text-2xl font-black text-[#202124] dark:text-white">{course.carrierIds?.length || 0}</p>
                                         <p className="text-[10px] uppercase tracking-wider text-[#80868b] mt-1 flex items-center justify-center gap-1"><Route size={11} /> Carriers</p>
                                     </div>
-                                    <div className="p-4 bg-white dark:bg-[#1a1a1a] rounded-xl border border-gray-100 dark:border-gray-800 text-center">
+                                    <div className="p-4 bg-white dark:bg-[#1a1a1a] rounded-xl border border-gray-100 dark:border-[#2E2E2E] text-center">
                                         <p className="text-2xl font-black text-[#202124] dark:text-white">{course.bookCount || 0}</p>
                                         <p className="text-[10px] uppercase tracking-wider text-[#80868b] mt-1 flex items-center justify-center gap-1"><BookOpen size={11} /> Books</p>
                                     </div>
@@ -449,7 +449,7 @@ export function ViewModal({ course, carriers, books, specializations, onClose }:
                                     <div className="flex flex-wrap gap-2">
                                         {course.carrierIds.map(id => {
                                             const c = carriers.find(x => x.id === id);
-                                            return <span key={id} className="text-xs px-3 py-1.5 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-700 rounded-lg text-[#3c4043] dark:text-gray-300 font-medium">{c?.name || id}</span>;
+                                            return <span key={id} className="text-xs px-3 py-1.5 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#2E2E2E] rounded-lg text-[#3c4043] dark:text-gray-300 font-medium">{c?.name || id}</span>;
                                         })}
                                     </div>
                                 ) : <p className="text-sm text-gray-400 italic">No content found.</p>}
@@ -463,7 +463,7 @@ export function ViewModal({ course, carriers, books, specializations, onClose }:
                                 {specializations?.length > 0 ? (
                                     <div className="flex flex-wrap gap-2">
                                         {specializations.map(s => (
-                                            <span key={s.id} className="text-xs px-3 py-1.5 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-700 rounded-lg text-[#3c4043] dark:text-gray-300 font-medium">{s.name}</span>
+                                            <span key={s.id} className="text-xs px-3 py-1.5 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#2E2E2E] rounded-lg text-[#3c4043] dark:text-gray-300 font-medium">{s.name}</span>
                                         ))}
                                     </div>
                                 ) : <p className="text-sm text-gray-400 italic">No content found.</p>}
@@ -475,7 +475,7 @@ export function ViewModal({ course, carriers, books, specializations, onClose }:
                                 {course.skills?.length > 0 ? (
                                     <div className="flex flex-wrap gap-2">
                                         {course.skills.map((s, i) => (
-                                            <span key={i} className="text-xs font-semibold px-3 py-1.5 bg-[#e8f0fe] dark:bg-blue-900/20 text-[#1a73e8] dark:text-blue-400 rounded-lg border border-blue-100 dark:border-blue-800/30">{s}</span>
+                                            <span key={i} className="text-xs font-semibold px-3 py-1.5 bg-[#e8f0fe] dark:bg-blue-900/20 text-[#1a73e8] dark:text-blue-400 rounded-lg border border-gray-200 dark:border-[#2E2E2E]">{s}</span>
                                         ))}
                                     </div>
                                 ) : <p className="text-sm text-gray-400 italic">No content found.</p>}
@@ -489,7 +489,7 @@ export function ViewModal({ course, carriers, books, specializations, onClose }:
                                 {course.instructors?.filter(i => i.name).length > 0 ? (
                                     <div className="space-y-3">
                                         {course.instructors.filter(i => i.name).map((inst, i) => (
-                                            <div key={i} className="flex gap-3 p-4 border border-gray-100 dark:border-gray-800 rounded-xl bg-white dark:bg-[#1a1a1a]">
+                                            <div key={i} className="flex gap-3 p-4 border border-gray-100 dark:border-[#2E2E2E] rounded-xl bg-white dark:bg-[#1a1a1a]">
                                                 <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-[#2d2d2d] flex items-center justify-center text-[#80868b] flex-shrink-0"><User size={20} /></div>
                                                 <div>
                                                     <p className="text-sm font-semibold text-[#202124] dark:text-white">{inst.name}</p>
@@ -503,7 +503,7 @@ export function ViewModal({ course, carriers, books, specializations, onClose }:
                             </section>
 
                             {/* System Footer */}
-                            <div className="pt-6 border-t border-dashed border-gray-200 dark:border-gray-800">
+                            <div className="pt-6 border-t border-dashed border-gray-200 dark:border-[#2E2E2E]">
                                 <p className="text-[10px] font-bold uppercase tracking-widest text-[#80868b]">System Generated</p>
                                 <p className="text-[10px] font-mono mt-1 text-gray-400">{course.createdAt?.seconds ? new Date(course.createdAt.seconds * 1000).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'Just now'}</p>
                             </div>

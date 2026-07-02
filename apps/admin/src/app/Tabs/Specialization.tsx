@@ -14,7 +14,7 @@ const COURSES_API = `${API}/api/inspire/course`;
 const CARRIERS_API = `${API}/api/inspire/carrier`;
 
 const SkeletonCard = () => (
-    <div className="bg-white dark:bg-[#1a1a1a] rounded-xl border border-gray-100 dark:border-gray-800 p-4 animate-pulse">
+    <div className="bg-white dark:bg-[#1a1a1a] rounded-xl border border-gray-100 dark:border-[#2E2E2E] p-4 animate-pulse">
         <div className="flex justify-between items-start mb-3">
             <div className="w-10 h-10 rounded-lg bg-gray-200 dark:bg-gray-800"></div>
             <div className="w-6 h-6 rounded bg-gray-100 dark:bg-gray-800"></div>
@@ -25,7 +25,7 @@ const SkeletonCard = () => (
             <div className="h-2 w-full bg-gray-100 dark:bg-gray-800 rounded"></div>
             <div className="h-2 w-5/6 bg-gray-100 dark:bg-gray-800 rounded"></div>
         </div>
-        <div className="flex items-center justify-end gap-3 pt-3 border-t border-gray-50 dark:border-gray-800">
+        <div className="flex items-center justify-end gap-3 pt-3 border-t border-gray-50 dark:border-[#2E2E2E]">
             <div className="h-3 w-8 bg-gray-200 dark:bg-gray-800 rounded"></div>
             <div className="h-3 w-8 bg-gray-200 dark:bg-gray-800 rounded"></div>
         </div>
@@ -211,7 +211,7 @@ export default function SpecializationTab() {
                 <MoreVertical size={16} />
             </button>
             {activeMenu === spec.id && (
-                <div className="absolute right-0 top-8 w-48 bg-white dark:bg-[#2d2d2d] border border-gray-100 dark:border-gray-700 rounded-xl shadow-xl z-50 py-1">
+                <div className="absolute right-0 top-8 w-48 bg-white dark:bg-[#2d2d2d] border border-gray-100 dark:border-[#2E2E2E] rounded-xl shadow-xl z-50 py-1">
                     <button onClick={() => openView(spec)} className="w-full text-left px-4 py-2 text-sm text-[#202124] dark:text-white hover:bg-gray-50 dark:hover:bg-[#3a3a3a] flex items-center gap-2"><Eye size={14} className="text-[#80868b]" />View Specialization</button>
                     <button onClick={() => openEdit(spec)} className="w-full text-left px-4 py-2 text-sm text-[#202124] dark:text-white hover:bg-gray-50 dark:hover:bg-[#3a3a3a] flex items-center gap-2"><Edit2 size={14} className="text-[#80868b]" />Edit Specialization</button>
                     <button onClick={() => openDelete(spec)} className="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-2"><Trash2 size={14} />Delete Specialization</button>
@@ -248,7 +248,7 @@ export default function SpecializationTab() {
                             <div className="flex justify-end flex-1">
                                 <SearchBar placeholder="Search specializations..." value={searchQuery} onSearch={setSearchQuery} />
                             </div>
-                            <button onClick={() => setModal('deleteAll')} className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#1a1a1a] text-[#5f6368] border border-gray-200 dark:border-gray-700 rounded-lg font-medium hover:bg-red-50 hover:text-red-600 hover:border-red-200 dark:hover:bg-red-900/20 dark:hover:text-red-400 transition-all">
+                            <button onClick={() => setModal('deleteAll')} className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#1a1a1a] text-[#5f6368] border border-gray-200 dark:border-[#2E2E2E] rounded-lg font-medium hover:bg-red-50 hover:text-red-600 hover:border-red-200 dark:hover:bg-red-900/20 dark:hover:text-red-400 transition-all">
                                 <Trash2 size={16} /> Clear All
                             </button>
                             <button onClick={openAdd} className="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-blue-600 text-white rounded-lg font-medium shadow-sm transition-colors">
@@ -266,7 +266,7 @@ export default function SpecializationTab() {
                     ) : (
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                             {filtered.map(spec => (
-                                <div key={spec.id} className="bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-gray-800 hover:border-gray-200 dark:hover:border-gray-700 rounded-xl p-4 flex flex-col group transition-all duration-200 shadow-sm hover:shadow-md">
+                                <div key={spec.id} className="bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-[#2E2E2E] hover:border-gray-200 dark:hover:border-gray-700 rounded-xl p-4 flex flex-col group transition-all duration-200 shadow-sm hover:shadow-md">
                                     <div className="flex justify-between items-start mb-3">
                                         <div className="w-10 h-10 bg-transparent dark:bg-transparent rounded-lg flex items-center justify-center">
                                             <CourseIcon courseName={spec.name} fallback="specialization" size={28} />
@@ -274,10 +274,10 @@ export default function SpecializationTab() {
                                         <ContextMenu spec={spec} />
                                     </div>
                                     <h3 className="text-sm font-bold text-[#202124] dark:text-white truncate mb-1" title={spec.name}>{spec.name}</h3>
-                                    <div className="mb-2"><span className="text-[10px] font-mono font-bold text-primary bg-[#e8f0fe] dark:bg-blue-900/20 px-2 py-0.5 rounded border border-blue-100 dark:border-blue-800/50">{spec.specializationId}</span></div>
+                                    <div className="mb-2"><span className="text-[10px] font-mono font-bold text-[#5f6368] bg-gray-100 dark:bg-[#202124] px-2 py-0.5 rounded border border-gray-200 dark:border-[#2E2E2E]">{spec.specializationId}</span></div>
                                     <p className="text-xs text-[#5f6368] dark:text-gray-400 line-clamp-3 mb-4 flex-1">{spec.description}</p>
                                     
-                                    <div className="flex items-center justify-end gap-3 pt-3 border-t border-gray-50 dark:border-gray-800">
+                                    <div className="flex items-center justify-end gap-3 pt-3 border-t border-gray-50 dark:border-[#2E2E2E]">
                                         <span className="flex items-center gap-1.5 text-[11px] font-semibold text-[#80868b]" title="Linked Carriers">
                                             <Route size={13} className="flex-shrink-0" />
                                             {spec.carrierIds?.length || 0}

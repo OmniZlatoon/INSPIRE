@@ -29,15 +29,15 @@ const CARRIERS_API = `${API}/api/inspire/carrier`;
 const BOOKS_API = `${API}/api/inspire/books`;
 
 const SkeletonBlock = () => (
-    <div className="mb-6 bg-white dark:bg-[#1a1a1a] rounded-2xl border border-gray-100 dark:border-gray-800 p-5 animate-pulse">
+    <div className="mb-6 bg-white dark:bg-[#1a1a1a] rounded-2xl border border-gray-100 dark:border-[#2E2E2E] p-5 animate-pulse">
         <div className="flex justify-between items-center mb-6">
             <div className="h-10 w-48 bg-gray-200 dark:bg-gray-800 rounded-lg"></div>
             <div className="h-6 w-6 bg-gray-100 dark:bg-gray-800 rounded-full"></div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="h-24 bg-gray-50 dark:bg-[#121212] rounded-xl border border-gray-100 dark:border-gray-800"></div>
-            <div className="h-24 bg-gray-50 dark:bg-[#121212] rounded-xl border border-gray-100 dark:border-gray-800"></div>
-            <div className="h-24 bg-gray-50 dark:bg-[#121212] rounded-xl border border-gray-100 dark:border-gray-800"></div>
+            <div className="h-24 bg-gray-50 dark:bg-[#121212] rounded-xl border border-gray-100 dark:border-[#2E2E2E]"></div>
+            <div className="h-24 bg-gray-50 dark:bg-[#121212] rounded-xl border border-gray-100 dark:border-[#2E2E2E]"></div>
+            <div className="h-24 bg-gray-50 dark:bg-[#121212] rounded-xl border border-gray-100 dark:border-[#2E2E2E]"></div>
         </div>
     </div>
 );
@@ -105,15 +105,15 @@ export default function CategoryTab() {
             let fetchedBooks: any[] = [];
             if (bkR.ok) { const d = await bkR.json(); if (d.success) { fetchedBooks = d.data || []; setAllBooks(fetchedBooks); } }
             if (catR.ok) { catData = await catR.json(); if (catData.success) setCategories(catData.data); }
-            if (cr.ok) { 
-                const d = await cr.json(); 
+            if (cr.ok) {
+                const d = await cr.json();
                 if (d.success) {
                     const coursesWithCount = d.data.map((course: any) => ({
                         ...course,
                         bookCount: fetchedBooks.filter(b => b.courseId === course.id).length
                     }));
                     setCourses(coursesWithCount);
-                } 
+                }
             }
             if (carr.ok) { const d = await carr.json(); if (d.success) setCarriers(d.data); }
             if (sr.ok) { const d = await sr.json(); if (d.success) setSpecializations(d.data); }
@@ -313,7 +313,7 @@ export default function CategoryTab() {
                 <MoreVertical size={16} />
             </button>
             {activeMenu === id && (
-                <div className="absolute right-0 top-8 w-36 bg-white dark:bg-[#2d2d2d] border border-gray-100 dark:border-gray-700 rounded-xl shadow-xl z-50 py-1" onClick={e => e.stopPropagation()}>
+                <div className="absolute right-0 top-8 w-36 bg-white dark:bg-[#2d2d2d] border border-gray-100 dark:border-[#2E2E2E] rounded-xl shadow-xl z-50 py-1" onClick={e => e.stopPropagation()}>
                     <button onClick={onMenuView} className="w-full text-left px-4 py-2 text-xs text-[#202124] dark:text-white hover:bg-gray-50 dark:hover:bg-[#3a3a3a] flex items-center gap-2"><Eye size={14} className="text-[#80868b]" />View</button>
                     <button onClick={onMenuEdit} className="w-full text-left px-4 py-2 text-xs text-[#202124] dark:text-white hover:bg-gray-50 dark:hover:bg-[#3a3a3a] flex items-center gap-2"><Edit2 size={14} className="text-[#80868b]" />Edit</button>
                     <button onClick={onMenuDelete} className="w-full text-left px-4 py-2 text-xs text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-2"><Trash2 size={14} />Delete</button>
@@ -351,7 +351,7 @@ export default function CategoryTab() {
             {isLoading ? (
                 <div><SkeletonBlock /><SkeletonBlock /></div>
             ) : categories.length === 0 && !isLoading ? (
-                <div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-[#1a1a1a] rounded-2xl border border-gray-100 dark:border-gray-800">
+                <div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-[#1a1a1a] rounded-2xl border border-gray-100 dark:border-[#2E2E2E]">
                     <div className="w-20 h-20 bg-blue-50 dark:bg-blue-900/20 rounded-full flex items-center justify-center text-blue-500 mb-6">
                         <LayoutGrid size={32} />
                     </div>
@@ -368,10 +368,10 @@ export default function CategoryTab() {
                     {/* Category Scrollable Header Tabs */}
                     <div className="flex gap-3 overflow-x-auto pb-4 no-scrollbar">
                         {filteredCats.map(cat => (
-                            <button 
+                            <button
                                 key={cat.id}
-                                onClick={() => setSelectedCategoryId(cat.id)} 
-                                className={`px-6 py-3 rounded-full whitespace-nowrap font-semibold transition-all shadow-sm flex items-center gap-2 border text-sm ${selectedCategoryId === cat.id ? 'bg-primary text-white border-primary' : 'bg-white dark:bg-[#1a1a1a] text-[#5f6368] dark:text-gray-300 border-gray-200 dark:border-gray-800 hover:border-primary/50'}`}
+                                onClick={() => setSelectedCategoryId(cat.id)}
+                                className={`px-3 py-2 rounded-full whitespace-nowrap font-semibold transition-all shadow-sm flex items-center gap-2 border text-sm ${selectedCategoryId === cat.id ? 'bg-primary text-white border-primary' : 'bg-white dark:bg-[#1a1a1a] text-[#5f6368] dark:text-gray-300 border-gray-200 dark:border-[#2E2E2E] hover:border-primary/50'}`}
                             >
                                 <LayoutGrid size={16} /> {cat.name}
                             </button>
@@ -380,16 +380,16 @@ export default function CategoryTab() {
 
                     {/* Active Category Content Body */}
                     {selectedCat && (
-                        <div className="bg-white dark:bg-[#1a1a1a] rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm flex flex-col p-8 animate-in fade-in duration-300">
+                        <div className="bg-white dark:bg-[#1a1a1a] rounded-2xl border border-gray-100 dark:border-[#2E2E2E] shadow-sm flex flex-col p-8 animate-in fade-in duration-300">
                             {/* Header inside body */}
-                            <div className="flex justify-between items-start mb-8 border-b border-gray-100 dark:border-gray-800 pb-6 relative z-10">
+                            <div className="flex justify-between items-start mb-8 border-b border-gray-100 dark:border-[#2E2E2E] pb-6 relative z-10">
                                 <div>
                                     <h3 className="text-2xl font-bold text-[#202124] dark:text-white">{selectedCat.name}</h3>
                                     <p className="text-sm font-mono text-[#80868b] mt-1">{selectedCat.categoryId}</p>
                                     <p className="text-sm text-[#5f6368] dark:text-gray-400 mt-2 max-w-2xl">{selectedCat.description || 'No description provided.'}</p>
                                 </div>
                                 <div className="flex items-center gap-4">
-                                    <div className="hidden md:flex gap-4 mr-2 text-xs font-semibold text-[#80868b] bg-gray-50 dark:bg-[#121212] px-4 py-2 rounded-xl border border-gray-100 dark:border-gray-800">
+                                    <div className="hidden md:flex gap-4 mr-2 text-xs font-semibold text-[#80868b] bg-gray-50 dark:bg-[#121212] px-4 py-2 rounded-xl border border-gray-100 dark:border-[#2E2E2E]">
                                         <span className="flex items-center gap-1.5"><Route size={14} className="text-purple-400" /> {catCarriers.length} Carriers</span>
                                         <span className="flex items-center gap-1.5"><Layers size={14} className="text-orange-400" /> {catSpecs.length} Specs</span>
                                         <span className="flex items-center gap-1.5"><BookOpen size={14} className="text-blue-400" /> {catCourses.length} Courses</span>
@@ -413,7 +413,7 @@ export default function CategoryTab() {
                                         <h4 className="text-sm font-bold uppercase tracking-widest text-[#80868b] mb-4 flex items-center gap-2"><Route size={16} className="text-purple-500" /> Carrier Paths</h4>
                                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                                             {catCarriers.map(c => (
-                                                <div key={c.id} className="p-4 bg-gray-50 dark:bg-[#121212] rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm flex justify-between group">
+                                                <div key={c.id} className="p-4 bg-gray-50 dark:bg-[#121212] rounded-xl border border-gray-200 dark:border-[#2E2E2E] shadow-none flex justify-between group">
                                                     <div className="min-w-0 pr-4 flex items-center gap-3">
                                                         <div className="w-10 h-10 rounded-lg bg-white dark:bg-[#1a1a1a] flex items-center justify-center flex-shrink-0 shadow-sm"><CourseIcon courseName={c.name} fallback="carrier" size={20} /></div>
                                                         <div>
@@ -434,7 +434,7 @@ export default function CategoryTab() {
                                         <h4 className="text-sm font-bold uppercase tracking-widest text-[#80868b] mb-4 flex items-center gap-2"><Layers size={16} className="text-orange-500" /> Specializations</h4>
                                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                                             {catSpecs.map(s => (
-                                                <div key={s.id} className="p-4 bg-gray-50 dark:bg-[#121212] rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm flex justify-between group">
+                                                <div key={s.id} className="p-4 bg-gray-50 dark:bg-[#121212] rounded-xl border border-gray-200 dark:border-[#2E2E2E] shadow-none flex justify-between group">
                                                     <div className="min-w-0 pr-4 flex items-center gap-3">
                                                         <div className="w-10 h-10 rounded-lg bg-white dark:bg-[#1a1a1a] flex items-center justify-center flex-shrink-0 shadow-sm"><CourseIcon courseName={s.name} fallback="specialization" size={20} /></div>
                                                         <div>
@@ -455,7 +455,7 @@ export default function CategoryTab() {
                                         <h4 className="text-sm font-bold uppercase tracking-widest text-[#80868b] mb-4 flex items-center gap-2"><BookOpen size={16} className="text-blue-500" /> Courses</h4>
                                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                                             {catCourses.map(c => (
-                                                <div key={c.id} className="p-4 bg-gray-50 dark:bg-[#121212] rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm flex justify-between group">
+                                                <div key={c.id} className="p-4 bg-gray-50 dark:bg-[#121212] rounded-xl border border-gray-200 dark:border-[#2E2E2E] flex justify-between group">
                                                     <div className="min-w-0 pr-4 flex items-center gap-3">
                                                         <div className="w-10 h-10 rounded-lg bg-white dark:bg-[#1a1a1a] flex items-center justify-center flex-shrink-0 shadow-sm"><CourseIcon courseName={c.name} fallback="course" size={20} /></div>
                                                         <div className="min-w-0">
@@ -471,7 +471,7 @@ export default function CategoryTab() {
                                 )}
 
                                 {catCarriers.length === 0 && catSpecs.length === 0 && catCourses.length === 0 && (
-                                    <div className="text-center py-10 text-sm text-gray-500 italic border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-2xl">
+                                    <div className="text-center py-10 text-sm text-gray-500 italic border-2 border-dashed border-gray-200 dark:border-[#2E2E2E] rounded-2xl">
                                         <p className="mb-2 text-lg">No items associated yet.</p>
                                         <p>Edit this category to link Carrier Paths, Specializations, and Courses.</p>
                                     </div>

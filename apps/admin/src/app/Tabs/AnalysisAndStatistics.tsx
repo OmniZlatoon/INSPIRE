@@ -169,7 +169,7 @@ export default function AnalysisAndStatistics() {
                                 <button
                                     onClick={fetchStats}
                                     disabled={isLoading || isOffline}
-                                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-200 dark:border-gray-700 text-[#5f6368] dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#2d2d2d] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-200 dark:border-[#2E2E2E] text-[#5f6368] dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#2d2d2d] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                                 >
                                     <RefreshCw size={13} className={isLoading ? 'animate-spin' : ''} />
                                     Refresh
@@ -182,7 +182,7 @@ export default function AnalysisAndStatistics() {
                             {metricCards.map((card) => (
                                 <div
                                     key={card.key}
-                                    className="bg-white dark:bg-[#1a1a1a] rounded-xl border border-gray-100 dark:border-gray-800 p-4 hover:border-gray-200 dark:hover:border-gray-700 transition-all duration-200 group"
+                                    className="bg-white dark:bg-[#1a1a1a] rounded-xl border border-gray-100 dark:border-[#2E2E2E] p-4 hover:border-gray-200 dark:hover:border-gray-700 transition-all duration-200 group"
                                 >
                                     {/* Icon */}
                                     <div className={`inline-flex items-center justify-center w-8 h-8 rounded-lg ${card.bgColor} ${card.darkBgColor} ${card.accentColor} mb-3`}>
@@ -212,7 +212,7 @@ export default function AnalysisAndStatistics() {
                         </div>
 
                         {/* Summary Bar */}
-                        <div className="bg-white dark:bg-[#1a1a1a] rounded-xl border border-gray-100 dark:border-gray-800 px-5 py-4 flex items-center gap-3">
+                        <div className="bg-white dark:bg-[#1a1a1a] rounded-xl border border-gray-100 dark:border-[#2E2E2E] px-5 py-4 flex items-center gap-3">
                             <div className="p-2 bg-blue-50 dark:bg-blue-900/15 rounded-lg">
                                 <TrendingUp size={16} className="text-blue-500" />
                             </div>

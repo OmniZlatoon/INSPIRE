@@ -153,7 +153,7 @@ export default function MainScreen() {
                     }`}
             >
                 {/* Header Section */}
-                <header className="h-16 px-6 flex items-center justify-between border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-[#1a1a1a] shadow-sm z-10 transition-colors duration-300">
+                <header className="h-16 px-6 flex items-center justify-between border-b border-gray-200 dark:border-[#2E2E2E] bg-white dark:bg-[#1a1a1a] shadow-sm z-10 transition-colors duration-300">
 
                     {/* Left: Logo */}
                     <div className="flex items-center">
@@ -178,7 +178,7 @@ export default function MainScreen() {
                         {/* Profile Section */}
                         <div className="relative">
                             <div
-                                className="flex items-center space-x-3 border-l border-gray-200 dark:border-gray-700 pl-6 cursor-pointer"
+                                className="flex items-center space-x-3 border-l border-gray-200 dark:border-[#2E2E2E] pl-6 cursor-pointer"
                                 onClick={toggleProfileMenu}
                             >
                                 <div className="flex flex-col items-end hidden md:flex">
@@ -192,12 +192,12 @@ export default function MainScreen() {
                                 <img
                                     src={getProfileImage()}
                                     alt="Profile"
-                                    className="w-10 h-10 rounded-full border-2 border-white dark:border-[#2d2d2d] shadow-sm object-cover"
+                                    className="w-10 h-10 rounded-full border-2 border-white dark:border-[#2E2E2E] shadow-sm object-cover"
                                 />
                             </div>
 
                             {/* Logout Dropdown - Click Based */}
-                            <div className={`absolute top-14 right-0 bg-white dark:bg-[#2d2d2d] shadow-xl border border-gray-100 dark:border-gray-700 rounded-lg py-2 px-4 transition-all duration-200 z-50 ${isProfileMenuOpen ? 'opacity-100 scale-100 pointer-events-auto' : 'opacity-0 scale-95 pointer-events-none'}`}>
+                            <div className={`absolute top-14 right-0 bg-white dark:bg-[#2d2d2d] shadow-xl border border-gray-100 dark:border-[#2E2E2E] rounded-lg py-2 px-4 transition-all duration-200 z-50 ${isProfileMenuOpen ? 'opacity-100 scale-100 pointer-events-auto' : 'opacity-0 scale-95 pointer-events-none'}`}>
                                 <button onClick={handleLogout} className="flex items-center text-sm text-red-600 dark:text-red-400 hover:text-red-800 font-medium whitespace-nowrap">
                                     <LogOut size={16} className="mr-2" /> Sign Out
                                 </button>

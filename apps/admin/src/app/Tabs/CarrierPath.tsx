@@ -9,7 +9,7 @@ import { CourseIcon } from '@/components/CourseIcon';
 import { SuccessMessage } from '@/components/SuccessMessage';
 
 const SkeletonCard = () => (
-    <div className="bg-white dark:bg-[#1a1a1a] rounded-xl border border-gray-100 dark:border-gray-800 p-4 animate-pulse">
+    <div className="bg-white dark:bg-[#1a1a1a] rounded-xl border border-gray-100 dark:border-[#2E2E2E] p-4 animate-pulse">
         <div className="flex justify-between items-center mb-3">
             <div className="w-8 h-8 rounded-lg bg-gray-200 dark:bg-gray-800"></div>
             <div className="w-5 h-5 rounded bg-gray-100 dark:bg-gray-800"></div>
@@ -20,7 +20,7 @@ const SkeletonCard = () => (
             <div className="h-2 w-full bg-gray-100 dark:bg-gray-800 rounded"></div>
             <div className="h-2 w-5/6 bg-gray-100 dark:bg-gray-800 rounded"></div>
         </div>
-        <div className="flex items-center justify-end gap-3 pt-2.5 border-t border-gray-50 dark:border-gray-800/50">
+        <div className="flex items-center justify-end gap-3 pt-2.5 border-t border-gray-50 dark:border-[#2E2E2E]">
             <div className="h-3 w-8 bg-gray-200 dark:bg-gray-800 rounded"></div>
             <div className="h-3 w-8 bg-gray-200 dark:bg-gray-800 rounded"></div>
         </div>
@@ -317,7 +317,7 @@ export default function CarrierPath() {
                     </div>
                     <button
                         onClick={() => setModalMode('deleteAll')}
-                        className="flex items-center px-4 py-2 bg-white dark:bg-[#1a1a1a] text-[#5f6368] dark:text-gray-300 font-medium rounded-lg transition-colors border border-gray-200 dark:border-gray-700 hover:bg-red-50 hover:text-red-600 hover:border-red-200 dark:hover:bg-red-900/20 dark:hover:text-red-400 dark:hover:border-red-800 active:bg-red-100"
+                        className="flex items-center px-4 py-2 bg-white dark:bg-[#1a1a1a] text-[#5f6368] dark:text-gray-300 font-medium rounded-lg transition-colors border border-gray-200 dark:border-[#2E2E2E] hover:bg-red-50 hover:text-red-600 hover:border-red-200 dark:hover:bg-red-900/20 dark:hover:text-red-400 dark:hover:border-red-800 active:bg-red-100"
                     >
                         <Trash2 size={18} className="mr-2" />
                         Clear Carriers
@@ -344,7 +344,7 @@ export default function CarrierPath() {
             ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                     {filteredCarriers.map((carrier) => (
-                        <div key={carrier.id} className="bg-white dark:bg-[#1a1a1a] rounded-xl border border-gray-100 dark:border-gray-800 hover:border-gray-200 dark:hover:border-gray-700 transition-all duration-200 relative group">
+                        <div key={carrier.id} className="bg-white dark:bg-[#1a1a1a] rounded-xl border border-gray-100 dark:border-[#2E2E2E] hover:border-gray-200 dark:hover:border-gray-700 transition-all duration-200 relative group">
 
                             <div className="p-4">
                                 {/* Top row: icon + menu */}
@@ -364,7 +364,7 @@ export default function CarrierPath() {
 
                                         {/* Dropdown Menu */}
                                         {activeDropdown === carrier.id && (
-                                            <div className="absolute right-0 mt-1 w-44 bg-white dark:bg-[#2d2d2d] rounded-lg shadow-xl border border-gray-100 dark:border-gray-700 z-50 py-1">
+                                            <div className="absolute right-0 mt-1 w-44 bg-white dark:bg-[#2d2d2d] rounded-lg shadow-xl border border-gray-100 dark:border-[#2E2E2E] z-50 py-1">
                                                 <button
                                                     onClick={() => {
                                                         setSelectedCarrier(carrier);
@@ -408,7 +408,7 @@ export default function CarrierPath() {
                                 </p>
 
                                 {/* Footer: course + spec counts */}
-                                <div className="flex items-center justify-end gap-3 pt-2.5 border-t border-gray-50 dark:border-gray-800/50">
+                                <div className="flex items-center justify-end gap-3 pt-2.5 border-t border-gray-50 dark:border-[#2E2E2E]">
                                     <span className="flex items-center gap-1 text-[11px] font-semibold text-[#80868b]" title="Linked Courses"><BookOpen size={12} />{courseCounts[carrier.id] || 0}</span>
                                     <div className="w-px h-3.5 bg-gray-200 dark:bg-gray-700"></div>
                                     <span className="flex items-center gap-1 text-[11px] font-semibold text-[#80868b]" title="Linked Specializations"><Layers size={12} />{specCounts[carrier.id] || 0}</span>

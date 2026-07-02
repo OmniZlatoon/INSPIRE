@@ -8,26 +8,46 @@
   --color-warning: #FBBC05;
   --color-success: #34A853;
   --color-bg-light: #f8f9fa;
-  
+
   --font-roboto: "Roboto", sans-serif;
   --font-pacifico: "Pacifico", cursive;
 
   --animate-indeterminate: indeterminate 1.5s infinite linear;
+
   @keyframes indeterminate {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(200%); }
+    0% {
+      transform: translateX(-100%);
+    }
+
+    100% {
+      transform: translateX(200%);
+    }
   }
 
   --animate-shimmer: shimmer 1.6s ease-in-out infinite;
+
   @keyframes shimmer {
-    0% { background-position: -468px 0; }
-    100% { background-position: 468px 0; }
+    0% {
+      background-position: -468px 0;
+    }
+
+    100% {
+      background-position: 468px 0;
+    }
   }
 
   --animate-skeleton-pulse: skeleton-pulse 1.8s ease-in-out infinite;
+
   @keyframes skeleton-pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
+
+    0%,
+    100% {
+      opacity: 1;
+    }
+
+    50% {
+      opacity: 0.4;
+    }
   }
 }
 
@@ -44,14 +64,14 @@ body {
 
 .material-card {
   background: white;
-  border-radius: 8px;
-  box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);
+  border-radius: 6px;
+  box-shadow: 0 1px 2px 0 rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);
   padding: 1.5rem;
   transition: box-shadow 0.2s ease-in-out;
 }
 
 .material-card:hover {
-  box-shadow: 0 1px 3px 0 rgba(60,64,67,0.3), 0 4px 8px 3px rgba(60,64,67,0.15);
+  box-shadow: 0 1px 3px 0 rgba(60, 64, 67, 0.3), 0 4px 8px 3px rgba(60, 64, 67, 0.15);
 }
 
 .logo-text {

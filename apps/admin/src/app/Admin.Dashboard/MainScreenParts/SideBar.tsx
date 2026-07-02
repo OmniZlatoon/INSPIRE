@@ -94,10 +94,10 @@ export const SideBar: React.FC<SideBarProps> = ({
     };
 
     return (
-        <aside className="h-full w-full flex flex-col bg-white dark:bg-[#111111] border-r border-[#e8eaed] dark:border-[#2a2a2a] overflow-hidden transition-colors duration-300">
+        <aside className="h-full w-full flex flex-col bg-white dark:bg-[#111111] border-r border-[#e8eaed] dark:border-[#2E2E2E] overflow-hidden transition-colors duration-300">
 
             {/* ── Header: Hamburger ── */}
-            <div className={`flex items-center h-16 flex-shrink-0 border-b border-[#e8eaed] dark:border-[#2a2a2a] ${isExpanded ? 'px-3 gap-3' : 'justify-center px-0'}`}>
+            <div className={`flex items-center h-16 flex-shrink-0 border-b border-[#e8eaed] dark:border-[#2E2E2E] ${isExpanded ? 'px-3 gap-3' : 'justify-center px-0'}`}>
                 <button
                     onClick={() => setIsExpanded(!isExpanded)}
                     className="flex-shrink-0 p-2 rounded-full hover:bg-[#f1f3f4] dark:hover:bg-[#2a2a2a] text-[#5f6368] dark:text-[#9aa0a6] transition-colors"
@@ -126,7 +126,7 @@ export const SideBar: React.FC<SideBarProps> = ({
             </nav>
 
             {/* ── Divider ── */}
-            <div className="mx-3 border-t border-[#e8eaed] dark:border-[#2a2a2a]" />
+            <div className="mx-3 border-t border-[#e8eaed] dark:border-[#2E2E2E]" />
 
             {/* ── System Nav ── */}
             <div className="px-2 py-3 flex flex-col gap-1 flex-shrink-0">
@@ -142,7 +142,7 @@ export const SideBar: React.FC<SideBarProps> = ({
 
             {/* ── Footer ── */}
             {isExpanded && (
-                <div className="px-4 py-2.5 border-t border-[#e8eaed] dark:border-[#2a2a2a] flex-shrink-0">
+                <div className="px-4 py-2.5 border-t border-[#e8eaed] dark:border-[#2E2E2E] flex-shrink-0">
                     <p className="text-[10px] text-[#80868b] dark:text-[#5f6368]">
                         Admin Portal · v1.0
                     </p>

@@ -9,7 +9,7 @@ import { CourseIcon } from '@/components/CourseIcon';
 import { SuccessMessage } from '@/components/SuccessMessage';
 
 const SkeletonCard = () => (
-    <div className="bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-gray-800 rounded-xl p-4 animate-pulse">
+    <div className="bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-[#2E2E2E] rounded-xl p-4 animate-pulse">
         <div className="flex justify-between items-start mb-4">
             <div className="w-10 h-10 rounded-lg bg-gray-200 dark:bg-gray-800"></div>
             <div className="w-6 h-6 rounded bg-gray-100 dark:bg-gray-800"></div>
@@ -20,7 +20,7 @@ const SkeletonCard = () => (
             <div className="h-2 w-full bg-gray-100 dark:bg-gray-800 rounded"></div>
             <div className="h-2 w-5/6 bg-gray-100 dark:bg-gray-800 rounded"></div>
         </div>
-        <div className="flex gap-3 pt-3 border-t border-gray-50 dark:border-gray-800/50 justify-end">
+        <div className="flex gap-3 pt-3 border-t border-gray-50 dark:border-[#2E2E2E] justify-end">
             <div className="h-3 w-8 bg-gray-200 dark:bg-gray-800 rounded"></div>
             <div className="h-3 w-8 bg-gray-200 dark:bg-gray-800 rounded"></div>
             <div className="h-3 w-8 bg-gray-200 dark:bg-gray-800 rounded"></div>
@@ -179,7 +179,7 @@ export default function CourseOverlook() {
                 <MoreVertical size={16} />
             </button>
             {activeMenu === course.id && (
-                <div className="absolute right-0 top-8 w-44 bg-white dark:bg-[#2d2d2d] border border-gray-100 dark:border-gray-700 rounded-xl shadow-xl z-50 py-1 animate-in fade-in zoom-in-95 duration-100">
+                <div className="absolute right-0 top-8 w-44 bg-white dark:bg-[#2d2d2d] border border-gray-100 dark:border-[#2E2E2E] rounded-xl shadow-xl z-50 py-1 animate-in fade-in zoom-in-95 duration-100">
                     <button onClick={() => openView(course)} className="w-full text-left px-4 py-2 text-sm text-[#202124] dark:text-white hover:bg-gray-50 dark:hover:bg-[#3a3a3a] flex items-center gap-2"><Eye size={14} className="text-[#80868b]" />View Course</button>
                     <button onClick={() => openEdit(course)} className="w-full text-left px-4 py-2 text-sm text-[#202124] dark:text-white hover:bg-gray-50 dark:hover:bg-[#3a3a3a] flex items-center gap-2"><Edit2 size={14} className="text-[#80868b]" />Edit Course</button>
                     <button onClick={() => openDelete(course)} className="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-2"><Trash2 size={14} />Delete Course</button>
@@ -228,7 +228,7 @@ export default function CourseOverlook() {
                                     onSearch={setSearchQuery}
                                 />
                             </div>
-                            <button onClick={() => setModal('deleteAll')} className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#1a1a1a] text-[#5f6368] border border-gray-200 dark:border-gray-700 rounded-lg font-medium hover:bg-red-50 hover:text-red-600 hover:border-red-200 dark:hover:bg-red-900/20 dark:hover:text-red-400 transition-all">
+                            <button onClick={() => setModal('deleteAll')} className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#1a1a1a] text-[#5f6368] border border-gray-200 dark:border-[#2E2E2E] rounded-lg font-medium hover:bg-red-50 hover:text-red-600 hover:border-red-200 dark:hover:bg-red-900/20 dark:hover:text-red-400 transition-all">
                                 <Trash2 size={16} /> Clear All Courses
                             </button>
                             <button onClick={openAdd} className="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-blue-600 text-white rounded-lg font-medium shadow-sm transition-colors">
@@ -245,7 +245,7 @@ export default function CourseOverlook() {
                         ) : (
                             <div className="space-y-2">
                                 {Array.from({ length: 5 }).map((_, i) => (
-                                    <div key={i} className="h-16 bg-white dark:bg-[#1a1a1a] rounded-xl border border-gray-100 dark:border-gray-800 animate-pulse"></div>
+                                    <div key={i} className="h-16 bg-white dark:bg-[#1a1a1a] rounded-xl border border-gray-100 dark:border-[#2E2E2E] animate-pulse"></div>
                                 ))}
                             </div>
                         )
@@ -259,7 +259,7 @@ export default function CourseOverlook() {
                             /* ── Grid View ── */
                             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                                 {filterCourses(courses, searchQuery).map(course => (
-                                    <div key={course.id} className="bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-gray-800 hover:border-gray-200 dark:hover:border-gray-700 rounded-xl p-4 group transition-all duration-200">
+                                    <div key={course.id} className="bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-[#2E2E2E] hover:border-gray-200 dark:hover:border-gray-700 rounded-xl p-4 group transition-all duration-200">
                                         <div className="flex justify-between items-start mb-3">
                                             <div className="p-2 bg-transparent dark:transparent-900/15 rounded-lg"><CourseIcon courseName={course.name} fallback="course" size={32} /></div>
                                             <ContextMenu course={course} />
@@ -267,7 +267,7 @@ export default function CourseOverlook() {
                                         <h3 className="text-sm font-semibold text-[#202124] dark:text-white truncate mb-1" title={course.name}>{course.name}</h3>
                                         <p className="text-[10px] font-mono text-purple-600 bg-purple-50 dark:bg-purple-900/15 px-1.5 py-0.5 rounded inline-block mb-2">{course.courseId}</p>
                                         <p className="text-xs text-[#5f6368] dark:text-gray-400 line-clamp-2 min-h-[2rem] mb-3" title={course.description}>{course.description}</p>
-                                        <div className="flex justify-end gap-3 pt-3 border-t border-gray-50 dark:border-gray-800/50">
+                                        <div className="flex justify-end gap-3 pt-3 border-t border-gray-50 dark:border-[#2E2E2E]">
                                             <span className="flex items-center gap-1 text-[11px] text-[#80868b] font-medium" title="Carriers"><Route size={12} />{course.carrierIds?.length || 0}</span>
                                             <span className="flex items-center gap-1 text-[11px] text-[#80868b] font-medium" title="Books"><BookIcon size={12} />{course.bookCount || 0}</span>
                                             <div className="w-px h-3.5 bg-gray-200 dark:bg-gray-700 self-center"></div>
@@ -278,9 +278,9 @@ export default function CourseOverlook() {
                             </div>
                         ) : (
                             /* ── Table View ── */
-                            <div className="bg-white dark:bg-[#1a1a1a] rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm">
+                            <div className="bg-white dark:bg-[#1a1a1a] rounded-xl border border-gray-200 dark:border-[#2E2E2E] shadow-sm">
                                 <table className="w-full text-left">
-                                    <thead className="bg-gray-50 dark:bg-[#111] border-b border-gray-200 dark:border-gray-800">
+                                    <thead className="bg-gray-50 dark:bg-[#111] border-b border-gray-200 dark:border-[#2E2E2E]">
                                         <tr>{['Course ID', 'Course Name', 'Description', 'Carriers', 'Books', 'Created At', ''].map((h, i) => (
                                             <th key={i} className={`px-5 py-4 text-[11px] font-bold text-[#202124] dark:text-white uppercase tracking-wider ${i >= 3 && i <= 4 ? 'text-center' : i === 6 ? 'text-right' : ''}`}>{h}</th>
                                         ))}</tr>

@@ -70,7 +70,7 @@ export function AddEditCarrierModal({
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm bg-black/50 animate-in fade-in duration-200">
             <div className="bg-white dark:bg-[#1a1a1a] rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
                 {/* Header */}
-                <div className="flex justify-between items-center px-6 py-4 bg-white dark:bg-[#1a1a1a] border-b border-gray-200 dark:border-gray-800 flex-shrink-0 z-10">
+                <div className="flex justify-between items-center px-6 py-4 bg-white dark:bg-[#1a1a1a] border-b border-gray-200 dark:border-[#2E2E2E] flex-shrink-0 z-10">
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-transparent dark:bg-transparent flex items-center justify-center">
                             <CourseIcon courseName="carrier" size={32} />
@@ -87,7 +87,7 @@ export function AddEditCarrierModal({
 
                 {/* Tabs (Add only) */}
                 {mode === 'add' && (
-                    <div className="flex border-b border-gray-200 dark:border-gray-800 px-6 pt-4 bg-gray-50 dark:bg-[#121212]">
+                    <div className="flex border-b border-gray-200 dark:border-[#2E2E2E] px-6 pt-4 bg-gray-50 dark:bg-[#121212]">
                         <button className={`px-4 py-2 font-medium text-sm border-b-2 transition-colors ${addTab === 'single' ? 'border-primary text-primary' : 'border-transparent text-[#5f6368] hover:text-[#202124] dark:hover:text-white'}`} onClick={() => setAddTab('single')}>
                             Add a Carrier
                         </button>
@@ -112,19 +112,19 @@ export function AddEditCarrierModal({
                             <div>
                                 <label className="block text-sm font-medium text-[#202124] dark:text-gray-300 mb-1">Carrier ID</label>
                                 <input type="text" value={form.carrierId} onChange={e => setForm({ ...form, carrierId: e.target.value })}
-                                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#2d2d2d] text-[#202124] dark:text-white focus:ring-2 focus:ring-primary outline-none transition"
+                                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-[#2E2E2E] bg-white dark:bg-[#2d2d2d] text-[#202124] dark:text-white focus:ring-2 focus:ring-primary outline-none transition"
                                     placeholder="e.g. CARR-001" />
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-[#202124] dark:text-gray-300 mb-1">Carrier Name</label>
                                 <input type="text" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })}
-                                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#2d2d2d] text-[#202124] dark:text-white focus:ring-2 focus:ring-primary outline-none transition"
+                                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-[#2E2E2E] bg-white dark:bg-[#2d2d2d] text-[#202124] dark:text-white focus:ring-2 focus:ring-primary outline-none transition"
                                     placeholder="e.g. Primary US Route" />
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-[#202124] dark:text-gray-300 mb-1">Description</label>
                                 <textarea value={form.description} onChange={e => setForm({ ...form, description: e.target.value })}
-                                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#2d2d2d] text-[#202124] dark:text-white focus:ring-2 focus:ring-primary outline-none transition min-h-[100px] resize-y"
+                                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-[#2E2E2E] bg-white dark:bg-[#2d2d2d] text-[#202124] dark:text-white focus:ring-2 focus:ring-primary outline-none transition min-h-[100px] resize-y"
                                     placeholder="Brief description of the carrier path..." />
                             </div>
                         </div>
@@ -133,25 +133,25 @@ export function AddEditCarrierModal({
                     {mode === 'add' && addTab === 'bulk' && (
                         <div className="space-y-8">
                             {bulkForms.map((bf, i) => (
-                                <div key={i} className="relative p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#2d2d2d]/30">
+                                <div key={i} className="relative p-4 rounded-xl border border-gray-200 dark:border-[#2E2E2E] bg-gray-50 dark:bg-[#2d2d2d]/30">
                                     <div className="absolute top-2 right-4 text-xs font-bold text-gray-400">#{i + 1}</div>
                                     <div className="space-y-4">
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <div>
                                                 <label className="block text-xs font-medium text-[#202124] dark:text-gray-300 mb-1">Carrier ID</label>
                                                 <input type="text" value={bf.carrierId} onChange={e => { const n = [...bulkForms]; n[i].carrierId = e.target.value; setBulkForms(n); }}
-                                                    className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#2d2d2d] text-[#202124] dark:text-white focus:ring-2 focus:ring-primary outline-none" />
+                                                    className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-[#2E2E2E] bg-white dark:bg-[#2d2d2d] text-[#202124] dark:text-white focus:ring-2 focus:ring-primary outline-none" />
                                             </div>
                                             <div>
                                                 <label className="block text-xs font-medium text-[#202124] dark:text-gray-300 mb-1">Carrier Name</label>
                                                 <input type="text" value={bf.name} onChange={e => { const n = [...bulkForms]; n[i].name = e.target.value; setBulkForms(n); }}
-                                                    className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#2d2d2d] text-[#202124] dark:text-white focus:ring-2 focus:ring-primary outline-none" />
+                                                    className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-[#2E2E2E] bg-white dark:bg-[#2d2d2d] text-[#202124] dark:text-white focus:ring-2 focus:ring-primary outline-none" />
                                             </div>
                                         </div>
                                         <div>
                                             <label className="block text-xs font-medium text-[#202124] dark:text-gray-300 mb-1">Description</label>
                                             <textarea value={bf.description} onChange={e => { const n = [...bulkForms]; n[i].description = e.target.value; setBulkForms(n); }}
-                                                className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#2d2d2d] text-[#202124] dark:text-white focus:ring-2 focus:ring-primary outline-none min-h-[60px] resize-y" />
+                                                className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-[#2E2E2E] bg-white dark:bg-[#2d2d2d] text-[#202124] dark:text-white focus:ring-2 focus:ring-primary outline-none min-h-[60px] resize-y" />
                                         </div>
                                     </div>
                                     {bulkForms.length > 1 && (
@@ -163,7 +163,7 @@ export function AddEditCarrierModal({
                                 </div>
                             ))}
                             <button onClick={() => setBulkForms([...bulkForms, { carrierId: '', name: '', description: '' }])}
-                                className="w-full py-3 border-2 border-dashed border-gray-300 dark:border-gray-700 hover:border-primary rounded-xl text-[#5f6368] hover:text-primary transition-colors flex items-center justify-center font-medium">
+                                className="w-full py-3 border-2 border-dashed border-gray-300 dark:border-[#2E2E2E] hover:border-primary rounded-xl text-[#5f6368] hover:text-primary transition-colors flex items-center justify-center font-medium">
                                 <PlusCircle size={18} className="mr-2" /> Add another carrier
                             </button>
                         </div>
@@ -171,7 +171,7 @@ export function AddEditCarrierModal({
                 </div>
 
                 {/* Footer */}
-                <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#121212] flex justify-end gap-3">
+                <div className="px-6 py-4 border-t border-gray-200 dark:border-[#2E2E2E] bg-gray-50 dark:bg-[#121212] flex justify-end gap-3">
                     <button onClick={onClose} className="px-4 py-2 text-[#5f6368] dark:text-gray-400 hover:text-[#202124] dark:hover:text-white font-medium transition-colors">
                         Cancel
                     </button>
@@ -212,7 +212,7 @@ export function DeleteCarrierModal({ mode, carrier, onClose, onConfirm, isLoadin
                     }
                 </p>
                 <div className="flex justify-center gap-3">
-                    <button onClick={onClose} className="px-6 py-2 border border-gray-300 dark:border-gray-700 text-[#5f6368] dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#2d2d2d] rounded-lg font-medium transition-colors">
+                    <button onClick={onClose} className="px-6 py-2 border border-gray-300 dark:border-[#2E2E2E] text-[#5f6368] dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#2d2d2d] rounded-lg font-medium transition-colors">
                         Cancel
                     </button>
                     <button onClick={onConfirm} disabled={isLoading}
@@ -240,9 +240,9 @@ export function ViewCarrierModal({ carrier, courses = [], specializations = [], 
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md">
-            <div className="bg-white dark:bg-[#111] rounded-2xl w-[80vw] max-h-[88vh] shadow-2xl flex flex-col overflow-hidden border border-gray-200 dark:border-gray-800">
+            <div className="bg-white dark:bg-[#111] rounded-2xl w-[80vw] max-h-[88vh] shadow-2xl flex flex-col overflow-hidden border border-gray-200 dark:border-[#2E2E2E]">
                 {/* Header */}
-                <div className="flex items-center justify-between px-8 py-5 border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-[#1a1a1a] flex-shrink-0">
+                <div className="flex items-center justify-between px-8 py-5 border-b border-gray-100 dark:border-[#2E2E2E] bg-white dark:bg-[#1a1a1a] flex-shrink-0">
                     <div className="flex items-center gap-4">
                         <div className="w-11 h-11 rounded-xl bg-transparent dark:bg-transparent flex items-center justify-center flex-shrink-0">
                             <CourseIcon courseName="carrier" size={35} />
@@ -275,7 +275,7 @@ export function ViewCarrierModal({ carrier, courses = [], specializations = [], 
                                 </h3>
                                 <div className="space-y-2">
                                     {linkedCourses.length > 0 ? linkedCourses.map(c => (
-                                        <div key={c.id} className="flex items-center gap-3 p-3.5 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-[#1a1a1a] hover:border-primary/30 transition-colors">
+                                        <div key={c.id} className="flex items-center gap-3 p-3.5 rounded-xl border border-gray-100 dark:border-[#2E2E2E] bg-gray-50/50 dark:bg-[#1a1a1a] hover:border-primary/30 transition-colors">
                                             <div className="w-8 h-8 text-purple-600 dark:text-purple-400 rounded-lg flex items-center justify-center flex-shrink-0">
                                                 <CourseIcon courseName={c.name} size={22} />
                                             </div>
@@ -294,11 +294,11 @@ export function ViewCarrierModal({ carrier, courses = [], specializations = [], 
                             <section>
                                 <h3 className="text-[11px] font-bold uppercase tracking-widest text-[#80868b] mb-4">Overview</h3>
                                 <div className="grid grid-cols-2 gap-3">
-                                    <div className="p-4 bg-white dark:bg-[#1a1a1a] rounded-xl border border-gray-100 dark:border-gray-800 text-center">
+                                    <div className="p-4 bg-white dark:bg-[#1a1a1a] rounded-xl border border-gray-100 dark:border-[#2E2E2E] text-center">
                                         <p className="text-2xl font-black text-[#202124] dark:text-white">{linkedCourses.length}</p>
                                         <p className="text-[10px] uppercase tracking-wider text-[#80868b] mt-1 flex items-center justify-center gap-1"><BookOpen size={11} /> Courses</p>
                                     </div>
-                                    <div className="p-4 bg-white dark:bg-[#1a1a1a] rounded-xl border border-gray-100 dark:border-gray-800 text-center">
+                                    <div className="p-4 bg-white dark:bg-[#1a1a1a] rounded-xl border border-gray-100 dark:border-[#2E2E2E] text-center">
                                         <p className="text-2xl font-black text-[#202124] dark:text-white">{linkedSpecs.length}</p>
                                         <p className="text-[10px] uppercase tracking-wider text-[#80868b] mt-1 flex items-center justify-center gap-1"><Layers size={11} /> Specialties</p>
                                     </div>
@@ -311,12 +311,12 @@ export function ViewCarrierModal({ carrier, courses = [], specializations = [], 
                                 {linkedSpecs.length > 0 ? (
                                     <div className="flex flex-wrap gap-2">
                                         {linkedSpecs.map(s => (
-                                            <span key={s.id} className="text-xs px-3 py-1.5 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-700 rounded-lg text-[#3c4043] dark:text-gray-300 font-medium">{s.name}</span>
+                                            <span key={s.id} className="text-xs px-3 py-1.5 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#2E2E2E] rounded-lg text-[#3c4043] dark:text-gray-300 font-medium">{s.name}</span>
                                         ))}
                                     </div>
                                 ) : <p className="text-sm text-gray-400 italic">No specialties connected.</p>}
                             </section>
-                            <div className="pt-6 border-t border-dashed border-gray-200 dark:border-gray-800">
+                            <div className="pt-6 border-t border-dashed border-gray-200 dark:border-[#2E2E2E]">
                                 <p className="text-[10px] font-bold uppercase tracking-widest text-[#80868b]">System Generated</p>
                                 <p className="text-[10px] font-mono mt-1 text-gray-400">
                                     {carrier.createdAt?.seconds ? new Date(carrier.createdAt.seconds * 1000).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'Just now'}
