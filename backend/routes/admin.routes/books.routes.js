@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const booksController = require('../curriculum/books/books.controller');
+const booksController = require('../../curriculum/books/books.controller');
 
 // All file-upload routes use the multer middleware
 const upload = booksController.uploadMiddleware;

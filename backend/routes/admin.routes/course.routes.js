@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const courseController = require('../curriculum/course/course.controller');
+const courseController = require('../../curriculum/course/course.controller');
 
 router.post('/create', courseController.createCourse);
 router.post('/bulk', courseController.createBulkCourses);

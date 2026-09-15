@@ -2,17 +2,17 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '../.env') });
-const authRoutes = require('./routes/auth.routes');
-const carrierRoutes = require('./routes/carrier.routes');
-const statsRoutes = require('./routes/stats.routes');
-const courseRoutes = require('./routes/course.routes');
-const booksRoutes = require('./routes/books.routes');
-const leaderboardRoutes = require('./routes/leaderboard.routes');
-const specializationRoutes = require('./routes/specialization.routes');
-const categoryRoutes = require('./routes/category.routes');
+const authRoutes = require('./routes/admin.routes/auth.routes');
+const carrierRoutes = require('./routes/admin.routes/carrier.routes');
+const statsRoutes = require('./routes/admin.routes/stats.routes');
+const courseRoutes = require('./routes/admin.routes/course.routes');
+const booksRoutes = require('./routes/admin.routes/books.routes');
+const leaderboardRoutes = require('./routes/admin.routes/leaderboard.routes');
+const specializationRoutes = require('./routes/admin.routes/specialization.routes');
+const categoryRoutes = require('./routes/admin.routes/category.routes');
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT;
 
 // Connect to MongoDB
 //connectDB();

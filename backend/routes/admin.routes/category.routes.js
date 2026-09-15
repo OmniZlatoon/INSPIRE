@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const categoryController = require('../curriculum/category/category.controller');
+const categoryController = require('../../curriculum/category/category.controller');
 
 // Category CRUD
 router.post('/create', categoryController.createCategory);

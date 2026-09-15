@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const specializationController = require('../curriculum/specialty/specialization.controller');
-const skillController = require('../curriculum/specialty/skill.controller');
+const specializationController = require('../../curriculum/specialty/specialization.controller');
+const skillController = require('../../curriculum/specialty/skill.controller');
 
 // Specialization CRUD
 router.post('/create', specializationController.createSpecialization);
